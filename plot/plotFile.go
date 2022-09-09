@@ -19,6 +19,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	plot := &Plot_2D{
 		set_points: make([]set_points_2d, 0),
 	}
+
 	//	compile all regexs required to parse the plot file
 	var err error
 

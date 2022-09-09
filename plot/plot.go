@@ -6,10 +6,10 @@
 
 package plot
 
-import "io"
+import "bufio"
 
 type Plot interface {
-	GeneratePlot(writer *io.Writer) error
+	GeneratePlot(writer *bufio.Writer) error
 }
 
 //	styles for a plot of points

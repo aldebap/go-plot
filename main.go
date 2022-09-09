@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aldebap/go-plot/plot"
+	plot "github.com/aldebap/go-plot/plot"
 )
 
 const (
@@ -51,10 +51,26 @@ func main() {
 	}
 	defer plotFile.Close()
 
-	//plotInfo, err := plot.LoadPlotFile(bufio.NewReader(plotFile))
-	_, err = plot.LoadPlotFile(bufio.NewReader(plotFile))
+	//	load the plot file
+	currentPlot, err := plot.LoadPlotFile(bufio.NewReader(plotFile))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[error] fail attempting to parse Go-Plot file: %s\n", err.Error())
+		os.Exit(-1)
+	}
+
+	//	create the graphics file for the output
+	//	TODO: the svg output format is temporary
+	graphicsFile, err := os.Create(plotFileName + ".svg")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[error] fail attempting to create graphics file: %s\n", err.Error())
+		os.Exit(-1)
+	}
+	defer graphicsFile.Close()
+
+	//	generate the plot
+	err = currentPlot.GeneratePlot(bufio.NewWriter(graphicsFile))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[error] fail attempting to generate graphics file: %s\n", err.Error())
 		os.Exit(-1)
 	}
 }

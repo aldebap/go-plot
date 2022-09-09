@@ -5,4 +5,5 @@ For more infor on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 
 Features working:
 
-1. none yet
+1. creating plots from data files (in development);
+2.
