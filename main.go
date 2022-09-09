@@ -8,6 +8,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -43,34 +44,42 @@ func main() {
 		os.Exit(-1)
 	}
 
+	err := generateGraphicFromPlotFile(plotFileName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[error] fail generating graphic from Go-Plot file: %s\n", err.Error())
+		os.Exit(-1)
+	}
+}
+
+//	generateGraphicFromPlotFile load a Go-Plot file and generate a graphic file from it
+func generateGraphicFromPlotFile(plotFileName string) error {
+
 	//	open the Go-Plot file and parse it
 	plotFile, err := os.Open(plotFileName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] fail attempting to open Go-Plot file: %s\n", err.Error())
-		os.Exit(-1)
+		return errors.New("error opening Go-Plot file: " + err.Error())
 	}
 	defer plotFile.Close()
 
 	//	load the plot file
 	currentPlot, err := plot.LoadPlotFile(bufio.NewReader(plotFile))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] fail attempting to parse Go-Plot file: %s\n", err.Error())
-		os.Exit(-1)
+		return errors.New("fail parsing Go-Plot file: " + err.Error())
 	}
 
 	//	create the graphics file for the output
 	//	TODO: the svg output format is temporary
 	graphicsFile, err := os.Create(plotFileName + ".svg")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] fail attempting to create graphics file: %s\n", err.Error())
-		os.Exit(-1)
+		return errors.New("error creating graphics file: " + err.Error())
 	}
 	defer graphicsFile.Close()
 
 	//	generate the plot
 	err = currentPlot.GeneratePlot(bufio.NewWriter(graphicsFile))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[error] fail attempting to generate graphics file: %s\n", err.Error())
-		os.Exit(-1)
+		return errors.New("error generating graphics file: " + err.Error())
 	}
+
+	return nil
 }
