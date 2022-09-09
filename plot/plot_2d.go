@@ -29,6 +29,11 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 		return errors.New("no points in the first set to be plotted")
 	}
 
+	//	create the graphics driver
+	//	TODO: the output format needs to be decided (or configured!)
+	driver := NewSVG_Driver(writer)
+	defer driver.Close()
+
 	//	evaluate the plot's dimension
 	min_x := p.set_points[0].point[0].x
 	max_x := min_x
@@ -56,12 +61,8 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 	width := X_MARGINS + (max_x - min_x) + X_MARGINS
 	height := Y_MARGINS + (max_y - min_y) + Y_MARGINS
 
-	//	create the drive and set the graphics dimension
-	driver := NewSVG_Driver(writer, int64(width), int64(height))
-
-	_ = driver
-
-	writer.Flush()
+	//	set the graphics dimension
+	driver.SetDimensions(int64(width), int64(height))
 
 	return nil
 }
