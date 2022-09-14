@@ -9,12 +9,19 @@ package plot
 import (
 	"bufio"
 	"errors"
+	"math"
 )
 
-//	margins for the plot
+//	dimensions in millimiters for the plot (half of a letter sheet)
 const (
-	X_MARGINS = 20
-	Y_MARGINS = 20
+	WIDTH  float64 = 215.9
+	HEIGHT float64 = 279.4 / 2
+)
+
+//	margins in millimiters for the plot
+const (
+	X_MARGINS float64 = 20
+	Y_MARGINS float64 = 20
 )
 
 //	styles for a plot of points
@@ -66,6 +73,12 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 	driver := NewSVG_Driver(writer)
 	defer driver.Close()
 
+	//	set the graphics dimension
+	plotWidth := int64(math.Round(WIDTH - 2*X_MARGINS))
+	plotHeight := int64(math.Round(HEIGHT - 2*Y_MARGINS))
+
+	driver.SetDimensions(plotWidth, plotHeight)
+
 	//	evaluate the plot's dimension
 	var min_x, min_y, max_x, max_y float64
 
@@ -96,22 +109,22 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 		}
 	}
 
-	width := X_MARGINS + (max_x - min_x) + X_MARGINS
-	height := Y_MARGINS + (max_y - min_y) + Y_MARGINS
+	width := max_x - min_x
+	height := max_y - min_y
 
-	//	set the graphics dimension
-	driver.SetDimensions(int64(width), int64(height))
+	_ = width
+	_ = height
 
 	//	TODO: add the plot grid
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		int64(X_MARGINS+max_x-min_x), int64(Y_MARGINS))
-	driver.Line(int64(X_MARGINS), int64(Y_MARGINS+max_y-min_y),
-		int64(X_MARGINS+max_x-min_x), int64(Y_MARGINS+max_y-min_y))
+		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS))
+	driver.Line(int64(X_MARGINS), int64(Y_MARGINS)+plotHeight,
+		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS)+plotHeight)
 
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		int64(X_MARGINS), int64(Y_MARGINS+max_y-min_y))
-	driver.Line(int64(X_MARGINS+max_x-min_x), int64(Y_MARGINS),
-		int64(X_MARGINS+max_x-min_x), int64(Y_MARGINS+max_y-min_y))
+		int64(X_MARGINS), int64(Y_MARGINS)+plotHeight)
+	driver.Line(int64(X_MARGINS)+plotWidth, int64(Y_MARGINS),
+		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS)+plotHeight)
 
 	//	TODO: add the X & Y titles
 

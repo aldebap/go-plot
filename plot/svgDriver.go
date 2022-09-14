@@ -13,6 +13,7 @@ import (
 
 type SVG_Driver struct {
 	writer *bufio.Writer
+	width  int64
 	height int64
 }
 
@@ -25,6 +26,7 @@ func NewSVG_Driver(writer *bufio.Writer) GraphicsDriver {
 
 //	SetDimensions set the dimensions of the SVG graphic
 func (driver *SVG_Driver) SetDimensions(width int64, height int64) error {
+	driver.width = width
 	driver.height = height
 
 	driver.writer.WriteString("<svg width=\"" + fmt.Sprintf("%d", width) + "\" height=\"" + fmt.Sprintf("%d", height) + "\" " +
