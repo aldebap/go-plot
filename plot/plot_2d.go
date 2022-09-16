@@ -7,18 +7,17 @@
 package plot
 
 import (
-	"bufio"
 	"errors"
 	"math"
 )
 
-//	dimensions in millimiters for the plot (half of a letter sheet)
+//	dimensions in pixels for the plot (half of a letter sheet)
 const (
-	WIDTH  float64 = 215.9
-	HEIGHT float64 = 279.4 / 2
+	WIDTH  float64 = 640
+	HEIGHT float64 = 480
 )
 
-//	margins in millimiters for the plot
+//	margins in pixels for the plot
 const (
 	X_MARGINS float64 = 20
 	Y_MARGINS float64 = 20
@@ -57,7 +56,7 @@ type Plot_2D struct {
 }
 
 //	GeneratePlot implementation of 2D Go_Plot generation
-func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
+func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 
 	//	check if there's a plot to be generated
 	if len(p.set_points) == 0 {
@@ -67,11 +66,6 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 	if len(p.set_points[0].point) == 0 {
 		return errors.New("no points in the first set to be plotted")
 	}
-
-	//	create the graphics driver
-	//	TODO: the output format needs to be decided (or configured!)
-	driver := NewSVG_Driver(writer)
-	defer driver.Close()
 
 	//	set the graphics dimension
 	plotWidth := int64(math.Round(WIDTH))
@@ -109,7 +103,9 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 		}
 	}
 
-	//	TODO: add the plot grid
+	//	TODO: round the scale to multiples of 10
+
+	//	add the plot grid
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
 		plotWidth-int64(X_MARGINS), int64(Y_MARGINS))
 	driver.Line(int64(X_MARGINS), plotHeight-int64(Y_MARGINS),
@@ -120,10 +116,13 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 	driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS),
 		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
 
+	//	TODO: add the scale in the plot grid
+
 	//	TODO: add the X & Y titles
 
 	//	generate the plot for every set of points
 	for _, pointsSet := range p.set_points {
+		//	TODO: use different coulours for each set
 		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
 	}
 
@@ -169,6 +168,7 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 		return errors.New("no points in the set")
 	}
 
+	//	TODO: implement the other styles
 	switch set.style {
 	case POINTS:
 		//	generate a cross for each point

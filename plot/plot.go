@@ -6,8 +6,6 @@
 
 package plot
 
-import "bufio"
-
 type Plot interface {
-	GeneratePlot(writer *bufio.Writer) error
+	GeneratePlot(driver GraphicsDriver) error
 }

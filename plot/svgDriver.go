@@ -39,6 +39,7 @@ func (driver *SVG_Driver) Point(x, y int64) error {
 	return nil
 }
 
+//	Line draws a line between two points in the SVG graphic
 func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64) error {
 	const style = "stroke:rgb(0,0,0);stroke-width:1"
 

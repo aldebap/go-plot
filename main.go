@@ -68,15 +68,19 @@ func generateGraphicFromPlotFile(plotFileName string) error {
 	}
 
 	//	create the graphics file for the output
-	//	TODO: the svg output format is temporary
+	//	TODO: the output format needs to be decided (or configured!)
 	graphicsFile, err := os.Create(plotFileName + ".svg")
 	if err != nil {
 		return errors.New("error creating graphics file: " + err.Error())
 	}
 	defer graphicsFile.Close()
 
+	//	create the graphics driver
+	driver := plot.NewSVG_Driver(bufio.NewWriter(graphicsFile))
+	defer driver.Close()
+
 	//	generate the plot
-	err = currentPlot.GeneratePlot(bufio.NewWriter(graphicsFile))
+	err = currentPlot.GeneratePlot(driver)
 	if err != nil {
 		return errors.New("error generating graphics file: " + err.Error())
 	}
