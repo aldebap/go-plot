@@ -42,8 +42,8 @@ func (driver *SVG_Driver) Point(x, y int64) error {
 func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64) error {
 	const style = "stroke:rgb(0,0,0);stroke-width:1"
 
-	driver.writer.WriteString("<line x1=\"" + fmt.Sprintf("%d", driver.height-x1) + "\" y1=\"" + fmt.Sprintf("%d", y1) + "\" " +
-		"x2=\"" + fmt.Sprintf("%d", driver.height-x2) + "\" y2=\"" + fmt.Sprintf("%d", y2) + "\" style=\"" + style + "\" />\n")
+	driver.writer.WriteString("<line x1=\"" + fmt.Sprintf("%d", x1) + "\" y1=\"" + fmt.Sprintf("%d", driver.height-y1) + "\" " +
+		"x2=\"" + fmt.Sprintf("%d", x2) + "\" y2=\"" + fmt.Sprintf("%d", driver.height-y2) + "\" style=\"" + style + "\" />\n")
 
 	return nil
 }

@@ -74,12 +74,12 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 	defer driver.Close()
 
 	//	set the graphics dimension
-	plotWidth := int64(math.Round(WIDTH - 2*X_MARGINS))
-	plotHeight := int64(math.Round(HEIGHT - 2*Y_MARGINS))
+	plotWidth := int64(math.Round(WIDTH))
+	plotHeight := int64(math.Round(HEIGHT))
 
 	driver.SetDimensions(plotWidth, plotHeight)
 
-	//	evaluate the plot's dimension
+	//	evaluate the data's dimension
 	var min_x, min_y, max_x, max_y float64
 
 	min_x, min_y, max_x, max_y, err := p.set_points[0].getMinMax()
@@ -109,28 +109,22 @@ func (p *Plot_2D) GeneratePlot(writer *bufio.Writer) error {
 		}
 	}
 
-	width := max_x - min_x
-	height := max_y - min_y
-
-	_ = width
-	_ = height
-
 	//	TODO: add the plot grid
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS))
-	driver.Line(int64(X_MARGINS), int64(Y_MARGINS)+plotHeight,
-		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS)+plotHeight)
+		plotWidth-int64(X_MARGINS), int64(Y_MARGINS))
+	driver.Line(int64(X_MARGINS), plotHeight-int64(Y_MARGINS),
+		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
 
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		int64(X_MARGINS), int64(Y_MARGINS)+plotHeight)
-	driver.Line(int64(X_MARGINS)+plotWidth, int64(Y_MARGINS),
-		int64(X_MARGINS)+plotWidth, int64(Y_MARGINS)+plotHeight)
+		int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
+	driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS),
+		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
 
 	//	TODO: add the X & Y titles
 
 	//	generate the plot for every set of points
 	for _, pointsSet := range p.set_points {
-		pointsSet.GeneratePlot(driver, min_x, min_y)
+		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
 	}
 
 	return nil
@@ -169,7 +163,7 @@ func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err e
 }
 
 //	GeneratePlot generate the graphic for the points in the set
-func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y float64) error {
+func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_x, max_y float64) error {
 
 	if len(set.point) == 0 {
 		return errors.New("no points in the set")
@@ -179,10 +173,13 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y float
 	case POINTS:
 		//	generate a cross for each point
 		for _, point := range set.point {
-			driver.Line(int64(point.x-min_x+X_MARGINS-POINT_WIDTH/2), int64(point.y-min_y+Y_MARGINS),
-				int64(point.x-min_x+X_MARGINS+POINT_WIDTH/2), int64(point.y-min_y+Y_MARGINS))
-			driver.Line(int64(point.x-min_x+X_MARGINS), int64(point.y-min_y+Y_MARGINS-POINT_WIDTH/2),
-				int64(point.x-min_x+X_MARGINS), int64(point.y-min_y+Y_MARGINS+POINT_WIDTH/2))
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+
+			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
+				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y))
+			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2))
 		}
 
 	default:

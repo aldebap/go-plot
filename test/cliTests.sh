@@ -57,7 +57,7 @@ cat > ${PLOT_FILE} <<PLOT_CONTENT
 plot "${DATA_FILE}" using 1:2
 PLOT_CONTENT
 
-#../bin/go-plot ${PLOT_FILE}
+../bin/go-plot ${PLOT_FILE}
 
 #   clean up temporary files
 rm -rf ${DATA_FILE} ${PLOT_FILE} > /dev/null
