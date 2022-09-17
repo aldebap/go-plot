@@ -49,6 +49,18 @@ func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64) error {
 	return nil
 }
 
+//	Text writes a string to the specified point in the SVG graphic
+func (driver *SVG_Driver) Text(x, y, fontSize int64, text string) error {
+	const style = "fill:rgb(0,0,0)"
+	const fontFamily = "Verdana"
+
+	driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) +
+		"\" style=\"" + style + "\" font-family=\"" + fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", fontSize) +
+		"\">" + text + "</text>\n")
+
+	return nil
+}
+
 //	Close finalize the SVG graphic
 func (driver *SVG_Driver) Close() {
 	driver.writer.WriteString("</svg>\n")

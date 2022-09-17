@@ -8,6 +8,7 @@ package plot
 
 import (
 	"errors"
+	"fmt"
 	"math"
 )
 
@@ -32,7 +33,10 @@ const (
 )
 
 const (
-	POINT_WIDTH = 6
+	Y_SCALE_DIVISIONS = 7
+	SCALE_WIDTH       = 6
+	FONT_SIZE         = 10
+	POINT_WIDTH       = 8
 )
 
 //	2D point coordinate
@@ -67,12 +71,6 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 		return errors.New("no points in the first set to be plotted")
 	}
 
-	//	set the graphics dimension
-	plotWidth := int64(math.Round(WIDTH))
-	plotHeight := int64(math.Round(HEIGHT))
-
-	driver.SetDimensions(plotWidth, plotHeight)
-
 	//	evaluate the data's dimension
 	var min_x, min_y, max_x, max_y float64
 
@@ -103,7 +101,34 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 		}
 	}
 
-	//	TODO: round the scale to multiples of 10
+	//	round the scale to multiples of 10
+	min_x = math.Floor(min_x) - float64(int64(min_x)%10)
+	min_y = math.Floor(min_y) - float64(int64(min_y)%10)
+	max_x = math.Floor(max_x) + float64(10-int64(max_x)%10)
+	max_y = math.Floor(max_y) + float64(10-int64(max_y)%10)
+
+	//	set the graphics dimension
+	plotWidth := int64(math.Round(WIDTH))
+	plotHeight := int64(math.Round(HEIGHT))
+
+	driver.SetDimensions(plotWidth, plotHeight)
+
+	//	generate the plot grid
+	GeneratePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
+
+	//	TODO: add the X & Y titles
+
+	//	generate the plot for every set of points
+	for _, pointsSet := range p.set_points {
+		//	TODO: use different coulours for each set
+		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
+	}
+
+	return nil
+}
+
+//	GeneratePlotGrid implementation of 2D Go_Plot grid generation
+func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64) {
 
 	//	add the plot grid
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
@@ -116,17 +141,37 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 	driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS),
 		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
 
-	//	TODO: add the scale in the plot grid
+	//	add the X scale in the plot grid
+	xScaleDivisions := int64(math.Ceil(float64(plotWidth/plotHeight) * Y_SCALE_DIVISIONS))
 
-	//	TODO: add the X & Y titles
+	for i := int64(1); i < int64(xScaleDivisions); i++ {
+		x := float64(i * int64(max_x-min_x) / xScaleDivisions)
+		scaled_x := int64((float64(plotWidth) - 2*X_MARGINS) * (x - min_x) / (max_x - min_x))
 
-	//	generate the plot for every set of points
-	for _, pointsSet := range p.set_points {
-		//	TODO: use different coulours for each set
-		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
+		driver.Line(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS),
+			int64(X_MARGINS)+scaled_x, int64(Y_MARGINS)+SCALE_WIDTH)
+		driver.Line(int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS),
+			int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS)-SCALE_WIDTH)
+
+		//	TODO: centralize text based on the scale indicator
+		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), FONT_SIZE, fmt.Sprintf("%d", int64(x)))
 	}
 
-	return nil
+	//	add the Y scale in the plot grid
+	yScaleDivisions := int64(Y_SCALE_DIVISIONS)
+
+	for i := int64(1); i < int64(yScaleDivisions); i++ {
+		y := float64(i * int64(max_y-min_y) / yScaleDivisions)
+		scaled_y := int64((float64(plotHeight) - 2*Y_MARGINS) * (y - min_y) / (max_y - min_y))
+
+		driver.Line(int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
+			int64(X_MARGINS)+SCALE_WIDTH, int64(Y_MARGINS)+scaled_y)
+		driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
+			plotWidth-int64(X_MARGINS)-SCALE_WIDTH, int64(Y_MARGINS)+scaled_y)
+
+		//	TODO: centralize text based on the scale indicator
+		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, FONT_SIZE, fmt.Sprintf("%d", int64(y)))
+	}
 }
 
 //	getMinMax get the min-max X & Y values for the points in the set
