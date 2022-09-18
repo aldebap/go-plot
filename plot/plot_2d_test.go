@@ -33,4 +33,63 @@ func TestGetMinMax(t *testing.T) {
 			t.Errorf("failed evaluatin MinMax: expected: '%s' result: '%s'", want, err.Error())
 		}
 	})
+
+	t.Run(">>> getMinMax: single point in the set", func(t *testing.T) {
+
+		want_min_x := float64(0)
+		want_min_y := float64(0)
+		want_max_x := float64(0)
+		want_max_y := float64(0)
+		testSet := &set_points_2d{
+			point: []point_2d{
+				{x: want_min_x, y: want_min_y},
+			},
+		}
+
+		got_min_x, got_min_y, got_max_x, got_max_y, err := testSet.getMinMax()
+		if err != nil {
+			t.Errorf("error not expected for this test scenario")
+			return
+		}
+
+		if want_min_x != got_min_x ||
+			want_min_y != got_min_y ||
+			want_max_x != got_max_x ||
+			want_max_y != got_max_y {
+			t.Errorf("failed evaluatin MinMax: expected: %f, %f, %f, %f result: %f, %f, %f, %f",
+				want_min_x, want_min_y, want_max_x, want_max_y,
+				got_min_x, got_min_y, got_max_x, got_max_y)
+		}
+	})
+
+	t.Run(">>> getMinMax: multiple points in the set", func(t *testing.T) {
+
+		want_min_x := float64(-10)
+		want_min_y := float64(-15)
+		want_max_x := float64(20)
+		want_max_y := float64(25)
+		testSet := &set_points_2d{
+			point: []point_2d{
+				{x: want_min_x, y: 0},
+				{x: 0, y: want_min_y},
+				{x: want_max_x, y: 0},
+				{x: 0, y: want_max_y},
+			},
+		}
+
+		got_min_x, got_min_y, got_max_x, got_max_y, err := testSet.getMinMax()
+		if err != nil {
+			t.Errorf("error not expected for this test scenario")
+			return
+		}
+
+		if want_min_x != got_min_x ||
+			want_min_y != got_min_y ||
+			want_max_x != got_max_x ||
+			want_max_y != got_max_y {
+			t.Errorf("failed evaluatin MinMax: expected: %f, %f, %f, %f result: %f, %f, %f, %f",
+				want_min_x, want_min_y, want_max_x, want_max_y,
+				got_min_x, got_min_y, got_max_x, got_max_y)
+		}
+	})
 }

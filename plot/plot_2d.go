@@ -20,8 +20,8 @@ const (
 
 //	margins in pixels for the plot
 const (
-	X_MARGINS float64 = 20
-	Y_MARGINS float64 = 20
+	X_MARGINS float64 = 30
+	Y_MARGINS float64 = 30
 )
 
 //	styles for a plot of points
@@ -116,7 +116,14 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 	//	generate the plot grid
 	GeneratePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
 
-	//	TODO: add the X & Y titles
+	//	add the X & Y titles
+	//	TODO: centralize the text of both titles
+	if len(p.x_label) > 0 {
+		driver.Text(int64(X_MARGINS)+plotWidth/2, int64(math.Round(Y_MARGINS/4)), 0, FONT_SIZE, p.x_label)
+	}
+	if len(p.y_label) > 0 {
+		driver.Text(int64(math.Round(X_MARGINS/4)), int64(Y_MARGINS)+plotHeight/2, -90, FONT_SIZE, p.y_label)
+	}
 
 	//	generate the plot for every set of points
 	for _, pointsSet := range p.set_points {
@@ -154,7 +161,7 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 			int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS)-SCALE_WIDTH)
 
 		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), FONT_SIZE, fmt.Sprintf("%d", int64(x)))
+		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), 0, FONT_SIZE, fmt.Sprintf("%d", int64(x)))
 	}
 
 	//	add the Y scale in the plot grid
@@ -170,7 +177,7 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 			plotWidth-int64(X_MARGINS)-SCALE_WIDTH, int64(Y_MARGINS)+scaled_y)
 
 		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, FONT_SIZE, fmt.Sprintf("%d", int64(y)))
+		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)))
 	}
 }
 

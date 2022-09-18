@@ -54,6 +54,8 @@ Minutes Runners
 DATA_CONTENT
 
 cat > ${PLOT_FILE} <<PLOT_CONTENT
+set xlabel "natural numbers"
+set ylabel "square of the number"
 plot "${DATA_FILE}" using 1:2
 PLOT_CONTENT
 
