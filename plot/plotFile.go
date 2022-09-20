@@ -14,6 +14,14 @@ import (
 	"strconv"
 )
 
+//	style descriptions for a plot of points
+const (
+	DESC_DOTS       = "dots"
+	DESC_LINES      = "lines"
+	DESC_LINES_DOTS = "x"
+	DESC_BOXES      = "boxes"
+)
+
 //	LoadPlotFile load a plot file and return a Plot
 func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	plot := &Plot_2D{
@@ -34,6 +42,11 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	}
 
 	dataFilePlotRegEx, err := regexp.Compile(`^\s*plot\s+"(.+)"\s+using\s+(\d+):(\d+)\s*$`)
+	if err != nil {
+		return nil, err
+	}
+
+	dataFilePlotWithRegEx, err := regexp.Compile(`^\s*plot\s+"(.+)"\s+using\s+(\d+):(\d+)\s*with\s+(\S+)\s*$`)
 	if err != nil {
 		return nil, err
 	}
@@ -67,33 +80,25 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 			match = dataFilePlotRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
-				dataFileName := match[0][1]
-				x_column, err := strconv.Atoi(match[0][2])
+				auxSetPoints, err := newSetPoints2D(match[0][1], match[0][2], match[0][3], DESC_DOTS)
 				if err != nil {
-					return nil, errors.New("x column expected to be numeric: " + err.Error())
+					return nil, err
 				}
 
-				y_column, err := strconv.Atoi(match[0][3])
+				plot.set_points = append(plot.set_points, *auxSetPoints)
+
+				line = ""
+				continue
+			}
+
+			match = dataFilePlotWithRegEx.FindAllStringSubmatch(line, -1)
+			if len(match) == 1 {
+				auxSetPoints, err := newSetPoints2D(match[0][1], match[0][2], match[0][3], match[0][4])
 				if err != nil {
-					return nil, errors.New("y column expected to be numeric: " + err.Error())
+					return nil, err
 				}
 
-				//	open the Go-Plot data file and load it
-				dataFile, err := os.Open(dataFileName)
-				if err != nil {
-					return nil, errors.New("fail attempting to open Go-Plot data file: " + err.Error())
-				}
-				defer dataFile.Close()
-				point, err := LoadDataFile(uint8(x_column), uint8(y_column), bufio.NewReader(dataFile))
-				if err != nil {
-					return nil, errors.New("fail attempting to load Go-Plot data file: " + err.Error())
-				}
-
-				plot.set_points = append(plot.set_points, set_points_2d{
-					title: "",
-					style: POINTS,
-					point: point,
-				})
+				plot.set_points = append(plot.set_points, *auxSetPoints)
 
 				line = ""
 				continue
@@ -102,4 +107,54 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	}
 
 	return plot, nil
+}
+
+//	newSetPoints2D parse string parameters and attempt to create a new set of 2D points
+func newSetPoints2D(dataFileName, x_column, y_column, style string) (*set_points_2d, error) {
+
+	//	attempt to convert x_column to an int
+	num_x_column, err := strconv.Atoi(x_column)
+	if err != nil {
+		return nil, errors.New("x column expected to be numeric: " + err.Error())
+	}
+
+	//	attempt to convert y_column to an int
+	num_y_column, err := strconv.Atoi(y_column)
+	if err != nil {
+		return nil, errors.New("y column expected to be numeric: " + err.Error())
+	}
+
+	//	open the Go-Plot data file and load it
+	dataFile, err := os.Open(dataFileName)
+	if err != nil {
+		return nil, errors.New("fail attempting to open Go-Plot data file: " + err.Error())
+	}
+	defer dataFile.Close()
+	point, err := LoadDataFile(uint8(num_x_column), uint8(num_y_column), bufio.NewReader(dataFile))
+	if err != nil {
+		return nil, errors.New("fail attempting to load Go-Plot data file: " + err.Error())
+	}
+
+	//	attempt to convert the style string to an int constant
+	var num_style uint8
+
+	switch style {
+	case DESC_DOTS:
+		num_style = DOTS
+
+	case DESC_LINES:
+		num_style = LINES
+
+	case DESC_LINES_DOTS:
+		num_style = LINES_DOTS
+
+	case DESC_BOXES:
+		num_style = BOXES
+	}
+
+	return &set_points_2d{
+		title: "",
+		style: num_style,
+		point: point,
+	}, nil
 }
