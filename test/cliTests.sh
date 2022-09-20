@@ -123,18 +123,28 @@ export DESCRIPTION="create a plot from a data file (lines)"
 echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
 
 cat > ${DATA_FILE} <<DATA_CONTENT
-Minutes Runners
-0 0
-5 5
-10 10
-15 15
-20 20
-25 25
-30 30
-35 35
-40 40
-45 45
-50 50
+# Average PQR and XYZ stock price (in dollars per share) per calendar year
+1975 49 162
+1976 52 144
+1977 67 140
+1978 53 122
+1979 67 125
+1980 46 117
+1981 60 116
+1982 50 113
+1983 66 96
+1984 70 101
+1985 91 93
+1986 133 92
+1987 127 95
+1988 136 79
+1989 154 78
+1990 127 85
+1991 147 71
+1992 146 54
+1993 133 51
+1994 144 49
+1995 158 43
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT

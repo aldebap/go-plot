@@ -102,6 +102,7 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 	}
 
 	//	round the scale to multiples of 10
+	//	TODO: must improve the way to evaluate the scale
 	min_x = math.Floor(min_x) - float64(int64(min_x)%10)
 	min_y = math.Floor(min_y) - float64(int64(min_y)%10)
 	max_x = math.Floor(max_x) + float64(10-int64(max_x)%10)
@@ -127,7 +128,7 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 
 	//	generate the plot for every set of points
 	for _, pointsSet := range p.set_points {
-		//	TODO: use different coulours for each set
+		//	TODO: use different colours for each set
 		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
 	}
 
@@ -220,7 +221,6 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 		return errors.New("no points in the set")
 	}
 
-	//	TODO: implement the other styles
 	switch set.style {
 	case DOTS:
 		//	generate a cross for each point
@@ -235,7 +235,29 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 		}
 
 	case LINES:
+		//	generate a line connecting each point
+		var prev_scaled_x, prev_scaled_y float64
+
+		for i, point := range set.point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+
+			//	in the first iteration, just save the current point
+			if i == 0 {
+				prev_scaled_x = scaled_x
+				prev_scaled_y = scaled_y
+				continue
+			}
+
+			driver.Line(int64(X_MARGINS+prev_scaled_x), int64(Y_MARGINS+prev_scaled_y),
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y))
+
+			prev_scaled_x = scaled_x
+			prev_scaled_y = scaled_y
+		}
+
 	case LINES_DOTS:
+		//	TODO: implement this style
 
 	case BOXES:
 		//	generate a box for each point
