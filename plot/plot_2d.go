@@ -39,6 +39,16 @@ const (
 	POINT_WIDTH       = 8
 )
 
+//	default colour and colours for plots
+var (
+	BLACK = RGB_colour{red: 0, green: 0, blue: 0}
+
+	plotPallete = []RGB_colour{{red: 255, green: 0, blue: 0},
+		{red: 0, green: 255, blue: 0},
+		{red: 0, green: 0, blue: 255},
+	}
+)
+
 //	2D point coordinate
 type point_2d struct {
 	x float64
@@ -120,16 +130,15 @@ func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
 	//	add the X & Y titles
 	//	TODO: centralize the text of both titles
 	if len(p.x_label) > 0 {
-		driver.Text(int64(X_MARGINS)+plotWidth/2, int64(math.Round(Y_MARGINS/4)), 0, FONT_SIZE, p.x_label)
+		driver.Text(int64(X_MARGINS)+plotWidth/2, int64(math.Round(Y_MARGINS/4)), 0, FONT_SIZE, p.x_label, BLACK)
 	}
 	if len(p.y_label) > 0 {
-		driver.Text(int64(math.Round(X_MARGINS/4)), int64(Y_MARGINS)+plotHeight/2, -90, FONT_SIZE, p.y_label)
+		driver.Text(int64(math.Round(X_MARGINS/4)), int64(Y_MARGINS)+plotHeight/2, -90, FONT_SIZE, p.y_label, BLACK)
 	}
 
 	//	generate the plot for every set of points
-	for _, pointsSet := range p.set_points {
-		//	TODO: use different colours for each set
-		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y)
+	for i, pointsSet := range p.set_points {
+		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
 	}
 
 	return nil
@@ -140,14 +149,14 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 
 	//	add the plot grid
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		plotWidth-int64(X_MARGINS), int64(Y_MARGINS))
+		plotWidth-int64(X_MARGINS), int64(Y_MARGINS), BLACK)
 	driver.Line(int64(X_MARGINS), plotHeight-int64(Y_MARGINS),
-		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
+		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS), BLACK)
 
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
-		int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
+		int64(X_MARGINS), plotHeight-int64(Y_MARGINS), BLACK)
 	driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS),
-		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS))
+		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS), BLACK)
 
 	//	add the X scale in the plot grid
 	xScaleDivisions := int64(math.Ceil(float64(plotWidth/plotHeight) * Y_SCALE_DIVISIONS))
@@ -157,12 +166,12 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		scaled_x := int64((float64(plotWidth) - 2*X_MARGINS) * (x - min_x) / (max_x - min_x))
 
 		driver.Line(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS),
-			int64(X_MARGINS)+scaled_x, int64(Y_MARGINS)+SCALE_WIDTH)
+			int64(X_MARGINS)+scaled_x, int64(Y_MARGINS)+SCALE_WIDTH, BLACK)
 		driver.Line(int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS),
-			int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS)-SCALE_WIDTH)
+			int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS)-SCALE_WIDTH, BLACK)
 
 		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), 0, FONT_SIZE, fmt.Sprintf("%d", int64(x)))
+		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), 0, FONT_SIZE, fmt.Sprintf("%d", int64(x)), BLACK)
 	}
 
 	//	add the Y scale in the plot grid
@@ -173,12 +182,12 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		scaled_y := int64((float64(plotHeight) - 2*Y_MARGINS) * (y - min_y) / (max_y - min_y))
 
 		driver.Line(int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
-			int64(X_MARGINS)+SCALE_WIDTH, int64(Y_MARGINS)+scaled_y)
+			int64(X_MARGINS)+SCALE_WIDTH, int64(Y_MARGINS)+scaled_y, BLACK)
 		driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
-			plotWidth-int64(X_MARGINS)-SCALE_WIDTH, int64(Y_MARGINS)+scaled_y)
+			plotWidth-int64(X_MARGINS)-SCALE_WIDTH, int64(Y_MARGINS)+scaled_y, BLACK)
 
 		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)))
+		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)), BLACK)
 	}
 }
 
@@ -215,8 +224,7 @@ func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err e
 }
 
 //	GeneratePlot generate the graphic for the points in the set
-func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_x, max_y float64) error {
-
+func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_x, max_y float64, colour RGB_colour) error {
 	if len(set.point) == 0 {
 		return errors.New("no points in the set")
 	}
@@ -229,9 +237,9 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
 
 			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
-				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y))
+				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y), colour)
 			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
-				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2))
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2), colour)
 		}
 
 	case LINES:
@@ -250,7 +258,7 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 			}
 
 			driver.Line(int64(X_MARGINS+prev_scaled_x), int64(Y_MARGINS+prev_scaled_y),
-				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y))
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y), colour)
 
 			prev_scaled_x = scaled_x
 			prev_scaled_y = scaled_y
@@ -268,15 +276,17 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 			scaled_y2 := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
 
 			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
-				int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2))
+				int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2), colour)
 			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2),
-				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2))
+				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
 			driver.Line(int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y1),
-				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2))
+				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
 		}
 
 	default:
 	}
+
+	//	TODO: add the label for each plot
 
 	return nil
 }

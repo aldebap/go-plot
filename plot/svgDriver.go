@@ -35,13 +35,15 @@ func (driver *SVG_Driver) SetDimensions(width int64, height int64) error {
 	return nil
 }
 
-func (driver *SVG_Driver) Point(x, y int64) error {
+func (driver *SVG_Driver) Point(x, y int64, colour RGB_colour) error {
 	return nil
 }
 
 //	Line draws a line between two points in the SVG graphic
-func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64) error {
-	const style = "stroke:rgb(0,0,0);stroke-width:1"
+func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
+	style := "stroke:rgb(" + fmt.Sprintf("%d", colour.red) +
+		"," + fmt.Sprintf("%d", colour.green) +
+		"," + fmt.Sprintf("%d", colour.blue) + ");stroke-width:1"
 
 	driver.writer.WriteString("<line x1=\"" + fmt.Sprintf("%d", x1) + "\" y1=\"" + fmt.Sprintf("%d", driver.height-y1) + "\" " +
 		"x2=\"" + fmt.Sprintf("%d", x2) + "\" y2=\"" + fmt.Sprintf("%d", driver.height-y2) + "\" style=\"" + style + "\" />\n")
@@ -50,9 +52,12 @@ func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64) error {
 }
 
 //	Text writes a string to the specified point in the SVG graphic
-func (driver *SVG_Driver) Text(x, y, angle, fontSize int64, text string) error {
-	const style = "fill:rgb(0,0,0)"
+func (driver *SVG_Driver) Text(x, y, angle, fontSize int64, text string, colour RGB_colour) error {
 	const fontFamily = "Verdana"
+
+	style := "fill:rgb(" + fmt.Sprintf("%d", colour.red) +
+		"," + fmt.Sprintf("%d", colour.green) +
+		"," + fmt.Sprintf("%d", colour.blue) + ")"
 
 	if angle == 0 {
 		driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +

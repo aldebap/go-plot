@@ -54,6 +54,8 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	//	read the input line by line
 	var line string
 
+	//	TODO: add a default label for each set of points
+	//	TODO: parse the comma as a separator for multiple set of points for a plot
 	for {
 		bufLine, isPrefix, err := reader.ReadLine()
 		if err != nil {
