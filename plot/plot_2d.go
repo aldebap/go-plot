@@ -7,6 +7,7 @@
 package plot
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"math"
@@ -67,10 +68,32 @@ type Plot_2D struct {
 	x_label    string
 	y_label    string
 	set_points []set_points_2d
+	terminal   uint8
+	output     string
+}
+
+//	GetOutputFileName return the plot's output file name
+func (p *Plot_2D) GetOutputFileName() string {
+	return p.output
 }
 
 //	GeneratePlot implementation of 2D Go_Plot generation
-func (p *Plot_2D) GeneratePlot(driver GraphicsDriver) error {
+func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
+
+	//	create the graphics driver
+	var driver GraphicsDriver
+
+	switch p.terminal {
+	case TERMINAL_CANVAS:
+	case TERMINAL_PNG:
+
+	case TERMINAL_SVG:
+		driver = NewSVG_Driver(plotWriter)
+
+	default:
+		driver = NewSVG_Driver(plotWriter)
+	}
+	defer driver.Close()
 
 	//	check if there's a plot to be generated
 	if len(p.set_points) == 0 {

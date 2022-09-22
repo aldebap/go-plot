@@ -67,20 +67,19 @@ func generateGraphicFromPlotFile(plotFileName string) error {
 		return errors.New("fail parsing Go-Plot file: " + err.Error())
 	}
 
-	//	create the graphics file for the output
-	//	TODO: the output format needs to be decided (or configured!)
-	graphicsFile, err := os.Create(plotFileName + ".svg")
-	if err != nil {
-		return errors.New("error creating graphics file: " + err.Error())
-	}
-	defer graphicsFile.Close()
+	//	when specified, create the graphics file for the output
+	var graphicsFile *os.File = os.Stdout
 
-	//	create the graphics driver
-	driver := plot.NewSVG_Driver(bufio.NewWriter(graphicsFile))
-	defer driver.Close()
+	if len(currentPlot.GetOutputFileName()) > 0 {
+		graphicsFile, err = os.Create(currentPlot.GetOutputFileName())
+		if err != nil {
+			return errors.New("error creating graphics file: " + err.Error())
+		}
+		defer graphicsFile.Close()
+	}
 
 	//	generate the plot
-	err = currentPlot.GeneratePlot(driver)
+	err = currentPlot.GeneratePlot(bufio.NewWriter(graphicsFile))
 	if err != nil {
 		return errors.New("error generating graphics file: " + err.Error())
 	}

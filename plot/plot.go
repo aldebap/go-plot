@@ -6,6 +6,16 @@
 
 package plot
 
+import "bufio"
+
+//	terminals to generate a plot
+const (
+	TERMINAL_CANVAS = 1
+	TERMINAL_PNG    = 2
+	TERMINAL_SVG    = 3
+)
+
 type Plot interface {
-	GeneratePlot(driver GraphicsDriver) error
+	GetOutputFileName() string
+	GeneratePlot(plotWriter *bufio.Writer) error
 }

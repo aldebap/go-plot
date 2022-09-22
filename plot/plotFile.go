@@ -22,6 +22,13 @@ const (
 	DESC_BOXES      = "boxes"
 )
 
+//	terminal descriptions for a plot
+const (
+	DESC_CANVAS = "canvas"
+	DESC_PNG    = "png"
+	DESC_SVG    = "svg"
+)
+
 //	LoadPlotFile load a plot file and return a Plot
 func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	plot := &Plot_2D{
@@ -47,6 +54,16 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	}
 
 	dataFilePlotWithRegEx, err := regexp.Compile(`^\s*plot\s+"(.+)"\s+using\s+(\d+):(\d+)\s*with\s+(\S+)\s*$`)
+	if err != nil {
+		return nil, err
+	}
+
+	setTerminalRegEx, err := regexp.Compile(`^\s*set\s+terminal\s+(\S+)\s*$`)
+	if err != nil {
+		return nil, err
+	}
+
+	setOutputRegEx, err := regexp.Compile(`^\s*set\s+output\s+"(.+)"\s*$`)
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +119,30 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 				plot.set_points = append(plot.set_points, *auxSetPoints)
 
+				line = ""
+				continue
+			}
+
+			match = setTerminalRegEx.FindAllStringSubmatch(line, -1)
+			if len(match) == 1 {
+				switch match[0][1] {
+				case DESC_CANVAS:
+					plot.terminal = TERMINAL_CANVAS
+
+				case DESC_PNG:
+					plot.terminal = TERMINAL_PNG
+
+				case DESC_SVG:
+					plot.terminal = TERMINAL_SVG
+				}
+
+				line = ""
+				continue
+			}
+
+			match = setOutputRegEx.FindAllStringSubmatch(line, -1)
+			if len(match) == 1 {
+				plot.output = match[0][1]
 				line = ""
 				continue
 			}
