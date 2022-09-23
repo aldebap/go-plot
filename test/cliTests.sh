@@ -33,6 +33,9 @@ Minutes Runners
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
 plot "${DATA_FILE}" using 1:2
 PLOT_CONTENT
 
@@ -109,6 +112,9 @@ Minutes Runners
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
 plot "${DATA_FILE}" using 1:2 with boxes
 PLOT_CONTENT
 
@@ -148,6 +154,9 @@ cat > ${DATA_FILE} <<DATA_CONTENT
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
 plot "${DATA_FILE}" using 1:2 with lines
 PLOT_CONTENT
 
@@ -178,9 +187,55 @@ Minutes Runners
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
 set xlabel "natural numbers"
 set ylabel "square of the number"
 plot "${DATA_FILE}" using 1:2
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
+#   test scenatio #05
+export SCENARIO="05"
+export DESCRIPTION="create a multiple data set plot from a data file (lines and dots)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${DATA_FILE} <<DATA_CONTENT
+# Average PQR and XYZ stock price (in dollars per share) per calendar year
+1975 49 162
+1976 52 144
+1977 67 140
+1978 53 122
+1979 67 125
+1980 46 117
+1981 60 116
+1982 50 113
+1983 66 96
+1984 70 101
+1985 91 93
+1986 133 92
+1987 127 95
+1988 136 79
+1989 154 78
+1990 127 85
+1991 147 71
+1992 146 54
+1993 133 51
+1994 144 49
+1995 158 43
+DATA_CONTENT
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
+plot "${DATA_FILE}" using 1:2 with lines,
+     "${DATA_FILE}" using 1:3 with dots
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
