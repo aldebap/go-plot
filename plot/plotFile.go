@@ -53,6 +53,17 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
+	setTerminalRegEx, err := regexp.Compile(`^\s*set\s+terminal\s+(\S+)\s*$`)
+	if err != nil {
+		return nil, err
+	}
+
+	setOutputRegEx, err := regexp.Compile(`^\s*set\s+output\s+"(.+)"\s*$`)
+	if err != nil {
+		return nil, err
+	}
+
+	//dataFilePlotRegEx, err := regexp.Compile(`^\s*plot\s+"([a-zA-Z0-9/]+)"\s*`)
 	dataFilePlotRegEx, err := regexp.Compile(`^\s*plot\s+"(.+)"\s*`)
 	if err != nil {
 		return nil, err
@@ -78,16 +89,6 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	setTerminalRegEx, err := regexp.Compile(`^\s*set\s+terminal\s+(\S+)\s*$`)
-	if err != nil {
-		return nil, err
-	}
-
-	setOutputRegEx, err := regexp.Compile(`^\s*set\s+output\s+"(.+)"\s*$`)
-	if err != nil {
-		return nil, err
-	}
-
 	//	read the input line by line
 	var (
 		plot = &Plot_2D{
@@ -99,7 +100,13 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	)
 
 	//	TODO: add a default label for each set of points
-	//	TODO: improve the parse the comma as a separator for multiple set of points for a plot
+	var (
+		dataFileName string
+		x_column     string = "1"
+		y_column     string = "2"
+		style        string = DEFAULT_STYLE
+	)
+
 	for {
 		bufLine, isPrefix, err := reader.ReadLine()
 		if err != nil {
@@ -109,21 +116,19 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		line += string(bufLine)
 
 		if !isPrefix {
-			//	parse the line using all regex
+			//	parse the line using all regex for commands outside plot command scope
+			var commandFound bool
+
 			match := setXLabelRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
 				plot.x_label = match[0][1]
-				line = ""
-				plotScope = false
-				continue
+				commandFound = true
 			}
 
 			match = setYLabelRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
 				plot.y_label = match[0][1]
-				line = ""
-				plotScope = false
-				continue
+				commandFound = true
 			}
 
 			match = setTerminalRegEx.FindAllStringSubmatch(line, -1)
@@ -134,39 +139,42 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				if !found {
 					return nil, errors.New("invalid terminal type: " + match[0][1])
 				}
-
-				line = ""
-				plotScope = false
-				continue
+				commandFound = true
 			}
 
 			match = setOutputRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
 				plot.output = match[0][1]
+				commandFound = true
+			}
+
+			//	if a command was found clean up current line
+			if commandFound {
+				//	if previous parsed a plot command whose data file was not loaded yet, it's the time for it
+				if plotScope && len(dataFileName) > 0 {
+					auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+					if err != nil {
+						return nil, err
+					}
+
+					//	erase file name as it was used already
+					dataFileName = ""
+					x_column = "1"
+					y_column = "2"
+					style = DEFAULT_STYLE
+
+					plot.set_points = append(plot.set_points, *auxSetPoints)
+
+					plotScope = false
+				}
+
 				line = ""
-				plotScope = false
 				continue
 			}
 
-			//	parse all remainig elements
-			var (
-				dataFileName string
-				x_column     string = "1"
-				y_column     string = "2"
-				style        string = DEFAULT_STYLE
-			)
-
+			//	if it's not a configuration command, try to parse plot command options
 			for {
 				if len(line) == 0 {
-					//	if a data file name was found, add the set of points
-					if len(dataFileName) > 0 {
-						auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
-						if err != nil {
-							return nil, err
-						}
-
-						plot.set_points = append(plot.set_points, *auxSetPoints)
-					}
 					break
 				}
 
@@ -213,10 +221,26 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					continue
 				}
 
+				//	when a comma is found in the scope of a plot command, add the data file points
 				match = commaSeparatorRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
 						return nil, errors.New("unexpected syntax: " + match[0][1])
+					}
+					//	if a data file name was found, add the set of points
+					if len(dataFileName) > 0 {
+						auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+						if err != nil {
+							return nil, err
+						}
+
+						//	erase file name as it was used already
+						dataFileName = ""
+						x_column = "1"
+						y_column = "2"
+						style = DEFAULT_STYLE
+
+						plot.set_points = append(plot.set_points, *auxSetPoints)
 					}
 
 					line = line[len(match[0][0]):]
@@ -224,6 +248,16 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				}
 			}
 		}
+	}
+
+	//	when plot file parsing finishes, if a plot command whose data file was not loaded yet, it's the time for it
+	if plotScope && len(dataFileName) > 0 {
+		auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+		if err != nil {
+			return nil, err
+		}
+
+		plot.set_points = append(plot.set_points, *auxSetPoints)
 	}
 
 	return plot, nil
