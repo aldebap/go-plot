@@ -35,6 +35,11 @@ func (driver *SVG_Driver) SetDimensions(width int64, height int64) error {
 	return nil
 }
 
+//	Comment write a comment int the the SVG graphic
+func (driver *SVG_Driver) Comment(text string) {
+	driver.writer.WriteString("<!-- " + text + "-->\n")
+}
+
 func (driver *SVG_Driver) Point(x, y int64, colour RGB_colour) error {
 	return nil
 }

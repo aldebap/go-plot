@@ -174,6 +174,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64) {
 
 	//	add the plot grid
+	driver.Comment("plot grid")
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
 		plotWidth-int64(X_MARGINS), int64(Y_MARGINS), BLACK)
 	driver.Line(int64(X_MARGINS), plotHeight-int64(Y_MARGINS),
@@ -185,6 +186,7 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		plotWidth-int64(X_MARGINS), plotHeight-int64(Y_MARGINS), BLACK)
 
 	//	add the X scale in the plot grid
+	driver.Comment("grid x scale")
 	xScaleDivisions := int64(math.Ceil(float64(plotWidth/plotHeight) * Y_SCALE_DIVISIONS))
 
 	for i := int64(1); i < int64(xScaleDivisions); i++ {
@@ -201,6 +203,7 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 	}
 
 	//	add the Y scale in the plot grid
+	driver.Comment("grid y scale")
 	yScaleDivisions := int64(Y_SCALE_DIVISIONS)
 
 	for i := int64(1); i < int64(yScaleDivisions); i++ {
@@ -215,6 +218,7 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		//	TODO: centralize text based on the scale indicator
 		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)), BLACK)
 	}
+	//	TODO: need to show the title
 }
 
 //	getMinMax get the min-max X & Y values for the points in the set
@@ -254,6 +258,8 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 	if len(set.point) == 0 {
 		return errors.New("no points in the set")
 	}
+
+	driver.Comment("plotting " + set.title)
 
 	switch set.style {
 	case DOTS:

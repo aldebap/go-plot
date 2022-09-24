@@ -9,6 +9,7 @@ package plot
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"strconv"
@@ -83,6 +84,11 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
+	plotTitleRegEx, err := regexp.Compile(`^\s*title\s+"([^"]+)"\s*`)
+	if err != nil {
+		return nil, err
+	}
+
 	commaSeparatorRegEx, err := regexp.Compile(`^\s*,\s*`)
 	if err != nil {
 		return nil, err
@@ -98,12 +104,12 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		plotScope bool
 	)
 
-	//	TODO: add a default label for each set of points
 	var (
 		dataFileName string
 		x_column     string = "1"
 		y_column     string = "2"
 		style        string = DEFAULT_STYLE
+		title        string
 	)
 
 	for {
@@ -151,7 +157,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 			if commandFound {
 				//	if previous parsed a plot command whose data file was not loaded yet, it's the time for it
 				if plotScope && len(dataFileName) > 0 {
-					auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+					auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
 					if err != nil {
 						return nil, err
 					}
@@ -161,6 +167,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					x_column = "1"
 					y_column = "2"
 					style = DEFAULT_STYLE
+					title = ""
 
 					plot.set_points = append(plot.set_points, *auxSetPoints)
 
@@ -189,7 +196,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				match = dataFileRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
-						return nil, errors.New("data file specification without a plot command: " + match[0][1])
+						return nil, errors.New("data file specification without a plot command: " + match[0][0])
 					}
 					dataFileName = match[0][1]
 
@@ -200,7 +207,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				match = dataFilePlotUsingRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
-						return nil, errors.New("'using' option without a plot command: " + match[0][1])
+						return nil, errors.New("'using' option without a plot command: " + match[0][0])
 					}
 					x_column = match[0][1]
 					y_column = match[0][2]
@@ -212,9 +219,20 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				match = plotWithRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
-						return nil, errors.New("'with' option without a plot command: " + match[0][1])
+						return nil, errors.New("'with' option without a plot command: " + match[0][0])
 					}
 					style = match[0][1]
+
+					line = line[len(match[0][0]):]
+					continue
+				}
+
+				match = plotTitleRegEx.FindAllStringSubmatch(line, -1)
+				if len(match) == 1 {
+					if !plotScope {
+						return nil, errors.New("'title' option without a plot command: " + match[0][0])
+					}
+					title = match[0][1]
 
 					line = line[len(match[0][0]):]
 					continue
@@ -228,7 +246,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					}
 					//	if a data file name was found, add the set of points
 					if len(dataFileName) > 0 {
-						auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+						auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
 						if err != nil {
 							return nil, err
 						}
@@ -238,6 +256,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						x_column = "1"
 						y_column = "2"
 						style = DEFAULT_STYLE
+						title = ""
 
 						plot.set_points = append(plot.set_points, *auxSetPoints)
 					}
@@ -251,7 +270,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 	//	when plot file parsing finishes, if a plot command whose data file was not loaded yet, it's the time for it
 	if plotScope && len(dataFileName) > 0 {
-		auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style)
+		auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
 		if err != nil {
 			return nil, err
 		}
@@ -263,7 +282,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 }
 
 //	newSetPoints2D parse string parameters and attempt to create a new set of 2D points
-func newSetPoints2D(dataFileName, x_column, y_column, styleDesc string) (*set_points_2d, error) {
+func newSetPoints2D(dataFileName, x_column, y_column, styleDesc, title string) (*set_points_2d, error) {
 
 	//	attempt to convert x_column to an int
 	num_x_column, err := strconv.Atoi(x_column)
@@ -297,8 +316,13 @@ func newSetPoints2D(dataFileName, x_column, y_column, styleDesc string) (*set_po
 		return nil, errors.New("invalid style: " + styleDesc)
 	}
 
+	//	set a default title when necessary
+	if len(title) == 0 {
+		title = fmt.Sprintf("%s u %d:%d", dataFileName, num_x_column, num_y_column)
+	}
+
 	return &set_points_2d{
-		title: "",
+		title: title,
 		style: num_style,
 		point: point,
 	}, nil
