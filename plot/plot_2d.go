@@ -40,13 +40,16 @@ const (
 	POINT_WIDTH       = 8
 )
 
-//	default colour and colours for plots
+//	colour pallete for plots
 var (
 	BLACK = RGB_colour{red: 0, green: 0, blue: 0}
+	RED   = RGB_colour{red: 255, green: 0, blue: 0}
+	GREEN = RGB_colour{red: 0, green: 255, blue: 0}
+	BLUE  = RGB_colour{red: 0, green: 0, blue: 255}
 
-	plotPallete = []RGB_colour{{red: 255, green: 0, blue: 0},
-		{red: 0, green: 255, blue: 0},
-		{red: 0, green: 0, blue: 255},
+	plotPallete = []RGB_colour{RED,
+		GREEN,
+		BLUE,
 	}
 )
 

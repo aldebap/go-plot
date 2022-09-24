@@ -360,7 +360,128 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 	})
 
-	t.Run(">>> LoadPlotFile: plot \"file\" using 1:3 with boxes, ...", func(t *testing.T) {
+	t.Run(">>> LoadPlotFile: plot \"file\" using 1:3 with boxes (multiple lines)", func(t *testing.T) {
+
+		//	create a temporary data file
+		tmpDataFile, err := os.CreateTemp("", "goPlotData")
+		if err != nil {
+			t.Errorf("fail creating plot data file: %s", err.Error())
+			return
+		}
+		defer os.Remove(tmpDataFile.Name())
+
+		_, err = tmpDataFile.Write([]byte("col1 col2 col3\n10 20 30\n40 50 60\n"))
+		if err != nil {
+			tmpDataFile.Close()
+			t.Errorf("fail writing to plot data file: %s", err.Error())
+			return
+		}
+		err = tmpDataFile.Close()
+		if err != nil {
+			t.Errorf("fail closing the plot data file: %s", err.Error())
+			return
+		}
+
+		expectedSetPoints := 1
+		expectedPoints := 2
+		expectedStyle := "boxes"
+
+		mockPlotFile := strings.NewReader("plot \"" + tmpDataFile.Name() + "\"\nusing 1:3\nwith " + expectedStyle)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedSetPoints
+		got := len(plot.(*Plot_2D).set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		want = expectedPoints
+		got = len(plot.(*Plot_2D).set_points[0].point)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
+		}
+
+		want = int(style[expectedStyle])
+		got = int(plot.(*Plot_2D).set_points[0].style)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: plot \"file\" using 1:3 with boxes (followed by a global command)", func(t *testing.T) {
+
+		//	create a temporary data file
+		tmpDataFile, err := os.CreateTemp("", "goPlotData")
+		if err != nil {
+			t.Errorf("fail creating plot data file: %s", err.Error())
+			return
+		}
+		defer os.Remove(tmpDataFile.Name())
+
+		_, err = tmpDataFile.Write([]byte("col1 col2 col3\n10 20 30\n40 50 60\n"))
+		if err != nil {
+			tmpDataFile.Close()
+			t.Errorf("fail writing to plot data file: %s", err.Error())
+			return
+		}
+		err = tmpDataFile.Close()
+		if err != nil {
+			t.Errorf("fail closing the plot data file: %s", err.Error())
+			return
+		}
+
+		expectedSetPoints := 1
+		expectedPoints := 2
+		expectedStyle := "boxes"
+		expectedTerminal := "canvas"
+
+		mockPlotFile := strings.NewReader("plot \"" + tmpDataFile.Name() + "\"\nusing 1:3\nwith " + expectedStyle + "\n" +
+			"set terminal " + expectedTerminal)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedSetPoints
+		got := len(plot.(*Plot_2D).set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		want = expectedPoints
+		got = len(plot.(*Plot_2D).set_points[0].point)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
+		}
+
+		want = int(style[expectedStyle])
+		got = int(plot.(*Plot_2D).set_points[0].style)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
+		}
+
+		wantString := expectedTerminal
+		gotString := plot.(*Plot_2D).terminal
+		//	check the result
+		if terminal[wantString] != gotString {
+			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", terminal[wantString], wantString, gotString)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: plot \"file\" using 1:3 with boxes, ...(two data files)", func(t *testing.T) {
 
 		//	create a temporary data file
 		tmpDataFile, err := os.CreateTemp("", "goPlotData")
@@ -415,5 +536,25 @@ func TestLoadPlotFile(t *testing.T) {
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
 		}
+	})
+}
+
+//	TestNewSetPoints2D unit tests for newSetPoints2D()
+func TestNewSetPoints2D(t *testing.T) {
+
+	//	TODO: create tests for the following scenarios
+	t.Run(">>> newSetPoints2D: non numerical x_column", func(t *testing.T) {
+	})
+
+	t.Run(">>> newSetPoints2D: non numerical y_column", func(t *testing.T) {
+	})
+
+	t.Run(">>> newSetPoints2D: invalid data file name", func(t *testing.T) {
+	})
+
+	t.Run(">>> newSetPoints2D: invalid style", func(t *testing.T) {
+	})
+
+	t.Run(">>> newSetPoints2D: valid scenario", func(t *testing.T) {
 	})
 }

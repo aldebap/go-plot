@@ -112,10 +112,10 @@ Minutes Runners
 DATA_CONTENT
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+plot "${DATA_FILE}" using 1:2 with boxes
+
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
-
-plot "${DATA_FILE}" using 1:2 with boxes
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
@@ -157,7 +157,9 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
-plot "${DATA_FILE}" using 1:2 with lines
+plot "${DATA_FILE}"
+     using 1:2
+     with lines
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
@@ -190,9 +192,10 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
+plot "${DATA_FILE}" using 1:2
+
 set xlabel "natural numbers"
 set ylabel "square of the number"
-plot "${DATA_FILE}" using 1:2
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"

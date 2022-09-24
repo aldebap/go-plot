@@ -63,13 +63,12 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	//dataFilePlotRegEx, err := regexp.Compile(`^\s*plot\s+"([a-zA-Z0-9/]+)"\s*`)
-	dataFilePlotRegEx, err := regexp.Compile(`^\s*plot\s+"(.+)"\s*`)
+	plotCommandRegEx, err := regexp.Compile(`^\s*plot\s*`)
 	if err != nil {
 		return nil, err
 	}
 
-	additionalDataFileRegEx, err := regexp.Compile(`^\s*"(.+)"\s*`)
+	dataFileRegEx, err := regexp.Compile(`^\s*"([^"]+)"\s*`)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	commaSeparatorRegEx, err := regexp.Compile(`^\s*,\s*$`)
+	commaSeparatorRegEx, err := regexp.Compile(`^\s*,\s*`)
 	if err != nil {
 		return nil, err
 	}
@@ -177,17 +176,17 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				if len(line) == 0 {
 					break
 				}
+				//	fmt.Printf("[debug] line: %s\n", line)
 
-				match = dataFilePlotRegEx.FindAllStringSubmatch(line, -1)
+				match = plotCommandRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					plotScope = true
-					dataFileName = match[0][1]
 
 					line = line[len(match[0][0]):]
 					continue
 				}
 
-				match = additionalDataFileRegEx.FindAllStringSubmatch(line, -1)
+				match = dataFileRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
 						return nil, errors.New("data file specification without a plot command: " + match[0][1])
