@@ -170,6 +170,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					title = ""
 
 					plot.set_points = append(plot.set_points, *auxSetPoints)
+					plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
 
 					plotScope = false
 				}
@@ -259,6 +260,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						title = ""
 
 						plot.set_points = append(plot.set_points, *auxSetPoints)
+						plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
 					}
 
 					line = line[len(match[0][0]):]
@@ -276,6 +278,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		}
 
 		plot.set_points = append(plot.set_points, *auxSetPoints)
+		plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
 	}
 
 	return plot, nil

@@ -34,10 +34,12 @@ const (
 )
 
 const (
-	Y_SCALE_DIVISIONS = 7
-	SCALE_WIDTH       = 6
-	FONT_SIZE         = 10
-	POINT_WIDTH       = 8
+	Y_SCALE_DIVISIONS  = 7
+	SCALE_WIDTH        = 6
+	FONT_SIZE          = 10
+	POINT_WIDTH        = 8
+	COLOUR_TITLE_WIDTH = 10
+	TITLE_MARGIN       = 10
 )
 
 //	colour pallete for plots
@@ -64,6 +66,7 @@ type set_points_2d struct {
 	title string
 	style uint8
 	point []point_2d
+	order uint8
 }
 
 //	attributes used to describe a 2D plot
@@ -151,7 +154,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	driver.SetDimensions(plotWidth, plotHeight)
 
 	//	generate the plot grid
-	GeneratePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
+	generatePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
 
 	//	add the X & Y titles
 	//	TODO: centralize the text of both titles
@@ -164,14 +167,14 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 
 	//	generate the plot for every set of points
 	for i, pointsSet := range p.set_points {
-		pointsSet.GeneratePlot(driver, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
+		pointsSet.generatePlot(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
 	}
 
 	return nil
 }
 
-//	GeneratePlotGrid implementation of 2D Go_Plot grid generation
-func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64) {
+//	generatePlotGrid implementation of 2D Go_Plot grid generation
+func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64) {
 
 	//	add the plot grid
 	driver.Comment("plot grid")
@@ -218,7 +221,6 @@ func GeneratePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		//	TODO: centralize text based on the scale indicator
 		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)), BLACK)
 	}
-	//	TODO: need to show the title
 }
 
 //	getMinMax get the min-max X & Y values for the points in the set
@@ -254,7 +256,7 @@ func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err e
 }
 
 //	GeneratePlot generate the graphic for the points in the set
-func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_x, max_y float64, colour RGB_colour) error {
+func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64, colour RGB_colour) error {
 	if len(set.point) == 0 {
 		return errors.New("no points in the set")
 	}
@@ -318,7 +320,11 @@ func (set *set_points_2d) GeneratePlot(driver GraphicsDriver, min_x, min_y, max_
 	default:
 	}
 
-	//	TODO: add the label for each plot
+	//	show the title
+	driver.Line(plotWidth-int64(X_MARGINS)-TITLE_MARGIN-COLOUR_TITLE_WIDTH, plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN,
+		plotWidth-int64(X_MARGINS)-TITLE_MARGIN, plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN, colour)
+	driver.Text(plotWidth-int64(X_MARGINS)-2*TITLE_MARGIN-COLOUR_TITLE_WIDTH-int64(FONT_SIZE/2*len(set.title)),
+		plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN, 0, FONT_SIZE, set.title, BLACK)
 
 	return nil
 }
