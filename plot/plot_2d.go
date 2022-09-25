@@ -27,10 +27,11 @@ const (
 
 //	styles for a plot of points
 const (
-	DOTS       uint8 = 1
-	LINES      uint8 = 2
-	LINES_DOTS uint8 = 3
-	BOXES      uint8 = 4
+	BOXES        uint8 = 1
+	DOTS         uint8 = 2
+	LINES        uint8 = 3
+	LINES_POINTS uint8 = 4
+	POINTS       uint8 = 5
 )
 
 const (
@@ -264,16 +265,29 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 	driver.Comment("plotting " + set.title)
 
 	switch set.style {
+	case BOXES:
+		//	generate a box for each point
+		for _, point := range set.point {
+			scaled_x1 := (WIDTH - 2*X_MARGINS) * (point.x - 0.5 - min_x) / (max_x - min_x)
+			scaled_x2 := (WIDTH - 2*X_MARGINS) * (point.x + 0.5 - min_x) / (max_x - min_x)
+			scaled_y1 := (HEIGHT - 2*Y_MARGINS) * (0 - min_y) / (max_y - min_y)
+			scaled_y2 := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+
+			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
+				int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2), colour)
+			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2),
+				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
+			driver.Line(int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y1),
+				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
+		}
+
 	case DOTS:
-		//	generate a cross for each point
+		//	generate a single dot for each point
 		for _, point := range set.point {
 			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
 			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
 
-			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
-				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y), colour)
-			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
-				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2), colour)
+			driver.Point(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y), colour)
 		}
 
 	case LINES:
@@ -298,25 +312,46 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 			prev_scaled_y = scaled_y
 		}
 
-	case LINES_DOTS:
-		//	TODO: implement this style
+	case LINES_POINTS:
+		//	generate a line connecting each point
+		var prev_scaled_x, prev_scaled_y float64
 
-	case BOXES:
-		//	generate a box for each point
-		for _, point := range set.point {
-			scaled_x1 := (WIDTH - 2*X_MARGINS) * (point.x - 0.5 - min_x) / (max_x - min_x)
-			scaled_x2 := (WIDTH - 2*X_MARGINS) * (point.x + 0.5 - min_x) / (max_x - min_x)
-			scaled_y1 := (HEIGHT - 2*Y_MARGINS) * (0 - min_y) / (max_y - min_y)
-			scaled_y2 := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		for i, point := range set.point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
 
-			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
-				int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2), colour)
-			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2),
-				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
-			driver.Line(int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y1),
-				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
+			//	generate a cross for each point
+			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
+				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y), colour)
+			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2), colour)
+
+			//	in the first iteration, just save the current point
+			if i == 0 {
+				prev_scaled_x = scaled_x
+				prev_scaled_y = scaled_y
+				continue
+			}
+
+			driver.Line(int64(X_MARGINS+prev_scaled_x), int64(Y_MARGINS+prev_scaled_y),
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y), colour)
+
+			prev_scaled_x = scaled_x
+			prev_scaled_y = scaled_y
 		}
 
+	case POINTS:
+		//	TODO: improve to use a different figure for distinct sets of points
+		//	generate a cross for each point
+		for _, point := range set.point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+
+			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
+				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y), colour)
+			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
+				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2), colour)
+		}
 	default:
 	}
 

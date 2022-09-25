@@ -41,6 +41,13 @@ func (driver *SVG_Driver) Comment(text string) {
 }
 
 func (driver *SVG_Driver) Point(x, y int64, colour RGB_colour) error {
+	style := "stroke:rgb(" + fmt.Sprintf("%d", colour.red) +
+		"," + fmt.Sprintf("%d", colour.green) +
+		"," + fmt.Sprintf("%d", colour.blue) + ");stroke-width:1"
+
+	driver.writer.WriteString("<line x1=\"" + fmt.Sprintf("%d", x) + "\" y1=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
+		"x2=\"" + fmt.Sprintf("%d", x+1) + "\" y2=\"" + fmt.Sprintf("%d", driver.height-y) + "\" style=\"" + style + "\" />\n")
+
 	return nil
 }
 

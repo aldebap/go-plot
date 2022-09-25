@@ -27,15 +27,16 @@ var (
 //	style descriptions for a plot of points
 var (
 	style = map[string]uint8{
-		"dots":  DOTS,
-		"lines": LINES,
-		"x":     LINES_DOTS,
-		"boxes": BOXES,
+		"boxes":       BOXES,
+		"dots":        DOTS,
+		"lines":       LINES,
+		"linespoints": LINES_POINTS,
+		"points":      POINTS,
 	}
 )
 
 const (
-	DEFAULT_STYLE = "dots"
+	DEFAULT_STYLE = "points"
 )
 
 //	LoadPlotFile load a plot file and return a Plot

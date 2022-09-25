@@ -36,7 +36,7 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
-plot "${DATA_FILE}" using 1:2
+plot "${DATA_FILE}" using 1:2 with dots
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
@@ -192,7 +192,7 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
-plot "${DATA_FILE}" using 1:2
+plot "${DATA_FILE}" using 1:2 with linespoints
 
 set xlabel "natural numbers"
 set ylabel "square of the number"
@@ -204,7 +204,7 @@ rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
 
 #   test scenatio #05
 export SCENARIO="05"
-export DESCRIPTION="create a multiple data set plot from a data file (lines and dots)"
+export DESCRIPTION="create a multiple data set plot from a data file (lines and points)"
 
 echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
 
@@ -238,7 +238,7 @@ set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
 plot "${DATA_FILE}" using 1:2 with lines,
-     "${DATA_FILE}" using 1:3 with dots
+     "${DATA_FILE}" using 1:3
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
