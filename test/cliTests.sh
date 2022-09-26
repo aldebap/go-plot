@@ -193,6 +193,7 @@ set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
 plot "${DATA_FILE}" using 1:2 with linespoints
+     title "points for x^2"
 
 set xlabel "natural numbers"
 set ylabel "square of the number"

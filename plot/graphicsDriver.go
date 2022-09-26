@@ -17,6 +17,7 @@ type GraphicsDriver interface {
 	Comment(text string)
 	Point(x, y int64, colour RGB_colour) error
 	Line(x1, y1, x2, y2 int64, colour RGB_colour) error
-	Text(x, y, angle, fontSize int64, text string, colour RGB_colour) error
+	GetTextBox(text string, fontSize int64) (width, height int64)
+	Text(x, y, angle int64, text string, fontSize int64, colour RGB_colour) error
 	Close()
 }

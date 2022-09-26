@@ -12,15 +12,17 @@ import (
 )
 
 type SVG_Driver struct {
-	writer *bufio.Writer
-	width  int64
-	height int64
+	writer     *bufio.Writer
+	width      int64
+	height     int64
+	fontFamily string
 }
 
 //	create a new SVG_Driver
 func NewSVG_Driver(writer *bufio.Writer) GraphicsDriver {
 	return &SVG_Driver{
-		writer: writer,
+		writer:     writer,
+		fontFamily: "Verdana",
 	}
 }
 
@@ -63,22 +65,31 @@ func (driver *SVG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 	return nil
 }
 
-//	Text writes a string to the specified point in the SVG graphic
-func (driver *SVG_Driver) Text(x, y, angle, fontSize int64, text string, colour RGB_colour) error {
-	const fontFamily = "Verdana"
+//	GetTextBox evaluate the width and height of the rectangle required to draw the text string using a given font size
+func (driver *SVG_Driver) GetTextBox(text string, fontSize int64) (width, height int64) {
 
+	//	a rough estimation of the rectangle dimentions
+	width = int64(0.37 * float64(fontSize*int64(len(text))))
+	height = int64(0.8 * float64(fontSize))
+
+	return width, height
+}
+
+//	Text writes a string to the specified point in the SVG graphic
+func (driver *SVG_Driver) Text(x, y, angle int64, text string, fontSize int64, colour RGB_colour) error {
 	style := "fill:rgb(" + fmt.Sprintf("%d", colour.red) +
 		"," + fmt.Sprintf("%d", colour.green) +
 		"," + fmt.Sprintf("%d", colour.blue) + ")"
 
 	if angle == 0 {
 		driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
-			"style=\"" + style + "\" font-family=\"" + fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", fontSize) +
+			"style=\"" + style + "\" font-family=\"" + driver.fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", fontSize) +
 			"\">" + text + "</text>\n")
 	} else {
 		driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
-			"transform=\"rotate(" + fmt.Sprintf("%d", angle) + ", " + fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) + ")\" " +
-			"style=\"" + style + "\" font-family=\"" + fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", fontSize) +
+			"transform=\"rotate(" + fmt.Sprintf("%d", angle) + ", " +
+			fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) + ")\" " +
+			"style=\"" + style + "\" font-family=\"" + driver.fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", fontSize) +
 			"\">" + text + "</text>\n")
 	}
 

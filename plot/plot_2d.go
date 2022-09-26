@@ -158,12 +158,15 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	generatePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
 
 	//	add the X & Y titles
-	//	TODO: centralize the text of both titles
 	if len(p.x_label) > 0 {
-		driver.Text(int64(X_MARGINS)+plotWidth/2, int64(math.Round(Y_MARGINS/4)), 0, FONT_SIZE, p.x_label, BLACK)
+		textWidth, textHeight := driver.GetTextBox(p.x_label, FONT_SIZE)
+
+		driver.Text(int64(X_MARGINS)+plotWidth/2-textWidth/2, int64(Y_MARGINS)-2*SCALE_WIDTH-textHeight, 0, p.x_label, FONT_SIZE, BLACK)
 	}
 	if len(p.y_label) > 0 {
-		driver.Text(int64(math.Round(X_MARGINS/4)), int64(Y_MARGINS)+plotHeight/2, -90, FONT_SIZE, p.y_label, BLACK)
+		textWidth, textHeight := driver.GetTextBox(p.y_label, FONT_SIZE)
+
+		driver.Text(int64(X_MARGINS)-2*SCALE_WIDTH-textHeight, int64(Y_MARGINS)+plotHeight/2-textWidth, -90, p.y_label, FONT_SIZE, BLACK)
 	}
 
 	//	generate the plot for every set of points
@@ -202,8 +205,10 @@ func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		driver.Line(int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS),
 			int64(X_MARGINS)+scaled_x, plotHeight-int64(Y_MARGINS)-SCALE_WIDTH, BLACK)
 
-		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS/2), 0, FONT_SIZE, fmt.Sprintf("%d", int64(x)), BLACK)
+		scaleNumber := fmt.Sprintf("%d", int64(x))
+		textWidth, textHeight := driver.GetTextBox(scaleNumber, FONT_SIZE)
+
+		driver.Text(int64(X_MARGINS)+scaled_x-textWidth/2, int64(Y_MARGINS)-SCALE_WIDTH-textHeight, 0, scaleNumber, FONT_SIZE, BLACK)
 	}
 
 	//	add the Y scale in the plot grid
@@ -219,8 +224,10 @@ func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 		driver.Line(plotWidth-int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
 			plotWidth-int64(X_MARGINS)-SCALE_WIDTH, int64(Y_MARGINS)+scaled_y, BLACK)
 
-		//	TODO: centralize text based on the scale indicator
-		driver.Text(int64(X_MARGINS/2), int64(Y_MARGINS)+scaled_y, 0, FONT_SIZE, fmt.Sprintf("%d", int64(y)), BLACK)
+		scaleNumber := fmt.Sprintf("%d", int64(y))
+		textWidth, textHeight := driver.GetTextBox(scaleNumber, FONT_SIZE)
+
+		driver.Text(int64(X_MARGINS)-SCALE_WIDTH-textWidth, int64(Y_MARGINS)+scaled_y-textHeight/2, 0, scaleNumber, FONT_SIZE, BLACK)
 	}
 }
 
@@ -266,6 +273,7 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 
 	switch set.style {
 	case BOXES:
+		//	TODO: improve the way to draw the boxes
 		//	generate a box for each point
 		for _, point := range set.point {
 			scaled_x1 := (WIDTH - 2*X_MARGINS) * (point.x - 0.5 - min_x) / (max_x - min_x)
@@ -356,10 +364,13 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 	}
 
 	//	show the title
-	driver.Line(plotWidth-int64(X_MARGINS)-TITLE_MARGIN-COLOUR_TITLE_WIDTH, plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN,
-		plotWidth-int64(X_MARGINS)-TITLE_MARGIN, plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN, colour)
-	driver.Text(plotWidth-int64(X_MARGINS)-2*TITLE_MARGIN-COLOUR_TITLE_WIDTH-int64(FONT_SIZE/2*len(set.title)),
-		plotHeight-int64(Y_MARGINS)-int64(set.order)*TITLE_MARGIN, 0, FONT_SIZE, set.title, BLACK)
+	textWidth, textHeight := driver.GetTextBox(set.title, FONT_SIZE)
+
+	driver.Line(plotWidth-int64(X_MARGINS)-TITLE_MARGIN-COLOUR_TITLE_WIDTH, plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight/2),
+		plotWidth-int64(X_MARGINS)-TITLE_MARGIN, plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight/2), colour)
+
+	driver.Text(plotWidth-int64(X_MARGINS)-2*TITLE_MARGIN-COLOUR_TITLE_WIDTH-textWidth,
+		plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight), 0, set.title, FONT_SIZE, BLACK)
 
 	return nil
 }
