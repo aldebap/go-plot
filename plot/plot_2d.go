@@ -35,7 +35,11 @@ const (
 )
 
 const (
-	Y_SCALE_DIVISIONS  = 7
+	MIN_X_SCALE_DIVISIONS = 10
+	MAX_X_SCALE_DIVISIONS = 20
+	MIN_Y_SCALE_DIVISIONS = 10
+	MAX_Y_SCALE_DIVISIONS = 20
+
 	SCALE_WIDTH        = 6
 	FONT_SIZE          = 10
 	POINT_WIDTH        = 8
@@ -50,7 +54,8 @@ var (
 	GREEN = RGB_colour{red: 0, green: 255, blue: 0}
 	BLUE  = RGB_colour{red: 0, green: 0, blue: 255}
 
-	plotPallete = []RGB_colour{RED,
+	plotPallete = []RGB_colour{
+		RED,
 		GREEN,
 		BLUE,
 	}
@@ -142,11 +147,17 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	}
 
 	//	round the scale to multiples of 10
-	//	TODO: must improve the way to evaluate the scale
-	min_x = math.Floor(min_x) - float64(int64(min_x)%10)
-	min_y = math.Floor(min_y) - float64(int64(min_y)%10)
-	max_x = math.Floor(max_x) + float64(10-int64(max_x)%10)
-	max_y = math.Floor(max_y) + float64(10-int64(max_y)%10)
+	min_x = math.Floor(min_x) - float64(int64(math.Floor(min_x))%10)
+	min_y = math.Floor(min_y) - float64(int64(math.Floor(min_y))%10)
+
+	max_x = math.Ceil(max_x)
+	if int64(max_x)%10 > 0 {
+		max_x += float64(10 - int64(max_x)%10)
+	}
+	max_y = math.Ceil(max_y)
+	if int64(max_y)%10 > 0 {
+		max_y += float64(10 - int64(max_y)%10)
+	}
 
 	//	set the graphics dimension
 	plotWidth := int64(math.Round(WIDTH))
@@ -180,8 +191,11 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 //	generatePlotGrid implementation of 2D Go_Plot grid generation
 func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64) {
 
+	fmt.Printf("[debug] min (%f, %f) max (%f, %f)\n", min_x, min_y, max_x, max_y)
+
 	//	add the plot grid
 	driver.Comment("plot grid")
+
 	driver.Line(int64(X_MARGINS), int64(Y_MARGINS),
 		plotWidth-int64(X_MARGINS), int64(Y_MARGINS), BLACK)
 	driver.Line(int64(X_MARGINS), plotHeight-int64(Y_MARGINS),
@@ -194,10 +208,19 @@ func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 
 	//	add the X scale in the plot grid
 	driver.Comment("grid x scale")
-	xScaleDivisions := int64(math.Ceil(float64(plotWidth/plotHeight) * Y_SCALE_DIVISIONS))
 
-	for i := int64(1); i < int64(xScaleDivisions); i++ {
-		x := float64(i * int64(max_x-min_x) / xScaleDivisions)
+	xScaleDivisions := int64(max_x-min_x) / 10
+
+	if xScaleDivisions < MIN_X_SCALE_DIVISIONS {
+		xScaleDivisions = MIN_X_SCALE_DIVISIONS
+	} else {
+		if xScaleDivisions > MAX_X_SCALE_DIVISIONS {
+			xScaleDivisions = MAX_X_SCALE_DIVISIONS
+		}
+	}
+
+	for i := int64(0); i <= int64(xScaleDivisions); i++ {
+		x := min_x + float64(i*int64(max_x-min_x)/xScaleDivisions)
 		scaled_x := int64((float64(plotWidth) - 2*X_MARGINS) * (x - min_x) / (max_x - min_x))
 
 		driver.Line(int64(X_MARGINS)+scaled_x, int64(Y_MARGINS),
@@ -213,10 +236,19 @@ func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 
 	//	add the Y scale in the plot grid
 	driver.Comment("grid y scale")
-	yScaleDivisions := int64(Y_SCALE_DIVISIONS)
 
-	for i := int64(1); i < int64(yScaleDivisions); i++ {
-		y := float64(i * int64(max_y-min_y) / yScaleDivisions)
+	yScaleDivisions := int64(max_y-min_y) / 10
+
+	if yScaleDivisions < MIN_Y_SCALE_DIVISIONS {
+		yScaleDivisions = MIN_Y_SCALE_DIVISIONS
+	} else {
+		if yScaleDivisions > MAX_Y_SCALE_DIVISIONS {
+			yScaleDivisions = MAX_Y_SCALE_DIVISIONS
+		}
+	}
+
+	for i := int64(0); i <= int64(yScaleDivisions); i++ {
+		y := min_y + float64(i*int64(max_y-min_y)/yScaleDivisions)
 		scaled_y := int64((float64(plotHeight) - 2*Y_MARGINS) * (y - min_y) / (max_y - min_y))
 
 		driver.Line(int64(X_MARGINS), int64(Y_MARGINS)+scaled_y,
