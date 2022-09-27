@@ -292,6 +292,22 @@ func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err e
 		}
 	}
 
+	//	when the style is "boxes", add left and right margins
+	if set.style == BOXES {
+		var meanXInterval float64
+
+		for i, _ := range set.point {
+			if i == 0 {
+				continue
+			}
+			meanXInterval += set.point[i].x - set.point[i-1].x
+		}
+		meanXInterval /= float64(len(set.point) - 1)
+
+		min_x -= 3 * meanXInterval
+		max_x += 3 * meanXInterval
+	}
+
 	return min_x, min_y, max_x, max_y, nil
 }
 
@@ -305,21 +321,48 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 
 	switch set.style {
 	case BOXES:
-		//	TODO: improve the way to draw the boxes
-		//	generate a box for each point
-		for _, point := range set.point {
-			scaled_x1 := (WIDTH - 2*X_MARGINS) * (point.x - 0.5 - min_x) / (max_x - min_x)
-			scaled_x2 := (WIDTH - 2*X_MARGINS) * (point.x + 0.5 - min_x) / (max_x - min_x)
-			scaled_y1 := (HEIGHT - 2*Y_MARGINS) * (0 - min_y) / (max_y - min_y)
-			scaled_y2 := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		//	get the mean interval between consecutive pairs of x points
+		var meanXInterval float64
 
-			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
-				int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2), colour)
+		for i, _ := range set.point {
+			if i == 0 {
+				continue
+			}
+			meanXInterval += set.point[i].x - set.point[i-1].x
+		}
+		meanXInterval /= float64(len(set.point) - 1)
+		halfBoxWidth := meanXInterval / 2
+
+		//	generate an open box for each point
+		var scaled_x1, scaled_x2, scaled_y1, scaled_y2 float64
+		var previousScaled_y2 float64
+
+		scaled_y1 = (float64(plotHeight) - 2*Y_MARGINS) * (0 - min_y) / (max_y - min_y)
+
+		for _, point := range set.point {
+
+			scaled_x1 = (float64(plotWidth) - 2*X_MARGINS) * (point.x - halfBoxWidth - min_x) / (max_x - min_x)
+			scaled_x2 = (float64(plotWidth) - 2*X_MARGINS) * (point.x + halfBoxWidth - min_x) / (max_x - min_x)
+			scaled_y2 = (float64(plotHeight) - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+
+			if previousScaled_y2 <= scaled_y2 {
+				driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
+					int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2), colour)
+			} else {
+				driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
+					int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+previousScaled_y2), colour)
+			}
 			driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y2),
 				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
 			driver.Line(int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y1),
 				int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
+
+			previousScaled_y2 = scaled_y2
 		}
+
+		//	close the last box
+		driver.Line(int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y1),
+			int64(X_MARGINS+scaled_x2), int64(Y_MARGINS+scaled_y2), colour)
 
 	case DOTS:
 		//	generate a single dot for each point
