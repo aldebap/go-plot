@@ -21,7 +21,7 @@ For more infor on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 
 ### Additional features working
 
-1. REST API interface to receive plot commands and generate the graphic output (in development);
+1. REST API interface to receive plot commands and generate the graphic output (plot/svg endpoint);
 
 ### Working samples
 
