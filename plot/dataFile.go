@@ -15,8 +15,8 @@ import (
 )
 
 //	LoadDataFile load a data file and return a Plot
-func LoadDataFile(x_column uint8, y_column uint8, reader *bufio.Reader) ([]point_2d, error) {
-	point := make([]point_2d, 0, 10)
+func LoadDataFile(x_column uint8, y_column uint8, reader *bufio.Reader) ([]Point_2d, error) {
+	point := make([]Point_2d, 0, 10)
 
 	//	read the input line by line
 	var line string
@@ -57,7 +57,7 @@ func LoadDataFile(x_column uint8, y_column uint8, reader *bufio.Reader) ([]point
 			}
 
 			//	add the new point
-			point = append(point, point_2d{x: x, y: y})
+			point = append(point, Point_2d{X: x, Y: y})
 
 			line = ""
 		}

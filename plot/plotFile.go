@@ -26,7 +26,7 @@ var (
 
 //	style descriptions for a plot of points
 var (
-	style = map[string]uint8{
+	Style = map[string]uint8{
 		"boxes":       BOXES,
 		"dots":        DOTS,
 		"lines":       LINES,
@@ -98,7 +98,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	//	read the input line by line
 	var (
 		plot = &Plot_2D{
-			set_points: make([]set_points_2d, 0),
+			Set_points: make([]Set_points_2d, 0),
 		}
 
 		line      string
@@ -127,13 +127,13 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 			match := setXLabelRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
-				plot.x_label = match[0][1]
+				plot.X_label = match[0][1]
 				commandFound = true
 			}
 
 			match = setYLabelRegEx.FindAllStringSubmatch(line, -1)
 			if len(match) == 1 {
-				plot.y_label = match[0][1]
+				plot.Y_label = match[0][1]
 				commandFound = true
 			}
 
@@ -141,7 +141,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 			if len(match) == 1 {
 				var found bool
 
-				plot.terminal, found = terminal[match[0][1]]
+				plot.Terminal, found = terminal[match[0][1]]
 				if !found {
 					return nil, errors.New("invalid terminal type: " + match[0][1])
 				}
@@ -170,8 +170,8 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					style = DEFAULT_STYLE
 					title = ""
 
-					plot.set_points = append(plot.set_points, *auxSetPoints)
-					plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
+					plot.Set_points = append(plot.Set_points, *auxSetPoints)
+					plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
 
 					plotScope = false
 				}
@@ -260,8 +260,8 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						style = DEFAULT_STYLE
 						title = ""
 
-						plot.set_points = append(plot.set_points, *auxSetPoints)
-						plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
+						plot.Set_points = append(plot.Set_points, *auxSetPoints)
+						plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
 					}
 
 					line = line[len(match[0][0]):]
@@ -278,15 +278,15 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 			return nil, err
 		}
 
-		plot.set_points = append(plot.set_points, *auxSetPoints)
-		plot.set_points[len(plot.set_points)-1].order = uint8(len(plot.set_points))
+		plot.Set_points = append(plot.Set_points, *auxSetPoints)
+		plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
 	}
 
 	return plot, nil
 }
 
 //	newSetPoints2D parse string parameters and attempt to create a new set of 2D points
-func newSetPoints2D(dataFileName, x_column, y_column, styleDesc, title string) (*set_points_2d, error) {
+func newSetPoints2D(dataFileName, x_column, y_column, styleDesc, title string) (*Set_points_2d, error) {
 
 	//	attempt to convert x_column to an int
 	num_x_column, err := strconv.Atoi(x_column)
@@ -315,7 +315,7 @@ func newSetPoints2D(dataFileName, x_column, y_column, styleDesc, title string) (
 	var num_style uint8
 	var found bool
 
-	num_style, found = style[styleDesc]
+	num_style, found = Style[styleDesc]
 	if !found {
 		return nil, errors.New("invalid style: " + styleDesc)
 	}
@@ -325,9 +325,9 @@ func newSetPoints2D(dataFileName, x_column, y_column, styleDesc, title string) (
 		title = fmt.Sprintf("%s u %d:%d", dataFileName, num_x_column, num_y_column)
 	}
 
-	return &set_points_2d{
-		title: title,
-		style: num_style,
-		point: point,
+	return &Set_points_2d{
+		Title: title,
+		Style: num_style,
+		Point: point,
 	}, nil
 }

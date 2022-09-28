@@ -7,8 +7,12 @@
 package controller
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	plot "github.com/aldebap/go-plot/plot"
 )
 
 //	plot request
@@ -60,9 +64,54 @@ func PlotSVG(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		return
 	}
 
-	//	create a plot from the request payload
+	//	create a plot request from the request payload
+	plotRequest := &plot.Plot_2D{
+		X_label:    requestData.X_label,
+		Y_label:    requestData.Y_label,
+		Set_points: make([]plot.Set_points_2d, len(requestData.Plot)),
+		Terminal:   plot.TERMINAL_SVG,
+	}
 
-	//	fill response payload
-	httpResponse.Header().Add("Content-Type", "application/json")
+	for i, setPoints := range requestData.Plot {
+
+		//	attempt to convert the style string to an int constant
+		var num_style uint8
+		var found bool
+
+		num_style, found = plot.Style[setPoints.Style]
+		if !found {
+			httpResponse.WriteHeader(http.StatusBadRequest)
+			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "invalid style: %s" }`, setPoints.Style)))
+			return
+		}
+
+		//	set a default title when necessary
+		title := setPoints.Title
+
+		if len(title) == 0 {
+			title = fmt.Sprintf("data set #%d", i+1)
+		}
+
+		plotRequest.Set_points[i].Title = title
+		plotRequest.Set_points[i].Style = num_style
+
+		//	add the points
+		plotRequest.Set_points[i].Point = make([]plot.Point_2d, len(setPoints.Points))
+
+		for j, point := range setPoints.Points {
+			plotRequest.Set_points[i].Point[j].X = point.X
+			plotRequest.Set_points[i].Point[j].Y = point.Y
+		}
+	}
+
+	//	generate the SVG graphics as a response to HTTP request
+	err = plotRequest.GeneratePlot(bufio.NewWriter(httpResponse))
+	if err != nil {
+		httpResponse.WriteHeader(http.StatusInternalServerError)
+		httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "%s" }`, err)))
+		return
+	}
+
+	httpResponse.Header().Add("Content-Type", "image/svg+xml")
 	httpResponse.WriteHeader(http.StatusCreated)
 }

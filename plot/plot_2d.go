@@ -62,25 +62,25 @@ var (
 )
 
 //	2D point coordinate
-type point_2d struct {
-	x float64
-	y float64
+type Point_2d struct {
+	X float64
+	Y float64
 }
 
 //	2D points list
-type set_points_2d struct {
-	title string
-	style uint8
-	point []point_2d
+type Set_points_2d struct {
+	Title string
+	Style uint8
+	Point []Point_2d
 	order uint8
 }
 
 //	attributes used to describe a 2D plot
 type Plot_2D struct {
-	x_label    string
-	y_label    string
-	set_points []set_points_2d
-	terminal   uint8
+	X_label    string
+	Y_label    string
+	Set_points []Set_points_2d
+	Terminal   uint8
 	output     string
 }
 
@@ -95,7 +95,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	//	create the graphics driver
 	var driver GraphicsDriver
 
-	switch p.terminal {
+	switch p.Terminal {
 	case TERMINAL_CANVAS:
 	case TERMINAL_PNG:
 
@@ -108,23 +108,23 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	defer driver.Close()
 
 	//	check if there's a plot to be generated
-	if len(p.set_points) == 0 {
+	if len(p.Set_points) == 0 {
 		return errors.New("no set of points to be plotted")
 	}
 
-	if len(p.set_points[0].point) == 0 {
+	if len(p.Set_points[0].Point) == 0 {
 		return errors.New("no points in the first set to be plotted")
 	}
 
 	//	evaluate the data's dimension
 	var min_x, min_y, max_x, max_y float64
 
-	min_x, min_y, max_x, max_y, err := p.set_points[0].getMinMax()
+	min_x, min_y, max_x, max_y, err := p.Set_points[0].getMinMax()
 	if err != nil {
 		return errors.New("error evaluating the min-max of set to be plotted: " + err.Error())
 	}
 
-	for _, pointsSet := range p.set_points {
+	for _, pointsSet := range p.Set_points {
 		var set_min_x, set_min_y, set_max_x, set_max_y float64
 
 		set_min_x, set_min_y, set_max_x, set_max_y, err := pointsSet.getMinMax()
@@ -169,19 +169,19 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	generatePlotGrid(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y)
 
 	//	add the X & Y titles
-	if len(p.x_label) > 0 {
-		textWidth, textHeight := driver.GetTextBox(p.x_label, FONT_SIZE)
+	if len(p.X_label) > 0 {
+		textWidth, textHeight := driver.GetTextBox(p.X_label, FONT_SIZE)
 
-		driver.Text(int64(X_MARGINS)+plotWidth/2-textWidth/2, int64(Y_MARGINS)-2*SCALE_WIDTH-textHeight, 0, p.x_label, FONT_SIZE, BLACK)
+		driver.Text(int64(X_MARGINS)+plotWidth/2-textWidth/2, int64(Y_MARGINS)-2*SCALE_WIDTH-textHeight, 0, p.X_label, FONT_SIZE, BLACK)
 	}
-	if len(p.y_label) > 0 {
-		textWidth, textHeight := driver.GetTextBox(p.y_label, FONT_SIZE)
+	if len(p.Y_label) > 0 {
+		textWidth, textHeight := driver.GetTextBox(p.Y_label, FONT_SIZE)
 
-		driver.Text(int64(X_MARGINS)-2*SCALE_WIDTH-textHeight, int64(Y_MARGINS)+plotHeight/2-textWidth, -90, p.y_label, FONT_SIZE, BLACK)
+		driver.Text(int64(X_MARGINS)-2*SCALE_WIDTH-textHeight, int64(Y_MARGINS)+plotHeight/2-textWidth, -90, p.Y_label, FONT_SIZE, BLACK)
 	}
 
 	//	generate the plot for every set of points
-	for i, pointsSet := range p.set_points {
+	for i, pointsSet := range p.Set_points {
 		pointsSet.generatePlot(driver, plotWidth, plotHeight, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
 	}
 
@@ -264,45 +264,45 @@ func generatePlotGrid(driver GraphicsDriver, plotWidth, plotHeight int64, min_x,
 }
 
 //	getMinMax get the min-max X & Y values for the points in the set
-func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err error) {
+func (set *Set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err error) {
 
-	if len(set.point) == 0 {
+	if len(set.Point) == 0 {
 		return 0, 0, 0, 0, errors.New("no points in the set")
 	}
 
 	//	evaluate the plot's dimension
-	min_x = set.point[0].x
+	min_x = set.Point[0].X
 	max_x = min_x
-	min_y = set.point[0].y
+	min_y = set.Point[0].Y
 	max_y = min_y
 
-	for _, point := range set.point {
-		if point.x < min_x {
-			min_x = point.x
+	for _, point := range set.Point {
+		if point.X < min_x {
+			min_x = point.X
 		}
-		if point.x > max_x {
-			max_x = point.x
+		if point.X > max_x {
+			max_x = point.X
 		}
 
-		if point.y < min_y {
-			min_y = point.y
+		if point.Y < min_y {
+			min_y = point.Y
 		}
-		if point.y > max_y {
-			max_y = point.y
+		if point.Y > max_y {
+			max_y = point.Y
 		}
 	}
 
 	//	when the style is "boxes", add left and right margins
-	if set.style == BOXES {
+	if set.Style == BOXES {
 		var meanXInterval float64
 
-		for i, _ := range set.point {
+		for i, _ := range set.Point {
 			if i == 0 {
 				continue
 			}
-			meanXInterval += set.point[i].x - set.point[i-1].x
+			meanXInterval += set.Point[i].X - set.Point[i-1].X
 		}
-		meanXInterval /= float64(len(set.point) - 1)
+		meanXInterval /= float64(len(set.Point) - 1)
 
 		min_x -= 3 * meanXInterval
 		max_x += 3 * meanXInterval
@@ -312,25 +312,25 @@ func (set *set_points_2d) getMinMax() (min_x, min_y, max_x, max_y float64, err e
 }
 
 //	GeneratePlot generate the graphic for the points in the set
-func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64, colour RGB_colour) error {
-	if len(set.point) == 0 {
+func (set *Set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHeight int64, min_x, min_y, max_x, max_y float64, colour RGB_colour) error {
+	if len(set.Point) == 0 {
 		return errors.New("no points in the set")
 	}
 
-	driver.Comment("plotting " + set.title)
+	driver.Comment("plotting " + set.Title)
 
-	switch set.style {
+	switch set.Style {
 	case BOXES:
 		//	get the mean interval between consecutive pairs of x points
 		var meanXInterval float64
 
-		for i, _ := range set.point {
+		for i, _ := range set.Point {
 			if i == 0 {
 				continue
 			}
-			meanXInterval += set.point[i].x - set.point[i-1].x
+			meanXInterval += set.Point[i].X - set.Point[i-1].X
 		}
-		meanXInterval /= float64(len(set.point) - 1)
+		meanXInterval /= float64(len(set.Point) - 1)
 		halfBoxWidth := meanXInterval / 2
 
 		//	generate an open box for each point
@@ -339,11 +339,11 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 
 		scaled_y1 = (float64(plotHeight) - 2*Y_MARGINS) * (0 - min_y) / (max_y - min_y)
 
-		for _, point := range set.point {
+		for _, point := range set.Point {
 
-			scaled_x1 = (float64(plotWidth) - 2*X_MARGINS) * (point.x - halfBoxWidth - min_x) / (max_x - min_x)
-			scaled_x2 = (float64(plotWidth) - 2*X_MARGINS) * (point.x + halfBoxWidth - min_x) / (max_x - min_x)
-			scaled_y2 = (float64(plotHeight) - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+			scaled_x1 = (float64(plotWidth) - 2*X_MARGINS) * (point.X - halfBoxWidth - min_x) / (max_x - min_x)
+			scaled_x2 = (float64(plotWidth) - 2*X_MARGINS) * (point.X + halfBoxWidth - min_x) / (max_x - min_x)
+			scaled_y2 = (float64(plotHeight) - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
 
 			if previousScaled_y2 <= scaled_y2 {
 				driver.Line(int64(X_MARGINS+scaled_x1), int64(Y_MARGINS+scaled_y1),
@@ -366,9 +366,9 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 
 	case DOTS:
 		//	generate a single dot for each point
-		for _, point := range set.point {
-			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
-			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		for _, point := range set.Point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.X - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
 
 			driver.Point(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y), colour)
 		}
@@ -377,9 +377,9 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 		//	generate a line connecting each point
 		var prev_scaled_x, prev_scaled_y float64
 
-		for i, point := range set.point {
-			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
-			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		for i, point := range set.Point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.X - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
 
 			//	in the first iteration, just save the current point
 			if i == 0 {
@@ -399,9 +399,9 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 		//	generate a line connecting each point
 		var prev_scaled_x, prev_scaled_y float64
 
-		for i, point := range set.point {
-			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
-			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		for i, point := range set.Point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.X - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
 
 			//	generate a cross for each point
 			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
@@ -426,9 +426,9 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 	case POINTS:
 		//	TODO: improve to use a different figure for distinct sets of points
 		//	generate a cross for each point
-		for _, point := range set.point {
-			scaled_x := (WIDTH - 2*X_MARGINS) * (point.x - min_x) / (max_x - min_x)
-			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.y - min_y) / (max_y - min_y)
+		for _, point := range set.Point {
+			scaled_x := (WIDTH - 2*X_MARGINS) * (point.X - min_x) / (max_x - min_x)
+			scaled_y := (HEIGHT - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
 
 			driver.Line(int64(X_MARGINS+scaled_x-POINT_WIDTH/2), int64(Y_MARGINS+scaled_y),
 				int64(X_MARGINS+scaled_x+POINT_WIDTH/2), int64(Y_MARGINS+scaled_y), colour)
@@ -439,13 +439,13 @@ func (set *set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 	}
 
 	//	show the title
-	textWidth, textHeight := driver.GetTextBox(set.title, FONT_SIZE)
+	textWidth, textHeight := driver.GetTextBox(set.Title, FONT_SIZE)
 
 	driver.Line(plotWidth-int64(X_MARGINS)-TITLE_MARGIN-COLOUR_TITLE_WIDTH, plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight/2),
 		plotWidth-int64(X_MARGINS)-TITLE_MARGIN, plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight/2), colour)
 
 	driver.Text(plotWidth-int64(X_MARGINS)-2*TITLE_MARGIN-COLOUR_TITLE_WIDTH-textWidth,
-		plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight), 0, set.title, FONT_SIZE, BLACK)
+		plotHeight-int64(Y_MARGINS)-int64(set.order)*(TITLE_MARGIN+textHeight), 0, set.Title, FONT_SIZE, BLACK)
 
 	return nil
 }

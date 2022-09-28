@@ -21,7 +21,7 @@ func TestGetMinMax(t *testing.T) {
 	t.Run(">>> getMinMax: empty set", func(t *testing.T) {
 
 		want := "no points in the set"
-		testSet := &set_points_2d{}
+		testSet := &Set_points_2d{}
 
 		_, _, _, _, err := testSet.getMinMax()
 		if err == nil {
@@ -40,9 +40,9 @@ func TestGetMinMax(t *testing.T) {
 		want_min_y := float64(0)
 		want_max_x := float64(0)
 		want_max_y := float64(0)
-		testSet := &set_points_2d{
-			point: []point_2d{
-				{x: want_min_x, y: want_min_y},
+		testSet := &Set_points_2d{
+			Point: []Point_2d{
+				{X: want_min_x, Y: want_min_y},
 			},
 		}
 
@@ -68,12 +68,12 @@ func TestGetMinMax(t *testing.T) {
 		want_min_y := float64(-15)
 		want_max_x := float64(20)
 		want_max_y := float64(25)
-		testSet := &set_points_2d{
-			point: []point_2d{
-				{x: want_min_x, y: 0},
-				{x: 0, y: want_min_y},
-				{x: want_max_x, y: 0},
-				{x: 0, y: want_max_y},
+		testSet := &Set_points_2d{
+			Point: []Point_2d{
+				{X: want_min_x, Y: 0},
+				{X: 0, Y: want_min_y},
+				{X: want_max_x, Y: 0},
+				{X: 0, Y: want_max_y},
 			},
 		}
 

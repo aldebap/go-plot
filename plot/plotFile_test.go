@@ -26,7 +26,7 @@ func TestLoadPlotFile(t *testing.T) {
 			return
 		}
 
-		got := plot.(*Plot_2D).x_label
+		got := plot.(*Plot_2D).X_label
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: '%s' result: '%s'", want, got)
@@ -43,7 +43,7 @@ func TestLoadPlotFile(t *testing.T) {
 			return
 		}
 
-		got := plot.(*Plot_2D).y_label
+		got := plot.(*Plot_2D).Y_label
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: '%s' result: '%s'", want, got)
@@ -60,7 +60,7 @@ func TestLoadPlotFile(t *testing.T) {
 			return
 		}
 
-		got := plot.(*Plot_2D).terminal
+		got := plot.(*Plot_2D).Terminal
 		//	check the result
 		if terminal[want] != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", terminal[want], want, got)
@@ -134,7 +134,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -142,7 +142,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
@@ -207,7 +207,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -215,7 +215,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
@@ -273,7 +273,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -281,14 +281,14 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
-		want = int(style[expectedStyle])
-		got = int(plot.(*Plot_2D).set_points[0].style)
+		want = int(Style[expectedStyle])
+		got = int(plot.(*Plot_2D).Set_points[0].Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
@@ -372,7 +372,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -380,14 +380,14 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
 		wantString := expectedTitle
-		gotString := plot.(*Plot_2D).set_points[0].title
+		gotString := plot.(*Plot_2D).Set_points[0].Title
 		//	check the result
 		if wantString != gotString {
 			t.Errorf("failed parsing plot file: expected: %s result: %s", wantString, gotString)
@@ -445,7 +445,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -453,14 +453,14 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
-		want = int(style[expectedStyle])
-		got = int(plot.(*Plot_2D).set_points[0].style)
+		want = int(Style[expectedStyle])
+		got = int(plot.(*Plot_2D).Set_points[0].Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
@@ -501,7 +501,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -509,14 +509,14 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
-		want = int(style[expectedStyle])
-		got = int(plot.(*Plot_2D).set_points[0].style)
+		want = int(Style[expectedStyle])
+		got = int(plot.(*Plot_2D).Set_points[0].Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
@@ -559,7 +559,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -567,21 +567,21 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
-		want = int(style[expectedStyle])
-		got = int(plot.(*Plot_2D).set_points[0].style)
+		want = int(Style[expectedStyle])
+		got = int(plot.(*Plot_2D).Set_points[0].Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
 		}
 
 		wantString := expectedTerminal
-		gotString := plot.(*Plot_2D).terminal
+		gotString := plot.(*Plot_2D).Terminal
 		//	check the result
 		if terminal[wantString] != gotString {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", terminal[wantString], wantString, gotString)
@@ -624,7 +624,7 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want := expectedSetPoints
-		got := len(plot.(*Plot_2D).set_points)
+		got := len(plot.(*Plot_2D).Set_points)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
@@ -632,21 +632,21 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 
 		want = expectedPoints
-		got = len(plot.(*Plot_2D).set_points[0].point)
+		got = len(plot.(*Plot_2D).Set_points[0].Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d points result: %d", want, got)
 		}
 
-		want = int(style[expectedStyle])
-		got = int(plot.(*Plot_2D).set_points[0].style)
+		want = int(Style[expectedStyle])
+		got = int(plot.(*Plot_2D).Set_points[0].Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedStyle, got)
 		}
 
 		wantString := expectedTitle
-		gotString := plot.(*Plot_2D).set_points[1].title
+		gotString := plot.(*Plot_2D).Set_points[1].Title
 		//	check the result
 		if wantString != gotString {
 			t.Errorf("failed parsing plot file: expected: %s result: %s", wantString, gotString)
@@ -751,22 +751,22 @@ func TestNewSetPoints2D(t *testing.T) {
 		}
 
 		want := expectedPoints
-		got := len(setOfPoints.point)
+		got := len(setOfPoints.Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed creating a new set of points: expected: %d points result: %d", want, got)
 			return
 		}
 
-		want = int(style[expectedStyle])
-		got = int(setOfPoints.style)
+		want = int(Style[expectedStyle])
+		got = int(setOfPoints.Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed creating a new set of points: expected: %d (%s) result: %d", want, expectedStyle, got)
 		}
 
 		wantString := expectedTitle
-		gotString := setOfPoints.title
+		gotString := setOfPoints.Title
 		//	check the result
 		if wantString != gotString {
 			t.Errorf("failed creating a new set of points: expected: %s result: %s", wantString, gotString)
@@ -806,22 +806,22 @@ func TestNewSetPoints2D(t *testing.T) {
 		}
 
 		want := expectedPoints
-		got := len(setOfPoints.point)
+		got := len(setOfPoints.Point)
 		//	check the result
 		if want != got {
 			t.Errorf("failed creating a new set of points: expected: %d points result: %d", want, got)
 			return
 		}
 
-		want = int(style[expectedStyle])
-		got = int(setOfPoints.style)
+		want = int(Style[expectedStyle])
+		got = int(setOfPoints.Style)
 		//	check the result
 		if want != got {
 			t.Errorf("failed creating a new set of points: expected: %d (%s) result: %d", want, expectedStyle, got)
 		}
 
 		wantString := expectedTitle
-		gotString := setOfPoints.title
+		gotString := setOfPoints.Title
 		//	check the result
 		if wantString != gotString {
 			t.Errorf("failed creating a new set of points: expected: %s result: %s", wantString, gotString)

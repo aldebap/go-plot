@@ -68,14 +68,14 @@ func TestLoadDataFile(t *testing.T) {
 		}
 
 		want := float64(10)
-		got := point[0].x
+		got := point[0].X
 		//	check the x coordinate result
 		if want != got {
 			t.Errorf("failed parsing data file: x coordinated expected %f result: %f", want, got)
 		}
 
 		want = float64(20)
-		got = point[0].y
+		got = point[0].Y
 		//	check the y coordinate result
 		if want != got {
 			t.Errorf("failed parsing data file: y coordinated expected %f result: %f", want, got)
@@ -99,14 +99,14 @@ func TestLoadDataFile(t *testing.T) {
 		}
 
 		want := float64(50)
-		got := point[1].x
+		got := point[1].X
 		//	check the x coordinate result
 		if want != got {
 			t.Errorf("failed parsing data file: x coordinated expected %f result: %f", want, got)
 		}
 
 		want = float64(60)
-		got = point[1].y
+		got = point[1].Y
 		//	check the y coordinate result
 		if want != got {
 			t.Errorf("failed parsing data file: y coordinated expected %f result: %f", want, got)

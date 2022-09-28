@@ -9,7 +9,6 @@ export  CURRENT_DIR="$( pwd )"
 
 cd ..
 go build -o ./bin/go-plot
-go build -o ./bin/go-api ./api/main.go
 cd ${CURRENT_DIR}
 
 #   test scenatio #01
