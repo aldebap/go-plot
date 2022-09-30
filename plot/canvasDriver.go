@@ -75,11 +75,18 @@ func (driver *Canvas_Driver) Comment(text string) {
 
 //	Point draws a point in the SVG graphic
 func (driver *Canvas_Driver) Point(x, y int64, colour RGB_colour) error {
+	driver.writer.WriteString("  ctx.beginPath();\n")
+	driver.writer.WriteString("  ctx.strokeStyle = \"#" + colour.Hexa() + "\";\n")
+	driver.writer.WriteString("  ctx.moveTo(" + fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) + ");\n")
+	driver.writer.WriteString("  ctx.lineTo(" + fmt.Sprintf("%d", x+1) + ", " + fmt.Sprintf("%d", driver.height-y) + ");\n")
+	driver.writer.WriteString("  ctx.stroke();\n")
+
 	return nil
 }
 
 //	Line draws a line between two points in the SVG graphic
 func (driver *Canvas_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
+	driver.writer.WriteString("  ctx.beginPath();\n")
 	driver.writer.WriteString("  ctx.strokeStyle = \"#" + colour.Hexa() + "\";\n")
 	driver.writer.WriteString("  ctx.moveTo(" + fmt.Sprintf("%d", x1) + ", " + fmt.Sprintf("%d", driver.height-y1) + ");\n")
 	driver.writer.WriteString("  ctx.lineTo(" + fmt.Sprintf("%d", x2) + ", " + fmt.Sprintf("%d", driver.height-y2) + ");\n")
@@ -90,15 +97,20 @@ func (driver *Canvas_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error
 
 //	GetTextBox evaluate the width and height of the rectangle required to draw the text string using a given font size
 func (driver *Canvas_Driver) GetTextBox(text string) (width, height int64) {
-	return 0, 0
+
+	//	a rough estimation of the rectangle dimentions
+	width = int64(0.37 * float64(int64(driver.fontSize)*int64(len(text))))
+	height = int64(0.8 * float64(driver.fontSize))
+
+	return width, height
 }
 
 //	Text writes a string to the specified point in the SVG graphic
 func (driver *Canvas_Driver) Text(x, y, angle int64, text string, colour RGB_colour) error {
 	driver.writer.WriteString("  ctx.font = \"" + fmt.Sprintf("%d", driver.fontSize) + "px " + driver.fontFamily + "\";\n")
 	driver.writer.WriteString("  ctx.fillStyle = \"#" + colour.Hexa() + "\";\n")
-	driver.writer.WriteString("  ctx.fillText(\"" + text + "\", " + fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) +
-		");\n")
+	driver.writer.WriteString("  ctx.fillText(\"" + text + "\", " +
+		fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) + ");\n")
 
 	return nil
 }
