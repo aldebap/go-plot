@@ -38,7 +38,27 @@ func LoadDataFile(x_column uint8, y_column uint8, reader *bufio.Reader) ([]Point
 				continue
 			}
 
-			column := strings.Split(line, " ")
+			line = strings.TrimLeft(line, " ")
+			line = strings.TrimRight(line, " ")
+
+			//	doing the split manually as strings.split() doesn't behave correctly when multiple spaces separate columns
+			//column := strings.Split(line, " ")
+			var column []string = make([]string, 0)
+			var value string
+
+			for _, char := range line {
+				if char == ' ' {
+					if len(value) > 0 {
+						column = append(column, value)
+						value = ""
+					}
+					continue
+				}
+				value = value + string(char)
+			}
+			if len(value) > 0 {
+				column = append(column, value)
+			}
 
 			//	check if the line have the expected columns
 			if len(column) < int(x_column) || len(column) < int(y_column) {

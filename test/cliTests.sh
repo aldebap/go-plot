@@ -246,5 +246,38 @@ PLOT_CONTENT
 
 rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
 
+#   test scenatio #06
+export SCENARIO="06"
+export DESCRIPTION="create a multiple data set plot from a data file (canvas)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${DATA_FILE} <<DATA_CONTENT
+# Distance Men   Women        Men Women
+  100     9.58   10.49 2009-08-16 1988-07-16
+  200    19.19   21.34 2009-08-20 1988-09-29
+  400    43.18   47.60 1999-08-26 1985-10-06
+  800   100.91  113.28 2012-08-09 1983-07-26
+ 1000   131.96  148.98 1999-09-05 1996-08-23
+ 1500   206.00  230.46 1998-07-14 1993-09-11
+ 3000   440.67  486.11 1996-09-01 1993-09-13
+ 5000   757.35  851.15 2005-05-31 2008-06-06
+10000  1577.53 1771.78 2005-08-26 1993-09-08
+21098  3503.00 3912.00 2010-03-21 2014-02-16
+42195  7377.00 8262.00 2014-09-28 2003-04-13
+DATA_CONTENT
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal canvas
+set output "${PLOT_FILE}_${SCENARIO}.js"
+
+plot "${DATA_FILE}" using 1:2 with lines,
+     "${DATA_FILE}" using 1:3 with linespoints
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
 #   clean up temporary files
 rm -rf ${DATA_FILE} > /dev/null
