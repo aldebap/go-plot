@@ -101,4 +101,55 @@ curl --request "POST" --header "Content-type: application/json" --data @${REQUES
 
 rm -rf "${REQUEST_FILE}" > /dev/null
 
+#   test scenatio #02
+export SCENARIO="02"
+export DESCRIPTION="create a multiple data set plot from a data file"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${REQUEST_FILE} <<REQUEST_CONTENT
+{
+     "plot": [
+          {
+               "title": "Men times",
+               "style": "lines",
+               "points": [
+                    { "x":   100, "y":    9.58 },
+                    { "x":   200, "y":   19.19 },
+                    { "x":   400, "y":   43.18 },
+                    { "x":   800, "y":  100.91 },
+                    { "x":  1000, "y":  131.96 },
+                    { "x":  1500, "y":  206.00 },
+                    { "x":  3000, "y":  440.67 },
+                    { "x":  5000, "y":  757.35 },
+                    { "x": 10000, "y": 1577.53 },
+                    { "x": 21098, "y": 3503.00 },
+                    { "x": 42195, "y": 7377.00 }
+               ]
+          },
+          {
+               "title": "Women times",
+               "style": "lines",
+               "points": [
+                    { "x":   100, "y":   10.49 },
+                    { "x":   200, "y":   21.34 },
+                    { "x":   400, "y":   47.60 },
+                    { "x":   800, "y":  113.28 },
+                    { "x":  1000, "y":  148.98 },
+                    { "x":  1500, "y":  230.46 },
+                    { "x":  3000, "y":  486.11 },
+                    { "x":  5000, "y":  851.15 },
+                    { "x": 10000, "y": 1771.78 },
+                    { "x": 21098, "y": 3912.00 },
+                    { "x": 42195, "y": 8262.00 }
+               ]
+          }
+     ]
+}
+REQUEST_CONTENT
+
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.js" --progress-bar localhost:8080/plot/canvas
+
+rm -rf "${REQUEST_FILE}" > /dev/null
+
 kill -9 ${PID}

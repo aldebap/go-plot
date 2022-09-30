@@ -1,0 +1,69 @@
+<html>
+
+<head>
+    <title>Go-Plot: Canvas API</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <script content="text/javascript">
+        const GOPLOT_API_URL = 'http://localhost:8080/plot/canvas';
+        const REQUEST_HEADERS = {
+            'Content-Type': 'application/json',
+        };
+        const plotRequest = {
+            plot: [
+                {
+                    title: "Men times",
+                    style: "lines",
+                    points: [
+                        { x: 100, y: 9.58 },
+                        { x: 200, y: 19.19 },
+                        { x: 400, y: 43.18 },
+                        { x: 800, y: 100.91 },
+                        { x: 1000, y: 131.96 },
+                        { x: 1500, y: 206.00 },
+                        { x: 3000, y: 440.67 },
+                        { x: 5000, y: 757.35 },
+                        { x: 10000, y: 1577.53 },
+                        { x: 21098, y: 3503.00 },
+                        { x: 42195, y: 7377.00 },
+                    ]
+                },
+                {
+                    title: "Women times",
+                    style: "lines",
+                    points: [
+                        { x: 100, y: 10.49 },
+                        { x: 200, y: 21.34 },
+                        { x: 400, y: 47.60 },
+                        { x: 800, y: 113.28 },
+                        { x: 1000, y: 148.98 },
+                        { x: 1500, y: 230.46 },
+                        { x: 3000, y: 486.11 },
+                        { x: 5000, y: 851.15 },
+                        { x: 10000, y: 1771.78 },
+                        { x: 21098, y: 3912.00 },
+                        { x: 42195, y: 8262.00 },
+                    ]
+                },
+            ],
+        };
+
+        //  send a request to the server
+        axios.post(GOPLOT_API_URL, plotRequest, { headers: REQUEST_HEADERS })
+            .then(response => {
+                const canvasScript = response.data;
+
+                eval(canvasScript);
+                canvas_plot();
+            })
+            .catch(error => console.error('On create student error', error));
+    </script>
+
+    <canvas id="canvas_plot" width=600 height=400>
+        <div id="err_msg">No support for HTML 5 canvas element</div>
+    </canvas>
+</body>
+
+</html>

@@ -33,8 +33,8 @@ type plotPoint struct {
 	Y float64 `json:"y"`
 }
 
-//	PlotSVG generate a SVG graphic based on plot request
-func PlotSVG(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+//	PlotHandler handle the HTTP request to generate a Go-Plot graphic
+func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, terminal uint8) {
 
 	//	check for "json" content type
 	contentType := httpRequest.Header.Get("Content-type")
@@ -69,7 +69,7 @@ func PlotSVG(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		X_label:    requestData.X_label,
 		Y_label:    requestData.Y_label,
 		Set_points: make([]plot.Set_points_2d, len(requestData.Plot)),
-		Terminal:   plot.TERMINAL_SVG,
+		Terminal:   terminal,
 	}
 
 	for i, setPoints := range requestData.Plot {
@@ -112,6 +112,14 @@ func PlotSVG(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		return
 	}
 
-	httpResponse.Header().Add("Content-Type", "image/svg+xml")
+	//	based on terminal, add the appropriate response content type
+	switch terminal {
+	case plot.TERMINAL_CANVAS:
+		httpResponse.Header().Add("Content-Type", "text/javascript")
+
+	case plot.TERMINAL_SVG:
+		httpResponse.Header().Add("Content-Type", "image/svg+xml")
+	}
+
 	httpResponse.WriteHeader(http.StatusCreated)
 }

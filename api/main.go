@@ -15,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/aldebap/go-plot/api/controller"
+	"github.com/aldebap/go-plot/plot"
 )
 
 //	main entry point for Go-Plot Rest API
@@ -30,7 +31,12 @@ func main() {
 	//	start the Web Server
 	httpRouter := mux.NewRouter()
 
-	httpRouter.HandleFunc("/plot/svg", controller.PlotSVG).Methods(http.MethodPost)
+	httpRouter.HandleFunc("/plot/canvas", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_CANVAS)
+	}).Methods(http.MethodPost)
+	httpRouter.HandleFunc("/plot/svg", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_SVG)
+	}).Methods(http.MethodPost)
 
 	http.Handle("/", httpRouter)
 
