@@ -7,7 +7,7 @@
 
 <body>
     <script content="text/javascript">
-        const GOPLOT_API_URL = 'http://localhost:8080/plot/canvas';
+        const GOPLOT_API_URL = 'http://127.0.0.1:8080/plot/canvas';
         const REQUEST_HEADERS = {
             'Content-Type': 'application/json',
         };
@@ -58,7 +58,7 @@
                 eval(canvasScript);
                 canvas_plot();
             })
-            .catch(error => console.error('On create student error', error));
+            .catch(error => console.error('On Generating Go-Plot Graphic', error));
     </script>
 
     <canvas id="canvas_plot" width=600 height=400>

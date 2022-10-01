@@ -38,6 +38,13 @@ func main() {
 		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_SVG)
 	}).Methods(http.MethodPost)
 
+	//	enable CORS
+	httpRouter.HandleFunc("/plot/canvas", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		httpResponse.Header().Add("access-control-allow-origin", "*")
+		httpResponse.Header().Add("access-control-allow-methods", "POST")
+		httpResponse.Header().Add("access-control-allow-headers", "Origin, X-Requested-With, Content-Type, Accept")
+	}).Methods(http.MethodOptions)
+
 	http.Handle("/", httpRouter)
 
 	//start and listen to requests

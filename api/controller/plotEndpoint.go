@@ -121,5 +121,5 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 		httpResponse.Header().Add("Content-Type", "image/svg+xml")
 	}
 
-	httpResponse.WriteHeader(http.StatusCreated)
+	httpResponse.WriteHeader(http.StatusOK)
 }
