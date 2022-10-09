@@ -97,7 +97,7 @@ cat > ${REQUEST_FILE} <<REQUEST_CONTENT
 }
 REQUEST_CONTENT
 
-curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.svg" --progress-bar localhost:8080/plot/svg
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.svg" --progress-bar localhost:8080/plot/api/svg
 
 rm -rf "${REQUEST_FILE}" > /dev/null
 
@@ -148,7 +148,7 @@ cat > ${REQUEST_FILE} <<REQUEST_CONTENT
 }
 REQUEST_CONTENT
 
-curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.js" --progress-bar localhost:8080/plot/canvas
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.js" --progress-bar localhost:8080/plot/api/canvas
 
 rm -rf "${REQUEST_FILE}" > /dev/null
 

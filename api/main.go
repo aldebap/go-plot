@@ -31,19 +31,12 @@ func main() {
 	//	start the Web Server
 	httpRouter := mux.NewRouter()
 
-	httpRouter.HandleFunc("/plot/canvas", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+	httpRouter.HandleFunc("/plot/api/canvas", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_CANVAS)
 	}).Methods(http.MethodPost)
-	httpRouter.HandleFunc("/plot/svg", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+	httpRouter.HandleFunc("/plot/api/svg", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_SVG)
 	}).Methods(http.MethodPost)
-
-	//	enable CORS
-	httpRouter.HandleFunc("/plot/canvas", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-		httpResponse.Header().Add("access-control-allow-origin", "*")
-		httpResponse.Header().Add("access-control-allow-methods", "POST")
-		httpResponse.Header().Add("access-control-allow-headers", "Origin, X-Requested-With, Content-Type, Accept")
-	}).Methods(http.MethodOptions)
 
 	http.Handle("/", httpRouter)
 

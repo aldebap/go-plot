@@ -1,0 +1,15 @@
+# Go-Plot server configuration
+server {
+	listen 5000 default_server;
+	listen [::]:5000 default_server;
+
+	#	reverse proxy to Go Live web server running from VSC
+	location /plot {
+		proxy_pass http://localhost:5500/web/;
+	}
+
+	#	reverse proxy to Go-Plot API server
+	location /plot/api {
+		proxy_pass http://localhost:8080/plot/api;
+	}
+}
