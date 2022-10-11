@@ -70,6 +70,12 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
+	//	TODO: need to add an optional sign before the number
+	rangeRegEx, err := regexp.Compile(`^\s*\[([0-9.]+):([0-9.]+)\]\s*`)
+	if err != nil {
+		return nil, err
+	}
+
 	dataFileRegEx, err := regexp.Compile(`^\s*"([^"]+)"\s*`)
 	if err != nil {
 		return nil, err
@@ -90,6 +96,11 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
+	functionRegEx, err := regexp.Compile(`^\s*[^"]+\s*`)
+	if err != nil {
+		return nil, err
+	}
+
 	commaSeparatorRegEx, err := regexp.Compile(`^\s*,\s*`)
 	if err != nil {
 		return nil, err
@@ -99,6 +110,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	var (
 		plot = &Plot_2D{
 			Set_points: make([]Set_points_2d, 0),
+			Function:   make([]Function_2d, 0),
 		}
 
 		line      string
@@ -106,6 +118,9 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 	)
 
 	var (
+		min_x        string = "-10"
+		max_x        string = "+10"
+		function     string
 		dataFileName string
 		x_column     string = "1"
 		y_column     string = "2"
@@ -156,7 +171,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 			//	if a command was found clean up current line
 			if commandFound {
-				//	if previous parsed a plot command whose data file was not loaded yet, it's the time for it
+				//	if previously parsed a plot command whose data file was not loaded yet, it's the time for it
 				if plotScope && len(dataFileName) > 0 {
 					auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
 					if err != nil {
@@ -171,7 +186,27 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					title = ""
 
 					plot.Set_points = append(plot.Set_points, *auxSetPoints)
-					plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
+					plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
+
+					plotScope = false
+				}
+
+				//	if previously parsed a plot command whose function was not loaded yet, it's the time for it
+				if plotScope && len(function) > 0 {
+					auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
+					if err != nil {
+						return nil, err
+					}
+
+					//	erase function as it was used already
+					function = ""
+					min_x = "-10"
+					max_x = "+10"
+					style = DEFAULT_STYLE
+					title = ""
+
+					plot.Function = append(plot.Function, *auxFunction)
+					plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
 
 					plotScope = false
 				}
@@ -190,6 +225,18 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				match = plotCommandRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					plotScope = true
+
+					line = line[len(match[0][0]):]
+					continue
+				}
+
+				match = rangeRegEx.FindAllStringSubmatch(line, -1)
+				if len(match) == 1 {
+					if !plotScope {
+						return nil, errors.New("range specification without a plot command: " + match[0][0])
+					}
+					min_x = match[0][1]
+					max_x = match[0][2]
 
 					line = line[len(match[0][0]):]
 					continue
@@ -240,6 +287,17 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					continue
 				}
 
+				match = functionRegEx.FindAllStringSubmatch(line, -1)
+				if len(match) == 1 {
+					if !plotScope {
+						return nil, errors.New("function specification without a plot command: " + match[0][0])
+					}
+					function = match[0][1]
+
+					line = line[len(match[0][0]):]
+					continue
+				}
+
 				//	when a comma is found in the scope of a plot command, add the data file points
 				match = commaSeparatorRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
@@ -261,7 +319,27 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						title = ""
 
 						plot.Set_points = append(plot.Set_points, *auxSetPoints)
-						plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
+						plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
+					}
+
+					//	if function was found, add it
+					if len(function) > 0 {
+						auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
+						if err != nil {
+							return nil, err
+						}
+
+						//	erase function as it was used already
+						function = ""
+						min_x = "-10"
+						max_x = "+10"
+						style = DEFAULT_STYLE
+						title = ""
+
+						plot.Function = append(plot.Function, *auxFunction)
+						plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
+
+						plotScope = false
 					}
 
 					line = line[len(match[0][0]):]
@@ -279,10 +357,59 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		}
 
 		plot.Set_points = append(plot.Set_points, *auxSetPoints)
-		plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points))
+		plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
+	}
+
+	//	when plot file parsing finishes, if a plot command whose function was not loaded yet, it's the time for it
+	if plotScope && len(function) > 0 {
+		auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
+		if err != nil {
+			return nil, err
+		}
+
+		plot.Function = append(plot.Function, *auxFunction)
+		plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
 	}
 
 	return plot, nil
+}
+
+//	newFunction2D parse string parameters and attempt to create a new function 2D
+func newFunction2D(function, min_x, max_x, styleDesc, title string) (*Function_2d, error) {
+
+	//	attempt to convert min_x to a float64
+	num_min_x, err := strconv.ParseFloat(min_x, 64)
+	if err != nil {
+		return nil, errors.New("min x expected to be numeric: " + err.Error())
+	}
+
+	//	attempt to convert max_x to a float64
+	num_max_x, err := strconv.ParseFloat(max_x, 64)
+	if err != nil {
+		return nil, errors.New("max x expected to be numeric: " + err.Error())
+	}
+
+	//	attempt to convert the style string to an int constant
+	var num_style uint8
+	var found bool
+
+	num_style, found = Style[styleDesc]
+	if !found {
+		return nil, errors.New("invalid style: " + styleDesc)
+	}
+
+	//	set a default title when necessary
+	if len(title) == 0 {
+		title = function
+	}
+
+	return &Function_2d{
+		Title:    title,
+		Style:    num_style,
+		Function: function,
+		Min_x:    num_min_x,
+		Max_x:    num_max_x,
+	}, nil
 }
 
 //	newSetPoints2D parse string parameters and attempt to create a new set of 2D points

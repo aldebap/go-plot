@@ -68,11 +68,22 @@ type Set_points_2d struct {
 	order uint8
 }
 
+//	2D function
+type Function_2d struct {
+	Title    string
+	Style    uint8
+	Function string
+	Min_x    float64
+	Max_x    float64
+	order    uint8
+}
+
 //	attributes used to describe a 2D plot
 type Plot_2D struct {
 	X_label    string
 	Y_label    string
 	Set_points []Set_points_2d
+	Function   []Function_2d
 	Terminal   uint8
 	output     string
 }

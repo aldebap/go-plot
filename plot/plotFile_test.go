@@ -828,3 +828,7 @@ func TestNewSetPoints2D(t *testing.T) {
 		}
 	})
 }
+
+//	TODO: add test scenarios for functions
+
+//	TODO: add test scenarios for data sets + functions
