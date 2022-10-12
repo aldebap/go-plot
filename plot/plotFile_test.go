@@ -173,7 +173,34 @@ func TestLoadPlotFile(t *testing.T) {
 			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
 		}
 	})
-	//	TODO: add some scenarios with positive and negative numbers for the function interval
+
+	t.Run(">>> LoadPlotFile: plot function with signed interval numbers", func(t *testing.T) {
+
+		expectedSetPoints := 0
+		expectedFunctions := 1
+
+		mockPlotFile := strings.NewReader(`plot [-3.14:+3.14] sin(x)`)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedSetPoints
+		got := len(plot.(*Plot_2D).Set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		want = expectedFunctions
+		got = len(plot.(*Plot_2D).Function)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
+		}
+	})
 
 	t.Run(">>> LoadPlotFile: plot \"file\" (default parameters)", func(t *testing.T) {
 
@@ -659,6 +686,108 @@ func TestLoadPlotFile(t *testing.T) {
 		//	check the result
 		if terminal[wantString] != gotString {
 			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", terminal[wantString], wantString, gotString)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: plot both function and data file", func(t *testing.T) {
+
+		//	create a temporary data file
+		tmpDataFile, err := os.CreateTemp("", "goPlotData")
+		if err != nil {
+			t.Errorf("fail creating plot data file: %s", err.Error())
+			return
+		}
+		defer os.Remove(tmpDataFile.Name())
+
+		_, err = tmpDataFile.Write([]byte("col1 col2 col3\n10 20 30\n40 50 60\n"))
+		if err != nil {
+			tmpDataFile.Close()
+			t.Errorf("fail writing to plot data file: %s", err.Error())
+			return
+		}
+		err = tmpDataFile.Close()
+		if err != nil {
+			t.Errorf("fail closing the plot data file: %s", err.Error())
+			return
+		}
+
+		expectedFunctions := 1
+		expectedFunctionStyle := "lines"
+		expectedSetPoints := 1
+		expectedTitle := "annual inflation"
+
+		mockPlotFile := strings.NewReader(`plot [0:+3.14] sin(x) with ` + expectedFunctionStyle + `, ` +
+			`"` + tmpDataFile.Name() + `" using 2:3 title "` + expectedTitle + `"`)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedFunctions
+		got := len(plot.(*Plot_2D).Function)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
+		}
+
+		want = int(Style[expectedFunctionStyle])
+		got = int(plot.(*Plot_2D).Function[0].Style)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedFunctionStyle, got)
+		}
+
+		want = expectedSetPoints
+		got = len(plot.(*Plot_2D).Set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		wantString := expectedTitle
+		gotString := plot.(*Plot_2D).Set_points[0].Title
+		//	check the result
+		if wantString != gotString {
+			t.Errorf("failed parsing plot file: expected: %s result: %s", wantString, gotString)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: plot both function and data file in same description", func(t *testing.T) {
+
+		//	create a temporary data file
+		tmpDataFile, err := os.CreateTemp("", "goPlotData")
+		if err != nil {
+			t.Errorf("fail creating plot data file: %s", err.Error())
+			return
+		}
+		defer os.Remove(tmpDataFile.Name())
+
+		_, err = tmpDataFile.Write([]byte("col1 col2 col3\n10 20 30\n40 50 60\n"))
+		if err != nil {
+			tmpDataFile.Close()
+			t.Errorf("fail writing to plot data file: %s", err.Error())
+			return
+		}
+		err = tmpDataFile.Close()
+		if err != nil {
+			t.Errorf("fail closing the plot data file: %s", err.Error())
+			return
+		}
+
+		mockPlotFile := strings.NewReader(`plot [0:+3.14] sin(x) "` + tmpDataFile.Name() + `" using 2:3`)
+		_, err = LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err == nil {
+			t.Errorf("error expected loading plot file")
+			return
+		}
+
+		want := `function and data file must be described separate in plot command`
+		got := err
+		//	check the result
+		if want != got.Error() {
+			t.Errorf("failed parsing plot file: expected error: %s result: %s", want, got)
 		}
 	})
 

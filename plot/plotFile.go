@@ -70,8 +70,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	//	TODO: need to add an optional sign before the number
-	rangeRegEx, err := regexp.Compile(`^\s*\[([0-9.]+):([0-9.]+)\]\s*`)
+	rangeRegEx, err := regexp.Compile(`^\s*\[([-+]{0,1}[0-9.]+):([-+]{0,1}[0-9.]+)\]\s*`)
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +170,10 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 			//	if a command was found clean up current line
 			if commandFound {
+				if plotScope && len(dataFileName) > 0 && len(function) > 0 {
+					return nil, errors.New("function and data file must be described separate in plot command")
+				}
+
 				//	if previously parsed a plot command whose data file was not loaded yet, it's the time for it
 				if plotScope && len(dataFileName) > 0 {
 					auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
@@ -287,23 +290,16 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					continue
 				}
 
-				match = functionRegEx.FindAllStringSubmatch(line, -1)
-				if len(match) == 1 {
-					if !plotScope {
-						return nil, errors.New("function specification without a plot command: " + match[0][0])
-					}
-					function = match[0][1]
-
-					line = line[len(match[0][0]):]
-					continue
-				}
-
 				//	when a comma is found in the scope of a plot command, add the data file points
 				match = commaSeparatorRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
 					if !plotScope {
 						return nil, errors.New("unexpected syntax: " + match[0][1])
 					}
+					if len(dataFileName) > 0 && len(function) > 0 {
+						return nil, errors.New("function and data file must be described separate in plot command")
+					}
+
 					//	if a data file name was found, add the set of points
 					if len(dataFileName) > 0 {
 						auxSetPoints, err := newSetPoints2D(dataFileName, x_column, y_column, style, title)
@@ -315,8 +311,6 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						dataFileName = ""
 						x_column = "1"
 						y_column = "2"
-						style = DEFAULT_STYLE
-						title = ""
 
 						plot.Set_points = append(plot.Set_points, *auxSetPoints)
 						plot.Set_points[len(plot.Set_points)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
@@ -333,20 +327,36 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 						function = ""
 						min_x = "-10"
 						max_x = "+10"
-						style = DEFAULT_STYLE
-						title = ""
 
 						plot.Function = append(plot.Function, *auxFunction)
 						plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
-
-						plotScope = false
 					}
+
+					style = DEFAULT_STYLE
+					title = ""
+
+					line = line[len(match[0][0]):]
+					continue
+				}
+
+				//	TODO: need to parse the function here !
+				//	the rest is the function
+				match = functionRegEx.FindAllStringSubmatch(line, -1)
+				if len(match) == 1 {
+					if !plotScope {
+						return nil, errors.New("function specification without a plot command: " + match[0][0])
+					}
+					function = match[0][1]
 
 					line = line[len(match[0][0]):]
 					continue
 				}
 			}
 		}
+	}
+
+	if plotScope && len(dataFileName) > 0 && len(function) > 0 {
+		return nil, errors.New("function and data file must be described separate in plot command")
 	}
 
 	//	when plot file parsing finishes, if a plot command whose data file was not loaded yet, it's the time for it
