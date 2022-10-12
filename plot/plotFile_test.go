@@ -101,6 +101,80 @@ func TestLoadPlotFile(t *testing.T) {
 		}
 	})
 
+	t.Run(">>> LoadPlotFile: plot function (default parameters)", func(t *testing.T) {
+
+		expectedSetPoints := 0
+		expectedFunctions := 1
+
+		mockPlotFile := strings.NewReader(`plot sin(x)`)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedSetPoints
+		got := len(plot.(*Plot_2D).Set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		want = expectedFunctions
+		got = len(plot.(*Plot_2D).Function)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: function without a plot command", func(t *testing.T) {
+
+		mockPlotFile := strings.NewReader(`sin(x)`)
+		_, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err == nil {
+			t.Errorf("error expected loading plot file")
+			return
+		}
+
+		want := `function specification without a plot command: sin(x)`
+		got := strings.TrimRight(err.Error(), " ")
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected error: %s result: %s", want, got)
+		}
+	})
+
+	t.Run(">>> LoadPlotFile: plot function with interval", func(t *testing.T) {
+
+		expectedSetPoints := 0
+		expectedFunctions := 1
+
+		mockPlotFile := strings.NewReader(`plot [0:3.14] sin(x)`)
+		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
+		if err != nil {
+			t.Errorf("fail loading plot file: %s", err.Error())
+			return
+		}
+
+		want := expectedSetPoints
+		got := len(plot.(*Plot_2D).Set_points)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
+			return
+		}
+
+		want = expectedFunctions
+		got = len(plot.(*Plot_2D).Function)
+		//	check the result
+		if want != got {
+			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
+		}
+	})
+	//	TODO: add some scenarios with positive and negative numbers for the function interval
+
 	t.Run(">>> LoadPlotFile: plot \"file\" (default parameters)", func(t *testing.T) {
 
 		//	create a temporary data file
@@ -654,6 +728,93 @@ func TestLoadPlotFile(t *testing.T) {
 	})
 }
 
+//	TestNewFunction2D unit tests for newFunction2D()
+func TestNewFunction2D(t *testing.T) {
+
+	t.Run(">>> newFunction2D: non numerical min_x", func(t *testing.T) {
+		want := `min x expected to be numeric: strconv.ParseFloat: parsing "one": invalid syntax`
+
+		_, got := newFunction2D("sin(x)", "one", "2", "boxes", "")
+		//	check the result
+		if want != got.Error() {
+			t.Errorf("failed creating a new function 2D: expected error: %s result: %s", want, got)
+		}
+	})
+
+	t.Run(">>> newFunction2D: non numerical max_x", func(t *testing.T) {
+		want := `max x expected to be numeric: strconv.ParseFloat: parsing "two": invalid syntax`
+
+		_, got := newFunction2D("sin(x)", "1", "two", "boxes", "")
+		//	check the result
+		if want != got.Error() {
+			t.Errorf("failed creating a new function 2D: expected error: %s result: %s", want, got)
+		}
+	})
+
+	t.Run(">>> newFunction2D: invalid style", func(t *testing.T) {
+
+		want := `invalid style: circles`
+
+		_, got := newFunction2D("sin(x)", "-10", "+10", "circles", "")
+		//	check the result
+		if want != got.Error() {
+			t.Errorf("failed creating a new function 2D: expected error: %s result: %s", want, got)
+		}
+	})
+
+	t.Run(">>> newFunction2D: valid scenario (default title)", func(t *testing.T) {
+
+		expectedStyle := "boxes"
+		expectedTitle := "sin(x)"
+
+		function, err := newFunction2D("sin(x)", "-10", "+10", expectedStyle, "")
+		if err != nil {
+			t.Errorf("failed creating a new function 2D: %s", err.Error())
+			return
+		}
+
+		want := int(Style[expectedStyle])
+		got := int(function.Style)
+		//	check the result
+		if want != got {
+			t.Errorf("failed creating a new function: expected: %d (%s) result: %d", want, expectedStyle, got)
+		}
+
+		wantString := expectedTitle
+		gotString := function.Title
+		//	check the result
+		if wantString != gotString {
+			t.Errorf("failed creating a new function: expected: %s result: %s", wantString, gotString)
+		}
+	})
+
+	t.Run(">>> newFunction2D: valid scenario", func(t *testing.T) {
+
+		expectedStyle := "boxes"
+		expectedTitle := "senoid"
+
+		function, err := newFunction2D("sin(x)", "-10", "+10", expectedStyle, expectedTitle)
+		if err != nil {
+			t.Errorf("failed creating a new function 2D: %s", err.Error())
+			return
+		}
+
+		want := int(Style[expectedStyle])
+		got := int(function.Style)
+		//	check the result
+		if want != got {
+			t.Errorf("failed creating a new function: expected: %d (%s) result: %d", want, expectedStyle, got)
+		}
+
+		wantString := expectedTitle
+		gotString := function.Title
+		//	check the result
+		if wantString != gotString {
+			t.Errorf("failed creating a new function: expected: %s result: %s", wantString, gotString)
+		}
+	})
+}
+
 //	TestNewSetPoints2D unit tests for newSetPoints2D()
 func TestNewSetPoints2D(t *testing.T) {
 
@@ -828,7 +989,3 @@ func TestNewSetPoints2D(t *testing.T) {
 		}
 	})
 }
-
-//	TODO: add test scenarios for functions
-
-//	TODO: add test scenarios for data sets + functions
