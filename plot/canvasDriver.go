@@ -54,6 +54,10 @@ func (driver *Canvas_Driver) SetDimensions(width int64, height int64) error {
 		"  let canvas = document.getElementById(\"" + driver.functionName + "\");\n" +
 		"  let ctx = canvas.getContext(\"2d\");\n\n")
 
+	driver.Comment("image background")
+	driver.writer.WriteString("  ctx.fillStyle = \"#FFFFFF\";\n")
+	driver.writer.WriteString("  ctx.ctx.fillRect(0, 0, " + fmt.Sprintf("%d", width) + ", " + fmt.Sprintf("%d", height) + ");\n")
+
 	return nil
 }
 

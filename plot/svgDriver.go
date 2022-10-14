@@ -50,6 +50,10 @@ func (driver *SVG_Driver) SetDimensions(width int64, height int64) error {
 	driver.writer.WriteString("<svg width=\"" + fmt.Sprintf("%d", width) + "\" height=\"" + fmt.Sprintf("%d", height) + "\" " +
 		"xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n")
 
+	driver.Comment("image background")
+	driver.writer.WriteString("<rect width=\"" + fmt.Sprintf("%d", width) + "\" height=\"" + fmt.Sprintf("%d", height) + "\" " +
+		"style=\"fill:white;stroke-width:0\" />\n")
+
 	return nil
 }
 

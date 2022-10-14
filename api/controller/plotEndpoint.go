@@ -23,9 +23,12 @@ type plot2DRequest struct {
 }
 
 type plotSetPoints struct {
-	Title  string      `json:"title"`
-	Style  string      `json:"style"`
-	Points []plotPoint `json:"points"`
+	Title    string      `json:"title"`
+	Style    string      `json:"style"`
+	Points   []plotPoint `json:"points"`
+	Function string      `json:"function"`
+	Min_x    float64     `json:"min_x"`
+	Max_x    float64     `json:"max_x"`
 }
 
 type plotPoint struct {
@@ -94,6 +97,8 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 
 		plotRequest.Set_points[i].Title = title
 		plotRequest.Set_points[i].Style = num_style
+
+		//	TODO: add validations for function plots
 
 		//	add the points
 		plotRequest.Set_points[i].Point = make([]plot.Point_2d, len(setPoints.Points))
