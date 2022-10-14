@@ -8,10 +8,14 @@ require github.com/aldebap/go-plot/api v0.0.0-unpublished
 
 require github.com/aldebap/go-plot/api/controller v0.0.0-unpublished
 
+require github.com/aldebap/go-plot/expression v0.0.0-unpublished
+
 require github.com/aldebap/go-plot/plot v0.0.0-unpublished
 
 replace github.com/aldebap/go-plot/api v0.0.0-unpublished => ./api
 
 replace github.com/aldebap/go-plot/api/controller v0.0.0-unpublished => ./api/controller
+
+replace github.com/aldebap/go-plot/expression v0.0.0-unpublished => ./expression
 
 replace github.com/aldebap/go-plot/plot v0.0.0-unpublished => ./plot
