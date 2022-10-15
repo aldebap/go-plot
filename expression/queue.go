@@ -6,6 +6,8 @@
 
 package expression
 
+//	originaly implemented in github.com/aldebap/algorithms_dataStructs/chapter_3/queue
+
 type Queue interface {
 	Put(value interface{})
 	Get() interface{}

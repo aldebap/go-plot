@@ -6,6 +6,8 @@
 
 package expression
 
+//	originaly implemented in github.com/aldebap/algorithms_dataStructs/chapter_3/stack
+
 type Stack interface {
 	Push(value interface{})
 	Pop() interface{}

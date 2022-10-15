@@ -12,6 +12,8 @@ import (
 	"testing"
 )
 
+//	originaly implemented in github.com/aldebap/algorithms_dataStructs/chapter_3/expression
+
 //	Test_infix2postfix test cases for the conversion from infix -> postfix
 func Test_infix2postfix(t *testing.T) {
 
@@ -73,14 +75,19 @@ func Test_evaluatePolishReverse(t *testing.T) {
 	var testScenarios = []struct {
 		scenario string
 		input    string
-		output   int64
+		x_value  float64
+		output   float64
 	}{
-		{scenario: "addition", input: "2 5 +", output: 7},
-		{scenario: "subtraction", input: "5 2 -", output: 3},
-		{scenario: "multiplication", input: "2 5 *", output: 10},
-		{scenario: "division", input: "10 2 /", output: 5},
-		{scenario: "one parenthesis", input: "4 6 + 2 /", output: 5},
-		{scenario: "two parenthesis", input: "4 2 3 * + 2 /", output: 5},
+		{scenario: "addition", input: "2 5 +", x_value: 0, output: 7},
+		{scenario: "subtraction", input: "5 2 -", x_value: 0, output: 3},
+		{scenario: "multiplication", input: "2 5 *", x_value: 0, output: 10},
+		{scenario: "division", input: "10 2 /", x_value: 0, output: 5},
+		{scenario: "one parenthesis", input: "4 6 + 2 /", x_value: 0, output: 5},
+		{scenario: "two parenthesis", input: "4 2 3 * + 2 /", x_value: 0, output: 5},
+		{scenario: "addition with x", input: "2 x +", x_value: 5, output: 7},
+		{scenario: "subtraction with x", input: "5 x -", x_value: 2, output: 3},
+		{scenario: "multiplication by x", input: "2 x *", x_value: 5, output: 10},
+		{scenario: "division by x", input: "10 x /", x_value: 2, output: 5},
 	}
 
 	t.Run(">>> test Polish Reverse evaluation", func(t *testing.T) {
@@ -98,18 +105,22 @@ func Test_evaluatePolishReverse(t *testing.T) {
 				}
 			}
 
+			expr := &ParsedExpression{
+				postfix: postfix,
+			}
+
 			//	Polish Reverse evaluation of postfix expression
 			want := test.output
-			got, err := evaluatePolishReverse(postfix)
+			got, err := expr.Evaluate(test.x_value)
 			if err != nil {
 				t.Errorf("unexpected error converting from string -> postfix: %s", err)
 				continue
 			}
-			fmt.Printf("[debug] postfix evaluation result: %d\n", got)
+			fmt.Printf("[debug] postfix evaluation result: %f\n", got)
 
 			//	check the result
 			if want != got {
-				t.Errorf("fail evaluating the postfix expression: expected: %d result: %d", want, got)
+				t.Errorf("fail evaluating the postfix expression: expected: %f result: %f", want, got)
 			}
 		}
 	})
