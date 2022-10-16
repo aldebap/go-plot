@@ -44,3 +44,12 @@ plot "data" using 1:2 with lines,
 ```
 
 ![plot output](img/plot_output_02.svg)
+
+```
+set terminal svg
+set output "output.svg"
+
+plot [-10:+10] ( ( x * x ) - ( 3 * x ) ) + 2
+```
+
+![plot output](img/plot_output_03.svg)
