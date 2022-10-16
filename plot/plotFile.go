@@ -95,7 +95,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	functionRegEx, err := regexp.Compile(`^\s*([^"])+\s*`)
+	functionRegEx, err := regexp.Compile(`^\s*([^,]+)\s*[,]{0,1}`)
 	if err != nil {
 		return nil, err
 	}

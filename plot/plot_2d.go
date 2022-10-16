@@ -11,6 +11,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
+
+	"github.com/aldebap/go-plot/expression"
 )
 
 //	margins in pixels for the plot
@@ -114,20 +116,63 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	defer driver.Close()
 
 	//	check if there's a plot to be generated
-	if len(p.Set_points) == 0 {
-		return errors.New("no set of points to be plotted")
+	if len(p.Set_points) == 0 && len(p.Function) == 0 {
+		return errors.New("no set of points or functions to be plotted")
 	}
 
-	if len(p.Set_points[0].Point) == 0 {
-		return errors.New("no points in the first set to be plotted")
+	/*
+		//	TODO: improve this validation
+		if len(p.Set_points[0].Point) == 0 {
+			return errors.New("no points in the first set to be plotted")
+		}
+	*/
+
+	//	parse every function and generate a set of point for it's graphic
+	var function_points []Set_points_2d
+
+	if len(p.Function) > 0 {
+		function_points = make([]Set_points_2d, len(p.Function))
+		width, _ := driver.GetDimensions()
+
+		for i, function := range p.Function {
+
+			fmt.Printf("[debug] parsing function: %s\n", function.Function)
+
+			functionExpr, err := expression.NewExpression(function.Function)
+			if err != nil {
+				return errors.New("error parsing function to be plotted: " + err.Error())
+			}
+
+			function_points[i].Point = make([]Point_2d, width-2*int64(X_MARGINS)+1)
+			function_points[i].Style = DOTS
+			function_points[i].Title = function.Title
+
+			for j, _ := range function_points[i].Point {
+				function_points[i].Point[j].X = function.Min_x + float64(j)*(function.Max_x-function.Min_x)/(float64(width)-2*X_MARGINS)
+				function_points[i].Point[j].Y, err = functionExpr.Evaluate(function_points[i].Point[j].X)
+				if err != nil {
+					return errors.New("error evaluating function to be plotted: " + err.Error())
+				}
+			}
+		}
 	}
 
 	//	evaluate the data's dimension
 	var min_x, min_y, max_x, max_y float64
+	var err error
 
-	min_x, min_y, max_x, max_y, err := p.Set_points[0].getMinMax()
-	if err != nil {
-		return errors.New("error evaluating the min-max of set to be plotted: " + err.Error())
+	if len(p.Set_points) > 0 {
+
+		min_x, min_y, max_x, max_y, err = p.Set_points[0].getMinMax()
+		if err != nil {
+			return errors.New("error evaluating the min-max of set to be plotted: " + err.Error())
+		}
+	} else {
+
+		min_x, min_y, max_x, max_y, err = function_points[0].getMinMax()
+		if err != nil {
+			return errors.New("error evaluating the min-max of function to be plotted: " + err.Error())
+		}
 	}
 
 	for _, pointsSet := range p.Set_points {
@@ -136,6 +181,29 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 		set_min_x, set_min_y, set_max_x, set_max_y, err := pointsSet.getMinMax()
 		if err != nil {
 			return errors.New("error evaluating the min-max of set to be plotted: " + err.Error())
+		}
+
+		if set_min_x < min_x {
+			min_x = set_min_x
+		}
+		if set_min_y < min_y {
+			min_y = set_min_y
+		}
+		if set_max_x > max_x {
+			max_x = set_max_x
+		}
+		if set_max_y > max_y {
+			max_y = set_max_y
+		}
+	}
+
+	//	evaluate the function's dimension
+	for _, pointsSet := range function_points {
+		var set_min_x, set_min_y, set_max_x, set_max_y float64
+
+		set_min_x, set_min_y, set_max_x, set_max_y, err := pointsSet.getMinMax()
+		if err != nil {
+			return errors.New("error evaluating the min-max of function to be plotted: " + err.Error())
 		}
 
 		if set_min_x < min_x {
@@ -187,6 +255,11 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 
 	//	generate the plot for every set of points
 	for i, pointsSet := range p.Set_points {
+		pointsSet.generatePlot(driver, width, height, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
+	}
+
+	//	generate the plot for every function
+	for i, pointsSet := range function_points {
 		pointsSet.generatePlot(driver, width, height, min_x, min_y, max_x, max_y, plotPallete[i%len(plotPallete)])
 	}
 

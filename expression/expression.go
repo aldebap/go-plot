@@ -101,6 +101,8 @@ func infix2postfix(expression string) (Queue, error) {
 //	evaluatePolishReverse evaluate the Polish reverse expression (postfix) and return a numerical result
 func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 
+	//	TODO: implement a sort of copy conmstructor to preserve p's attribute
+	postfix := NewQueue()
 	operand := NewStack()
 
 	for {
@@ -108,6 +110,7 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 		if item == nil {
 			break
 		}
+		postfix.Put(item)
 
 		//	check if current token is a reference to x variable
 		token := item.(string)
@@ -154,6 +157,8 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 			operand.Push(operand1 / operand2)
 		}
 	}
+
+	p.postfix = postfix
 
 	if operand.IsEmpty() {
 		return 0, nil
