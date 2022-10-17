@@ -12,6 +12,7 @@ type Queue interface {
 	Put(value interface{})
 	Get() interface{}
 	IsEmpty() bool
+	Copy() Queue
 }
 
 type QueueAsArray struct {
@@ -41,4 +42,18 @@ func (q *QueueAsArray) Get() interface{} {
 
 func (q *QueueAsArray) IsEmpty() bool {
 	return len(q.element) == 0
+}
+
+//	Create a copy of queue as array
+func (q *QueueAsArray) Copy() Queue {
+
+	element := make([]interface{}, len(q.element))
+
+	for i, _ := range q.element {
+		element[i] = q.element[i]
+	}
+
+	return &QueueAsArray{
+		element: element,
+	}
 }
