@@ -8,6 +8,7 @@ package expression
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
 )
 
@@ -36,16 +37,43 @@ func NewExpression(expressionStr string) (Expression, error) {
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
 func infix2postfix(expression string) (Queue, error) {
 	postfix := NewQueue()
+	previousToken := ""
 	operand := ""
 	operator := NewStack()
+	operatorParenthesisLevel := NewStack()
 	parenthesis := 0
 
+	//	initialize some regexp needed for the parsing
+	intnumRegEx, err := regexp.Compile(`^(\d+)$`)
+	if err != nil {
+		return nil, err
+	}
+
+	//	TODO: refactor the whole function
 	for _, char := range expression {
 		switch char {
 		case '+', '-', '*', '/':
+			match := intnumRegEx.FindAllStringSubmatch(previousToken, -1)
+			if previousToken != ")" && len(match) != 1 && previousToken != "x" {
+				return nil, errors.New("operator without a previous operand")
+			}
+			if !operator.IsEmpty() {
+				operatorAux := operator.Pop()
+				parenthesisLevelAux := operatorParenthesisLevel.Pop()
+
+				if parenthesis == parenthesisLevelAux.(int) {
+					postfix.Put(operatorAux)
+				} else {
+					operator.Push(operatorAux)
+					operatorParenthesisLevel.Push(parenthesisLevelAux.(int))
+				}
+			}
 			operator.Push(string(char))
+			operatorParenthesisLevel.Push(parenthesis)
+			previousToken = string(char)
 
 		case '(':
+			previousToken = string(char)
 			parenthesis++
 
 		case ')':
@@ -53,8 +81,17 @@ func infix2postfix(expression string) (Queue, error) {
 				return nil, errors.New("expression with missing open parenthesis")
 			}
 			if !operator.IsEmpty() {
-				postfix.Put(operator.Pop())
+				operatorAux := operator.Pop()
+				parenthesisLevelAux := operatorParenthesisLevel.Pop()
+
+				if parenthesis == parenthesisLevelAux.(int) {
+					postfix.Put(operatorAux)
+				} else {
+					operator.Push(operatorAux)
+					operatorParenthesisLevel.Push(parenthesisLevelAux.(int))
+				}
 			}
+			previousToken = string(char)
 			parenthesis--
 
 		//	TODO: need to improve this to allow signed numbers as well as decimal numbers
@@ -75,6 +112,7 @@ func infix2postfix(expression string) (Queue, error) {
 		case ' ':
 			if len(operand) > 0 {
 				postfix.Put(operand)
+				previousToken = operand
 				operand = ""
 			}
 

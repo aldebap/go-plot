@@ -30,6 +30,8 @@ func Test_infix2postfix(t *testing.T) {
 		{scenario: "one parenthesis", input: "( 4 + 6 ) / 2", output: "4 6 + 2 /"},
 		{scenario: "two parenthesis", input: "( 4 + ( 2 * 3 ) ) / 2", output: "4 2 3 * + 2 /"},
 		{scenario: "unbalanced parenthesis", input: "( 4 + 6 / 2", output: "expression with unbalanced parenthesis"},
+		{scenario: "fix to parenthesis parsing", input: "( x * x ) - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
+		{scenario: "fix to parenthesis parsing", input: "x * x - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
 	}
 
 	t.Run(">>> test conversion from infix -> postfix", func(t *testing.T) {

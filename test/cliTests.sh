@@ -289,7 +289,7 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
-plot [-10:+10] ( ( x * x ) - ( 3 * x ) ) + 2
+plot [-10:+10] x * x - ( 3 * x ) + 2
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
