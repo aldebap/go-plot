@@ -17,12 +17,12 @@ import (
 
 //	plot request
 type plot2DRequest struct {
-	X_label string          `json:"x_label"`
-	Y_label string          `json:"y_label"`
-	Plot    []plotSetPoints `json:"plot"`
+	X_label string           `json:"x_label"`
+	Y_label string           `json:"y_label"`
+	Plot    []plotDefinition `json:"plot"`
 }
 
-type plotSetPoints struct {
+type plotDefinition struct {
 	Title    string      `json:"title"`
 	Style    string      `json:"style"`
 	Points   []plotPoint `json:"points"`
@@ -71,41 +71,85 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 	plotRequest := &plot.Plot_2D{
 		X_label:    requestData.X_label,
 		Y_label:    requestData.Y_label,
-		Set_points: make([]plot.Set_points_2d, len(requestData.Plot)),
+		Set_points: make([]plot.Set_points_2d, 0),
+		Function:   make([]plot.Function_2d, 0),
 		Terminal:   terminal,
 	}
 
-	for i, setPoints := range requestData.Plot {
+	for _, plotDefinition := range requestData.Plot {
+
+		if len(plotDefinition.Points) == 0 && len(plotDefinition.Function) == 0 {
+			httpResponse.WriteHeader(http.StatusBadRequest)
+			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "each plot must contain at least a function or a data set" }`)))
+			return
+		}
+
+		if len(plotDefinition.Points) > 0 && len(plotDefinition.Function) > 0 {
+			httpResponse.WriteHeader(http.StatusBadRequest)
+			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "each plot must be either function or data set" }`)))
+			return
+		}
 
 		//	attempt to convert the style string to an int constant
 		var num_style uint8
 		var found bool
 
-		num_style, found = plot.Style[setPoints.Style]
-		if !found {
-			httpResponse.WriteHeader(http.StatusBadRequest)
-			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "invalid style: %s" }`, setPoints.Style)))
-			return
+		if len(plotDefinition.Style) == 0 {
+			num_style = plot.POINTS
+		} else {
+			num_style, found = plot.Style[plotDefinition.Style]
+			if !found {
+				httpResponse.WriteHeader(http.StatusBadRequest)
+				httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "invalid style: %s" }`, plotDefinition.Style)))
+				return
+			}
 		}
 
-		//	set a default title when necessary
-		title := setPoints.Title
+		//	add a new set of points
+		if len(plotDefinition.Points) > 0 {
 
-		if len(title) == 0 {
-			title = fmt.Sprintf("data set #%d", i+1)
+			set_Points := plot.Set_points_2d{}
+
+			//	set a default title when necessary
+			title := plotDefinition.Title
+
+			if len(title) == 0 {
+				title = fmt.Sprintf("data set #%d", len(plotDefinition.Points)+1)
+			}
+
+			set_Points.Title = title
+			set_Points.Style = num_style
+
+			//	add the points
+			set_Points.Point = make([]plot.Point_2d, len(plotDefinition.Points))
+
+			for i, point := range plotDefinition.Points {
+				set_Points.Point[i].X = point.X
+				set_Points.Point[i].Y = point.Y
+			}
+
+			plotRequest.Set_points = append(plotRequest.Set_points, set_Points)
 		}
 
-		plotRequest.Set_points[i].Title = title
-		plotRequest.Set_points[i].Style = num_style
+		//	add a new function
+		if len(plotDefinition.Function) > 0 {
 
-		//	TODO: add validations for function plots
+			function := plot.Function_2d{}
 
-		//	add the points
-		plotRequest.Set_points[i].Point = make([]plot.Point_2d, len(setPoints.Points))
+			//	set a default title when necessary
+			title := plotDefinition.Title
 
-		for j, point := range setPoints.Points {
-			plotRequest.Set_points[i].Point[j].X = point.X
-			plotRequest.Set_points[i].Point[j].Y = point.Y
+			if len(title) == 0 {
+				title = plotDefinition.Function
+			}
+
+			function.Title = title
+			function.Style = plot.DOTS
+			function.Function = plotDefinition.Function
+			function.Min_x = plotDefinition.Min_x
+			function.Max_x = plotDefinition.Max_x
+
+			plotRequest.Function = append(plotRequest.Function, function)
 		}
 	}
 

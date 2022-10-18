@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <title>Go-Plot: Canvas API - 03</title>
+    <script src="/plot/js/axios.min.js"></script>
+</head>
+
+<body>
+    <script content="text/javascript">
+        const GOPLOT_API_URL = '/plot/api/canvas';
+        const REQUEST_HEADERS = {
+            'Content-Type': 'application/json',
+        };
+        const plotRequest = {
+            plot: [
+                {
+                    title: "Parabola",
+                    function: "x * x - ( 3 * x ) + 2",
+                    min_x: -10,
+                    max_x: +10,
+                },
+            ],
+        };
+
+        //  send a request to the server
+        axios.post(GOPLOT_API_URL, plotRequest, { headers: REQUEST_HEADERS })
+            .then(response => {
+                const canvasScript = response.data;
+
+                eval(canvasScript);
+                canvas_plot();
+            })
+            .catch(error => console.error('On Generating Go-Plot Graphic', error));
+    </script>
+
+    <canvas id="canvas_plot" width=600 height=400>
+        <div id="err_msg">No support for HTML 5 canvas element</div>
+    </canvas>
+</body>
+
+</html>

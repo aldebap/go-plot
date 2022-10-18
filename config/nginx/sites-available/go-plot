@@ -8,6 +8,10 @@ server {
 		proxy_pass http://localhost:5500/web/;
 	}
 
+	location /plot/js {
+		proxy_pass http://localhost:5500/web/js/;
+	}
+
 	#	reverse proxy to Go-Plot API server
 	location /plot/api {
 		proxy_pass http://localhost:8080/plot/api;
