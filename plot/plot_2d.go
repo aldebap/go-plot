@@ -147,7 +147,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 			function_points[i].Style = DOTS
 			function_points[i].Title = function.Title
 
-			for j, _ := range function_points[i].Point {
+			for j := 0; j < len(function_points[i].Point); j++ {
 				function_points[i].Point[j].X = function.Min_x + float64(j)*(function.Max_x-function.Min_x)/(float64(width)-2*X_MARGINS)
 				function_points[i].Point[j].Y, err = functionExpr.Evaluate(function_points[i].Point[j].X)
 				if err != nil {
@@ -220,17 +220,19 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 		}
 	}
 
-	//	round the scale to multiples of 10
-	min_x = math.Floor(min_x) - float64(int64(math.Floor(min_x))%10)
-	min_y = math.Floor(min_y) - float64(int64(math.Floor(min_y))%10)
+	//	round the scale to multiples of 10 when all plots are based on data sets
+	if len(p.Function) == 0 {
+		min_x = math.Floor(min_x) - float64(int64(math.Floor(min_x))%10)
+		min_y = math.Floor(min_y) - float64(int64(math.Floor(min_y))%10)
 
-	max_x = math.Ceil(max_x)
-	if int64(max_x)%10 > 0 {
-		max_x += float64(10 - int64(max_x)%10)
-	}
-	max_y = math.Ceil(max_y)
-	if int64(max_y)%10 > 0 {
-		max_y += float64(10 - int64(max_y)%10)
+		max_x = math.Ceil(max_x)
+		if int64(max_x)%10 > 0 {
+			max_x += float64(10 - int64(max_x)%10)
+		}
+		max_y = math.Ceil(max_y)
+		if int64(max_y)%10 > 0 {
+			max_y += float64(10 - int64(max_y)%10)
+		}
 	}
 
 	//	set the graphics dimension
@@ -269,7 +271,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 //	generatePlotGrid implementation of 2D Go_Plot grid generation
 func (p *Plot_2D) generatePlotGrid(driver GraphicsDriver, min_x, min_y, max_x, max_y float64) {
 
-	//fmt.Printf("[debug] min (%f, %f) max (%f, %f)\n", min_x, min_y, max_x, max_y)
+	fmt.Printf("[debug] min (%f, %f) max (%f, %f)\n", min_x, min_y, max_x, max_y)
 
 	width, height := driver.GetDimensions()
 
@@ -314,6 +316,7 @@ func (p *Plot_2D) generatePlotGrid(driver GraphicsDriver, min_x, min_y, max_x, m
 		driver.Text(int64(X_MARGINS)+scaled_x-textWidth/2, int64(Y_MARGINS)-SCALE_WIDTH-textHeight, 0, scaleNumber, BLACK)
 	}
 
+	//	TODO: there's a bug here !
 	//	add the Y scale in the plot grid
 	driver.Comment("grid y scale")
 

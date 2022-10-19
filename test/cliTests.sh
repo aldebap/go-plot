@@ -289,7 +289,24 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
-plot [-10:+10] x * x - ( 3 * x ) + 2
+plot [-4:+4] x * x - ( 3 * x ) + 2
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
+#   test scenatio #08
+export SCENARIO="08"
+export DESCRIPTION="create a plot from polinomial function (SVG)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
+plot [-4:+4] x * x + ( 2 * x ) - 3
 PLOT_CONTENT
 
 ../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
