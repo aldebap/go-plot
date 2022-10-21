@@ -34,6 +34,79 @@ func NewExpression(expressionStr string) (Expression, error) {
 	}, nil
 }
 
+//	infix2postfixV2 read the infix expression and create a stack with the postfix version of it
+func infix2postfixV2(expression string) (Queue, error) {
+	postfix := NewQueue()
+
+	return postfix, nil
+}
+
+//	lexicalAnalizer read the infix expression and create an array with all tokens
+func lexicalAnalizer(expression string) ([]string, error) {
+
+	var token []string = make([]string, 0)
+	var identifier string
+	var numericLiteral string
+
+	for _, char := range expression {
+		switch char {
+		case ' ':
+			if len(identifier) > 0 {
+				token = append(token, identifier)
+				identifier = ""
+			}
+			if len(numericLiteral) > 0 {
+				token = append(token, numericLiteral)
+				numericLiteral = ""
+			}
+
+		case '+', '-', '*', '/':
+			if len(identifier) > 0 {
+				token = append(token, identifier)
+				identifier = ""
+			}
+			if len(numericLiteral) > 0 {
+				token = append(token, numericLiteral)
+				numericLiteral = ""
+			}
+			token = append(token, string(char))
+
+		case '(', ')':
+			if len(identifier) > 0 {
+				token = append(token, identifier)
+				identifier = ""
+			}
+			if len(numericLiteral) > 0 {
+				token = append(token, numericLiteral)
+				numericLiteral = ""
+			}
+			token = append(token, string(char))
+
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+			if len(identifier) > 0 {
+				identifier += string(char)
+			} else {
+				numericLiteral += string(char)
+			}
+
+		case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_':
+			if len(numericLiteral) > 0 {
+				return nil, errors.New("invalid numeric literal")
+			}
+			identifier += string(char)
+		}
+	}
+
+	//	add the last token when necessary
+	if len(identifier) > 0 {
+		token = append(token, identifier)
+	} else if len(numericLiteral) > 0 {
+		token = append(token, numericLiteral)
+	}
+
+	return token, nil
+}
+
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
 func infix2postfix(expression string) (Queue, error) {
 	postfix := NewQueue()

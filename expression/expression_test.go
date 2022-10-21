@@ -70,6 +70,109 @@ func Test_infix2postfix(t *testing.T) {
 	})
 }
 
+//	Test_infix2postfixV2 test cases for the conversion from infix -> postfix
+func Test_infix2postfixV2(t *testing.T) {
+
+	//	a few test cases
+	var testScenarios = []struct {
+		scenario string
+		input    string
+		output   string
+	}{
+		{scenario: "addition", input: "2 + 5", output: "2 5 +"},
+		{scenario: "subtraction", input: "5 - 2", output: "5 2 -"},
+		{scenario: "multiplication", input: "2 * 5", output: "2 5 *"},
+		{scenario: "division", input: "10 / 2", output: "10 2 /"},
+		{scenario: "one parenthesis", input: "( 4 + 6 ) / 2", output: "4 6 + 2 /"},
+		{scenario: "two parenthesis", input: "( 4 + ( 2 * 3 ) ) / 2", output: "4 2 3 * + 2 /"},
+		{scenario: "unbalanced parenthesis", input: "( 4 + 6 / 2", output: "expression with unbalanced parenthesis"},
+		{scenario: "fix to parenthesis parsing", input: "( x * x ) - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
+		{scenario: "fix to parenthesis parsing", input: "x * x - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
+	}
+
+	t.Run(">>> test conversion from infix -> postfix", func(t *testing.T) {
+
+		for _, test := range testScenarios {
+
+			fmt.Printf("scenario: %s\n", test.scenario)
+
+			//	execute conversion from infix -> postfix
+			postfix, err := infix2postfixV2(test.input)
+			if err != nil {
+				if err.Error() != test.output {
+					t.Errorf("unexpected error converting from infix -> postfix: %s", err)
+				}
+				continue
+			}
+
+			want := test.output
+			got := ""
+
+			for {
+				item := postfix.Get()
+				if item == nil {
+					break
+				}
+				got += " " + item.(string)
+			}
+			got = strings.TrimLeft(got, " ")
+			fmt.Printf("[debug] postfix result: %s\n", got)
+
+			//	check the result
+			if want != got {
+				t.Errorf("fail converting from infix -> postfix: expected: %s result: %s", want, got)
+			}
+		}
+	})
+}
+
+//	Test_lexicalAnalizer test cases for the lexical analizer
+func Test_lexicalAnalizer(t *testing.T) {
+
+	//	a few test cases
+	var testScenarios = []struct {
+		scenario string
+		input    string
+		output   []string
+	}{
+		{scenario: "addition", input: "2 + 5", output: []string{"2", "+", "5"}},
+		{scenario: "subtraction", input: "5 - 2", output: []string{"5", "-", "2"}},
+		{scenario: "multiplication", input: "2 * 5", output: []string{"2", "*", "5"}},
+		{scenario: "division", input: "10 / 2", output: []string{"10", "/", "2"}},
+		{scenario: "one parenthesis", input: "( 4 + 6 ) / 2", output: []string{"(", "4", "+", "6", ")", "/", "2"}},
+		{scenario: "two parenthesis", input: "(4+(2*3))/2", output: []string{"(", "4", "+", "(", "2", "*", "3", ")", ")", "/", "2"}},
+		{scenario: "unbalanced parenthesis", input: "(4+6/2", output: []string{"(", "4", "+", "6", "/", "2"}},
+		{scenario: "fix to parenthesis parsing", input: "(x*x)-(3*x)+2", output: []string{"(", "x", "*", "x", ")", "-", "(", "3", "*", "x", ")", "+", "2"}},
+		{scenario: "using precedence", input: "x*x-3*x+2", output: []string{"x", "*", "x", "-", "3", "*", "x", "+", "2"}},
+		{scenario: "using a variable name", input: "x+4*y-z*z", output: []string{"x", "+", "4", "*", "y", "-", "z", "*", "z"}},
+		{scenario: "using a variable name with underscore", input: "var_x+2", output: []string{"var_x", "+", "2"}},
+		{scenario: "using a function call", input: "x*sin(2*x)", output: []string{"x", "*", "sin", "(", "2", "*", "x", ")"}},
+	}
+
+	t.Run(">>> test tokens found by lexical analizer", func(t *testing.T) {
+
+		for _, test := range testScenarios {
+
+			fmt.Printf("scenario: %s\n", test.scenario)
+
+			//	execute lexical analizer
+			tokens, err := lexicalAnalizer(test.input)
+			if err != nil {
+				t.Errorf("unexpected error in lexical parser: %s", err)
+				continue
+			}
+
+			want := test.output
+
+			for i, token := range tokens {
+				if token != want[i] {
+					t.Errorf("fail in lexical analizer: expected token: %v result: %v", want, tokens)
+				}
+			}
+		}
+	})
+}
+
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {
 

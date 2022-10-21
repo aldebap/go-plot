@@ -19,6 +19,7 @@ func (c *RGB_colour) Hexa() string {
 	return fmt.Sprintf("%02x%02x%02x", c.red, c.green, c.blue)
 }
 
+//	TODO: add a method to create a path
 type GraphicsDriver interface {
 	GetDimensions() (width, heigth int64)
 	SetDimensions(width int64, height int64) error
