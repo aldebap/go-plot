@@ -88,6 +88,22 @@ func (driver *Canvas_Driver) Point(x, y int64, colour RGB_colour) error {
 	return nil
 }
 
+//	TODO: implement the path methods for Canvas driver
+//	Begin a path to draw a connection between a set of points
+func (driver *Canvas_Driver) BeginPath(colour RGB_colour) error {
+	return nil
+}
+
+//	Add a point to a path
+func (driver *Canvas_Driver) PointToPath(x, y int64) error {
+	return nil
+}
+
+//	End the path
+func (driver *Canvas_Driver) EndPath() error {
+	return nil
+}
+
 //	Line draws a line between two points in the SVG graphic
 func (driver *Canvas_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 	driver.writer.WriteString("  ctx.beginPath();\n")

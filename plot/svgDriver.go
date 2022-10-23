@@ -8,6 +8,7 @@ package plot
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 )
 
@@ -15,6 +16,8 @@ type SVG_Driver struct {
 	writer     *bufio.Writer
 	width      int64
 	height     int64
+	path       []DriverPoint
+	pathColour RGB_colour
 	fontFamily string
 	fontSize   uint8
 }
@@ -32,6 +35,7 @@ func NewSVG_Driver(writer *bufio.Writer) GraphicsDriver {
 		writer:     writer,
 		width:      WIDTH,
 		height:     HEIGHT,
+		path:       nil,
 		fontFamily: FONT_FAMILY,
 		fontSize:   FONT_SIZE,
 	}
@@ -81,6 +85,47 @@ func (driver *SVG_Driver) Point(x, y int64, colour RGB_colour) error {
 
 	driver.writer.WriteString("<line x1=\"" + fmt.Sprintf("%d", x) + "\" y1=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
 		"x2=\"" + fmt.Sprintf("%d", x+1) + "\" y2=\"" + fmt.Sprintf("%d", driver.height-y) + "\" style=\"" + style + "\" />\n")
+
+	return nil
+}
+
+//	Begin a path to draw a connection between a set of points
+func (driver *SVG_Driver) BeginPath(colour RGB_colour) error {
+	driver.path = make([]DriverPoint, 0)
+	driver.pathColour = colour
+
+	return nil
+}
+
+//	Add a point to a path
+func (driver *SVG_Driver) PointToPath(x, y int64) error {
+	if driver.path == nil {
+		return errors.New("cannot add a point to a non initialized path")
+	}
+	driver.path = append(driver.path, DriverPoint{X: x, Y: y})
+
+	return nil
+}
+
+//	End the path
+func (driver *SVG_Driver) EndPath() error {
+	if driver.path == nil {
+		return errors.New("cannot end a path not initialized")
+	}
+
+	style := "stroke:rgb(" + fmt.Sprintf("%d", driver.pathColour.red) +
+		"," + fmt.Sprintf("%d", driver.pathColour.green) +
+		"," + fmt.Sprintf("%d", driver.pathColour.blue) + ");stroke-width:1"
+
+	for i, point := range driver.path {
+		if i == 0 {
+			driver.writer.WriteString("<path d=\"M" + fmt.Sprintf("%d", point.X) + " " + fmt.Sprintf("%d", driver.height-point.Y))
+		} else {
+			driver.writer.WriteString(" L" + fmt.Sprintf("%d", point.X) + " " + fmt.Sprintf("%d", driver.height-point.Y))
+		}
+	}
+	driver.writer.WriteString("\" style=\"" + style + "\" fill=\"none\" />\n")
+	driver.path = nil
 
 	return nil
 }

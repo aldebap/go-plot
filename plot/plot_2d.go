@@ -23,11 +23,12 @@ const (
 
 //	styles for a plot of points
 const (
-	BOXES        uint8 = 1
-	DOTS         uint8 = 2
-	LINES        uint8 = 3
-	LINES_POINTS uint8 = 4
-	POINTS       uint8 = 5
+	BOXES         uint8 = 1
+	DOTS          uint8 = 2
+	LINES         uint8 = 3
+	LINES_POINTS  uint8 = 4
+	POINTS        uint8 = 5
+	FUNCTION_PATH uint8 = 6
 )
 
 const (
@@ -144,7 +145,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 			}
 
 			function_points[i].Point = make([]Point_2d, width-2*int64(X_MARGINS)+1)
-			function_points[i].Style = DOTS
+			function_points[i].Style = FUNCTION_PATH
 			function_points[i].Title = function.Title
 
 			for j := 0; j < len(function_points[i].Point); j++ {
@@ -519,6 +520,19 @@ func (set *Set_points_2d) generatePlot(driver GraphicsDriver, plotWidth, plotHei
 			driver.Line(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y-POINT_WIDTH/2),
 				int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y+POINT_WIDTH/2), colour)
 		}
+
+	case FUNCTION_PATH:
+		//	generate a path connecting each point
+		driver.BeginPath(colour)
+
+		for _, point := range set.Point {
+			scaled_x := (float64(plotWidth) - 2*X_MARGINS) * (point.X - min_x) / (max_x - min_x)
+			scaled_y := (float64(plotHeight) - 2*Y_MARGINS) * (point.Y - min_y) / (max_y - min_y)
+
+			driver.PointToPath(int64(X_MARGINS+scaled_x), int64(Y_MARGINS+scaled_y))
+		}
+		driver.EndPath()
+
 	default:
 	}
 
