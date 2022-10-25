@@ -8,6 +8,7 @@ package plot
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 )
 
@@ -16,6 +17,8 @@ type Canvas_Driver struct {
 	functionName string
 	width        int64
 	height       int64
+	path         []DriverPoint
+	pathColour   RGB_colour
 	fontFamily   string
 	fontSize     uint8
 }
@@ -35,6 +38,7 @@ func NewCanvas_Driver(writer *bufio.Writer) GraphicsDriver {
 		functionName: PLOT_FUNCTION,
 		width:        WIDTH,
 		height:       HEIGHT,
+		path:         nil,
 		fontFamily:   FONT_FAMILY,
 		fontSize:     FONT_SIZE,
 	}
@@ -88,19 +92,44 @@ func (driver *Canvas_Driver) Point(x, y int64, colour RGB_colour) error {
 	return nil
 }
 
-//	TODO: implement the path methods for Canvas driver
 //	Begin a path to draw a connection between a set of points
 func (driver *Canvas_Driver) BeginPath(colour RGB_colour) error {
+	driver.path = make([]DriverPoint, 0)
+	driver.pathColour = colour
+
 	return nil
 }
 
 //	Add a point to a path
 func (driver *Canvas_Driver) PointToPath(x, y int64) error {
+	if driver.path == nil {
+		return errors.New("cannot add a point to a non initialized path")
+	}
+	driver.path = append(driver.path, DriverPoint{X: x, Y: y})
+
 	return nil
 }
 
 //	End the path
 func (driver *Canvas_Driver) EndPath() error {
+	if driver.path == nil {
+		return errors.New("cannot end a path not initialized")
+	}
+
+	driver.writer.WriteString("  ctx.beginPath();\n")
+	driver.writer.WriteString("  ctx.strokeStyle = \"#" + driver.pathColour.Hexa() + "\";\n")
+
+	for i, point := range driver.path {
+		if i == 0 {
+			driver.writer.WriteString("  ctx.moveTo(" + fmt.Sprintf("%d", point.X) + ", " + fmt.Sprintf("%d", driver.height-point.Y) + ");\n")
+		} else {
+			driver.writer.WriteString("  ctx.lineTo(" + fmt.Sprintf("%d", point.X) + ", " + fmt.Sprintf("%d", driver.height-point.Y) + ");\n")
+		}
+	}
+	driver.writer.WriteString("  ctx.stroke();\n")
+
+	driver.path = nil
+
 	return nil
 }
 
