@@ -41,57 +41,121 @@ func infix2postfixV2(expression string) (Queue, error) {
 	return postfix, nil
 }
 
-//	lexicalAnalizer read the infix expression and create an array with all tokens
-func lexicalAnalizer(expression string) ([]string, error) {
+//	types of tokens used in expressions
+const (
+	LITERAL     uint8 = 1
+	NAME        uint8 = 2
+	OPERATOR    uint8 = 3
+	PARENTHESIS uint8 = 4
+)
 
-	var token []string = make([]string, 0)
+type token struct {
+	category uint8
+	value    string
+}
+
+//	lexicalAnalizer read the infix expression and create an array with all tokens
+func lexicalAnalizer(expression string) ([]token, error) {
+
+	var tokenList []token = make([]token, 0)
 	var identifier string
-	var numericLiteral string
+	var literal string
 
 	for _, char := range expression {
 		switch char {
+		//	a space after a valid token means the previous token have to be appended to the list
 		case ' ':
 			if len(identifier) > 0 {
-				token = append(token, identifier)
+				tokenList = append(tokenList, token{
+					category: NAME,
+					value:    identifier,
+				})
 				identifier = ""
 			}
-			if len(numericLiteral) > 0 {
-				token = append(token, numericLiteral)
-				numericLiteral = ""
+			if len(literal) > 0 {
+				_, err := strconv.ParseFloat(literal, 64)
+				if err != nil {
+					return nil, errors.New("non numeric literal: " + err.Error())
+				}
+				tokenList = append(tokenList, token{
+					category: LITERAL,
+					value:    literal,
+				})
+
+				literal = ""
 			}
 
+		//	an operator can also means the previous token needs to be appended to the list
 		case '+', '-', '*', '/':
 			if len(identifier) > 0 {
-				token = append(token, identifier)
+				tokenList = append(tokenList, token{
+					category: NAME,
+					value:    identifier,
+				})
 				identifier = ""
 			}
-			if len(numericLiteral) > 0 {
-				token = append(token, numericLiteral)
-				numericLiteral = ""
-			}
-			token = append(token, string(char))
+			if len(literal) > 0 {
+				_, err := strconv.ParseFloat(literal, 64)
+				if err != nil {
+					return nil, errors.New("invalid numeric literal: " + err.Error())
+				}
+				tokenList = append(tokenList, token{
+					category: LITERAL,
+					value:    literal,
+				})
 
+				literal = ""
+			}
+			tokenList = append(tokenList, token{
+				category: OPERATOR,
+				value:    string(char),
+			})
+
+		//	parenthesis can also means the previous token needs to be appended to the list
 		case '(', ')':
 			if len(identifier) > 0 {
-				token = append(token, identifier)
+				tokenList = append(tokenList, token{
+					category: NAME,
+					value:    identifier,
+				})
 				identifier = ""
 			}
-			if len(numericLiteral) > 0 {
-				token = append(token, numericLiteral)
-				numericLiteral = ""
-			}
-			token = append(token, string(char))
+			if len(literal) > 0 {
+				_, err := strconv.ParseFloat(literal, 64)
+				if err != nil {
+					return nil, errors.New("invalid numeric literal: " + err.Error())
+				}
+				tokenList = append(tokenList, token{
+					category: LITERAL,
+					value:    literal,
+				})
 
+				literal = ""
+			}
+			tokenList = append(tokenList, token{
+				category: PARENTHESIS,
+				value:    string(char),
+			})
+
+		//	a digit can be part of a literal or a name
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			if len(identifier) > 0 {
 				identifier += string(char)
 			} else {
-				numericLiteral += string(char)
+				literal += string(char)
 			}
 
+		//	a dot can only be part of a literal
+		case '.':
+			if len(identifier) > 0 {
+				return nil, errors.New("invalid character in identifier: " + identifier + string(char))
+			}
+			literal += string(char)
+
+		//	a letter can be part of a name
 		case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_':
-			if len(numericLiteral) > 0 {
-				return nil, errors.New("invalid numeric literal")
+			if len(literal) > 0 {
+				return nil, errors.New("invalid numeric literal: " + literal + string(char))
 			}
 			identifier += string(char)
 		}
@@ -99,12 +163,22 @@ func lexicalAnalizer(expression string) ([]string, error) {
 
 	//	add the last token when necessary
 	if len(identifier) > 0 {
-		token = append(token, identifier)
-	} else if len(numericLiteral) > 0 {
-		token = append(token, numericLiteral)
+		tokenList = append(tokenList, token{
+			category: NAME,
+			value:    identifier,
+		})
+	} else if len(literal) > 0 {
+		_, err := strconv.ParseFloat(literal, 64)
+		if err != nil {
+			return nil, errors.New("invalid numeric literal: " + err.Error())
+		}
+		tokenList = append(tokenList, token{
+			category: LITERAL,
+			value:    literal,
+		})
 	}
 
-	return token, nil
+	return tokenList, nil
 }
 
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
