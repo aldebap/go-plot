@@ -176,6 +176,143 @@ func Test_lexicalAnalizer(t *testing.T) {
 	})
 }
 
+//	Test_expressionParser test cases for the expression parser
+func Test_expressionParser(t *testing.T) {
+
+	//	a few test cases
+	var testScenarios = []struct {
+		scenario string
+		input    []token
+		output   string
+	}{
+		{scenario: "addition", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "2 5 +"},
+		{scenario: "subtraction", input: []token{
+			{category: LITERAL, value: "5"},
+			{category: OPERATOR, value: "-"},
+			{category: LITERAL, value: "2"},
+		}, output: "5 2 -"},
+		{scenario: "multiplication", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "5"},
+		}, output: "2 5 *"},
+		{scenario: "division", input: []token{
+			{category: LITERAL, value: "10"},
+			{category: OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "10 2 /"},
+		{scenario: "one parenthesis", input: []token{
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "4"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: PARENTHESIS, value: ")"},
+			{category: OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "4 6 + 2 /"},
+		{scenario: "two parenthesis", input: []token{
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "4"},
+			{category: OPERATOR, value: "+"},
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "2"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "3"},
+			{category: PARENTHESIS, value: ")"},
+			{category: PARENTHESIS, value: ")"},
+			{category: OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "2 3 * 4 + 2 /"},
+		{scenario: "unbalanced parenthesis", input: []token{
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "4"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "expression with unbalanced parenthesis"},
+		{scenario: "fix to parenthesis parsing", input: []token{
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "x"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "x"},
+			{category: PARENTHESIS, value: ")"},
+			{category: OPERATOR, value: "-"},
+			{category: PARENTHESIS, value: "("},
+			{category: LITERAL, value: "3"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "x"},
+			{category: PARENTHESIS, value: ")"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+		}, output: "x x * 3 x * - 2 +"},
+		{scenario: "using precedence", input: []token{
+			{category: LITERAL, value: "x"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "x"},
+			{category: OPERATOR, value: "-"},
+			{category: LITERAL, value: "3"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "x"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+		}, output: "x x * 3 x * - 2 +"},
+		{scenario: "using a variable name", input: []token{
+			{category: LITERAL, value: "x"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "4"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "y"},
+			{category: OPERATOR, value: "-"},
+			{category: LITERAL, value: "z"},
+			{category: OPERATOR, value: "*"},
+			{category: LITERAL, value: "z"},
+		}, output: "x 4 y * + z z * -"},
+		{scenario: "using a variable name with underscore", input: []token{
+			{category: LITERAL, value: "var_x"},
+			{category: OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+		}, output: "var_x 2 +"},
+	}
+
+	t.Run(">>> test tokens found by lexical analizer", func(t *testing.T) {
+
+		for _, test := range testScenarios {
+
+			fmt.Printf("scenario: %s\n", test.scenario)
+
+			//	execute lexical analizer
+			postfix, err := expressionParser(test.input)
+			if err != nil {
+				t.Errorf("unexpected error in expression parser: %s", err)
+				continue
+			}
+
+			want := test.output
+			got := ""
+
+			for {
+				item := postfix.Get()
+				if item == nil {
+					break
+				}
+				got += " " + item.(string)
+			}
+			got = strings.TrimLeft(got, " ")
+			fmt.Printf("[debug] postfix result: %s\n", got)
+
+			//	check the result
+			if want != got {
+				t.Errorf("fail parsing the expression: postfix expected: %s result: %s", want, got)
+			}
+		}
+	})
+}
+
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {
 

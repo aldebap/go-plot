@@ -181,6 +181,11 @@ func lexicalAnalizer(expression string) ([]token, error) {
 	return tokenList, nil
 }
 
+//	expressionParser parse the expression from an array of tokens
+func expressionParser([]token) (Queue, error) {
+	return nil, nil
+}
+
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
 func infix2postfix(expression string) (Queue, error) {
 	postfix := NewQueue()
