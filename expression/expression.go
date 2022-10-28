@@ -43,10 +43,15 @@ func infix2postfixV2(expression string) (Queue, error) {
 
 //	types of tokens used in expressions
 const (
-	LITERAL     uint8 = 1
-	NAME        uint8 = 2
-	OPERATOR    uint8 = 3
-	PARENTHESIS uint8 = 4
+	LITERAL           uint8 = 1
+	NAME              uint8 = 2
+	ADD_OPERATOR      uint8 = 3
+	SUB_OPERATOR      uint8 = 4
+	TIMES_OPERATOR    uint8 = 5
+	DIV_OPERATOR      uint8 = 6
+	OPEN_PARENTHESIS  uint8 = 7
+	CLOSE_PARENTHESIS uint8 = 8
+	EMPTY             uint8 = 9
 )
 
 type token struct {
@@ -181,9 +186,43 @@ func lexicalAnalizer(expression string) ([]token, error) {
 	return tokenList, nil
 }
 
+//	types of syntax elements used in expressions
+const (
+	TARGET          uint8 = 101
+	EXPRESSION      uint8 = 102
+	TERM            uint8 = 103
+	EXPRESSION_LINE uint8 = 104
+	FACTOR          uint8 = 105
+	TERM_LINE       uint8 = 106
+)
+
+//	Context free grammar entry
+type grammarEntry struct {
+	symbol  uint8
+	derives []uint8
+}
+
+//	all entries for mathematical expressions grammar
+var expressionGrammar []grammarEntry = []grammarEntry{
+	{symbol: TARGET, derives: []uint8{EXPRESSION}},
+	{symbol: TERM_LINE, derives: []uint8{EMPTY}},
+	{symbol: EXPRESSION_LINE, derives: []uint8{ADD_OPERATOR, TERM, EXPRESSION_LINE}},
+	{symbol: EXPRESSION_LINE, derives: []uint8{SUB_OPERATOR, TERM, EXPRESSION_LINE}},
+	{symbol: EXPRESSION_LINE, derives: []uint8{EMPTY}},
+	{symbol: TERM, derives: []uint8{FACTOR, TERM_LINE}},
+	{symbol: TERM_LINE, derives: []uint8{TIMES_OPERATOR, FACTOR, TERM_LINE}},
+	{symbol: TERM_LINE, derives: []uint8{DIV_OPERATOR, FACTOR, TERM_LINE}},
+	{symbol: TERM_LINE, derives: []uint8{EMPTY}},
+	{symbol: FACTOR, derives: []uint8{OPEN_PARENTHESIS, EXPRESSION, CLOSE_PARENTHESIS}},
+	{symbol: FACTOR, derives: []uint8{LITERAL}},
+	{symbol: FACTOR, derives: []uint8{NAME}},
+}
+
 //	expressionParser parse the expression from an array of tokens
 func expressionParser([]token) (Queue, error) {
-	return nil, nil
+	postfix := NewQueue()
+
+	return postfix, nil
 }
 
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
