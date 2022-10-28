@@ -111,8 +111,23 @@ func lexicalAnalizer(expression string) ([]token, error) {
 
 				literal = ""
 			}
+
+			//	get operator's category
+			var category uint8
+
+			switch char {
+			case '+':
+				category = ADD_OPERATOR
+			case '-':
+				category = SUB_OPERATOR
+			case '*':
+				category = TIMES_OPERATOR
+			case '/':
+				category = DIV_OPERATOR
+			}
+
 			tokenList = append(tokenList, token{
-				category: OPERATOR,
+				category: category,
 				value:    string(char),
 			})
 
@@ -137,8 +152,17 @@ func lexicalAnalizer(expression string) ([]token, error) {
 
 				literal = ""
 			}
+
+			//	get parenthesis's category
+			var category uint8
+
+			if char == '(' {
+				category = OPEN_PARENTHESIS
+			} else {
+				category = CLOSE_PARENTHESIS
+			}
 			tokenList = append(tokenList, token{
-				category: PARENTHESIS,
+				category: category,
 				value:    string(char),
 			})
 
