@@ -243,6 +243,7 @@ var expressionGrammar []grammarEntry = []grammarEntry{
 	{symbol: FACTOR, derives: []uint8{NAME}},
 }
 
+//	TODO: are this two tables really necessary ?
 //	first and followe sets to avoid backtracking in the parser's search
 var firstSet map[uint8][]uint8 = map[uint8][]uint8{
 	EXPRESSION:      []uint8{OPEN_PARENTHESIS, LITERAL, NAME},
@@ -383,8 +384,30 @@ func expressionParser(tokenList []token) (Queue, error) {
 		fmt.Printf("[debug] node #%d: symbols: %v - token: %v\n", i+1, node.grammarExpasion, node.inputToken)
 	}
 
-	//	TODO: create the postfix from the syntax tree
-	postfix := NewQueue()
+	//	traverse the syntax tree to create the postfix version of the expression
+	var secondOperand *token = nil
+	var operation *token = nil
+	var postfix = NewQueue()
+
+	for i := len(syntaxTree) - 1; i >= 0; i-- {
+		if syntaxTree[i].inputToken != nil {
+			if secondOperand == nil && operation == nil {
+				secondOperand = syntaxTree[i].inputToken
+			} else if operation == nil {
+				operation = syntaxTree[i].inputToken
+			} else {
+				postfix.Put(syntaxTree[i].inputToken.value)
+
+				if secondOperand != nil {
+					postfix.Put(secondOperand.value)
+					secondOperand = nil
+				}
+
+				postfix.Put(operation.value)
+				operation = nil
+			}
+		}
+	}
 
 	return postfix, nil
 }
