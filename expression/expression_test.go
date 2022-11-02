@@ -205,6 +205,18 @@ func Test_expressionParser(t *testing.T) {
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
 		}, output: "10 2 /"},
+		{scenario: "syntax error", input: []token{
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "syntax error: unexpected token +"},
+		{scenario: "syntax error", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+			{category: ADD_OPERATOR, value: "+"},
+		}, output: "syntax error: expected token 7"},
 		{scenario: "one parenthesis", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "4"},
@@ -286,24 +298,23 @@ func Test_expressionParser(t *testing.T) {
 			fmt.Printf("scenario: %s\n", test.scenario)
 
 			//	execute lexical analizer
+			var want = test.output
+			var got string
+
 			postfix, err := expressionParser(test.input)
 			if err != nil {
-				t.Errorf("unexpected error in expression parser: %s", err)
-				continue
-			}
-
-			want := test.output
-			got := ""
-
-			for {
-				item := postfix.Get()
-				if item == nil {
-					break
+				got = err.Error()
+			} else {
+				for {
+					item := postfix.Get()
+					if item == nil {
+						break
+					}
+					got += " " + item.(string)
 				}
-				got += " " + item.(string)
+				got = strings.TrimLeft(got, " ")
+				fmt.Printf("[debug] postfix result: %s\n", got)
 			}
-			got = strings.TrimLeft(got, " ")
-			fmt.Printf("[debug] postfix result: %s\n", got)
 
 			//	check the result
 			if want != got {

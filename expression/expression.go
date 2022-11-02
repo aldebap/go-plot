@@ -330,8 +330,17 @@ func expressionParser(tokenList []token) (Queue, error) {
 						}
 					}
 				}
-				if chosenNode == -1 && expressionGrammar[derives[len(derives)-1]].derives[0] == EMPTY {
-					chosenNodeIsEmpty = true
+				if chosenNode == -1 {
+					if expressionGrammar[derives[len(derives)-1]].derives[0] == EMPTY {
+						chosenNodeIsEmpty = true
+					} else {
+						if currentToken < len(tokenList) {
+							return nil, errors.New("syntax error: unexpected token " + tokenList[currentToken].value)
+						}
+
+						return nil, errors.New("syntax error: expected token " +
+							strconv.FormatInt(int64(expressionGrammar[derives[0]].derives[0]), 10))
+					}
 				}
 			}
 			//	fmt.Printf("[debug] [4] chosen node: %d\n", chosenNode)
@@ -377,7 +386,6 @@ func expressionParser(tokenList []token) (Queue, error) {
 			break
 		}
 	}
-	//	TODO: how to identify syntax errors ?
 
 	fmt.Printf("[debug] syntax tree:\n")
 	for i, node := range syntaxTree {
