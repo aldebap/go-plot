@@ -205,18 +205,20 @@ func Test_expressionParser(t *testing.T) {
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
 		}, output: "10 2 /"},
-		{scenario: "syntax error", input: []token{
+		{scenario: "using precedence", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "*"},
+			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "8"},
+		}, output: "2 5 * 8 +"},
+		{scenario: "more precedence", input: []token{
 			{category: LITERAL, value: "2"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "5"},
-		}, output: "syntax error: unexpected token +"},
-		{scenario: "syntax error", input: []token{
-			{category: LITERAL, value: "2"},
-			{category: ADD_OPERATOR, value: "+"},
-			{category: LITERAL, value: "5"},
-			{category: ADD_OPERATOR, value: "+"},
-		}, output: "syntax error: expected token 7"},
+			{category: ADD_OPERATOR, value: "*"},
+			{category: LITERAL, value: "8"},
+		}, output: "2 5 8 * +"},
 		{scenario: "one parenthesis", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "4"},
@@ -239,14 +241,6 @@ func Test_expressionParser(t *testing.T) {
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
 		}, output: "2 3 * 4 + 2 /"},
-		{scenario: "unbalanced parenthesis", input: []token{
-			{category: OPEN_PARENTHESIS, value: "("},
-			{category: LITERAL, value: "4"},
-			{category: ADD_OPERATOR, value: "+"},
-			{category: LITERAL, value: "6"},
-			{category: DIV_OPERATOR, value: "/"},
-			{category: LITERAL, value: "2"},
-		}, output: "expression with unbalanced parenthesis"},
 		{scenario: "fix to parenthesis parsing", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "x"},
@@ -289,6 +283,36 @@ func Test_expressionParser(t *testing.T) {
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "2"},
 		}, output: "var_x 2 +"},
+
+		//	syntax error expressions scenarios
+		{scenario: "operation without an operator", input: []token{
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "syntax error: unexpected token +"},
+		{scenario: "operator without an operation", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+			{category: ADD_OPERATOR, value: "+"},
+		}, output: "syntax error: expected token 7"},
+		{scenario: "unbalanced parenthesis", input: []token{
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "4"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "syntax error: expected token 8"},
+		{scenario: "close parenthesis before opening it", input: []token{
+			{category: LITERAL, value: "4"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: OPEN_PARENTHESIS, value: ")"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "expression with unbalanced parenthesis"},
 	}
 
 	t.Run(">>> test tokens found by lexical analizer", func(t *testing.T) {
