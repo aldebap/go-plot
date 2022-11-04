@@ -301,16 +301,16 @@ func expressionParser(tokenList []token) (Queue, error) {
 
 			if searchNode.childNodes == nil {
 				//	try to expand the search node
-				var derives []int = make([]int, 0)
+				var child []int = make([]int, 0)
 
 				for i, entry := range expressionGrammar {
 					if searchNode.grammarItem == entry.symbol {
-						derives = append(derives, i)
+						child = append(child, i)
 					}
 				}
 
 				//	if node item is a terminal, a token must be used
-				if len(derives) == 0 {
+				if len(child) == 0 {
 					if currentToken >= len(tokenList) {
 						return nil, errors.New("syntax error: expected token " + strconv.FormatInt(int64(searchNode.grammarItem), 10))
 					}
@@ -322,37 +322,37 @@ func expressionParser(tokenList []token) (Queue, error) {
 					break
 				}
 
-				//	search the possible derived symbols for a match with the current token
-				var chosenNode = 0
-				var chosenNodeIsEmpty = false
+				//	search the possible child symbols for a match with the current token
+				var chosenChild = 0
+				var chosenEmptyChild = false
 
-				if len(derives) > 1 {
-					chosenNode = -1
+				if len(child) > 1 {
+					chosenChild = -1
 
 					if currentToken < len(tokenList) {
-						for i, derivedSymbol := range derives {
+						for i, derivedSymbol := range child {
 							if expressionGrammar[derivedSymbol].derives[0] == tokenList[currentToken].category {
-								chosenNode = i
+								chosenChild = i
 								break
 							}
 						}
 					}
-					if chosenNode == -1 {
-						if expressionGrammar[derives[len(derives)-1]].derives[0] == EMPTY {
-							chosenNodeIsEmpty = true
+					if chosenChild == -1 {
+						if expressionGrammar[child[len(child)-1]].derives[0] == EMPTY {
+							chosenEmptyChild = true
 						} else {
 							if currentToken < len(tokenList) {
 								return nil, errors.New("syntax error: unexpected token " + tokenList[currentToken].value)
 							}
 
 							return nil, errors.New("syntax error: expected token " +
-								strconv.FormatInt(int64(expressionGrammar[derives[0]].derives[0]), 10))
+								strconv.FormatInt(int64(expressionGrammar[child[0]].derives[0]), 10))
 						}
 					}
 				}
 
 				//	based on derived symbol, add child nodes to the syntax tree
-				if chosenNodeIsEmpty {
+				if chosenEmptyChild {
 					searchNode.childNodes = make([]*syntaxNode, 1)
 
 					searchNode.childNodes[0] = &syntaxNode{
@@ -361,9 +361,9 @@ func expressionParser(tokenList []token) (Queue, error) {
 						inputToken:  nil,
 					}
 				} else {
-					searchNode.childNodes = make([]*syntaxNode, len(expressionGrammar[derives[chosenNode]].derives))
+					searchNode.childNodes = make([]*syntaxNode, len(expressionGrammar[child[chosenChild]].derives))
 
-					for i, derivedSymbol := range expressionGrammar[derives[chosenNode]].derives {
+					for i, derivedSymbol := range expressionGrammar[child[chosenChild]].derives {
 						searchNode.childNodes[i] = &syntaxNode{
 							grammarItem: derivedSymbol,
 							childNodes:  nil,
@@ -394,6 +394,21 @@ func expressionParser(tokenList []token) (Queue, error) {
 			fmt.Printf("[debug] node #%d: symbols: %v - token: %v\n", i+1, node.grammarExpasion, node.inputToken)
 		}
 	*/
+	var treeNodeDebug = NewStack()
+
+	treeNodeDebug.Push(syntaxTree)
+	for {
+		if treeNodeDebug.IsEmpty() {
+			break
+		}
+
+		searchNode := treeNodeDebug.Pop().(*syntaxNode)
+		fmt.Printf("[debug] node #%d: grammar item: %d - #childs: %d - token: %v\n", 0, searchNode.grammarItem, len(searchNode.childNodes), searchNode.inputToken)
+
+		for i := len(searchNode.childNodes) - 1; i >= 0; i-- {
+			treeNodeDebug.Push(searchNode.childNodes[i])
+		}
+	}
 
 	//	post-order traverse the syntax tree to create postfix version of the expression
 	var postfix = NewQueue()
