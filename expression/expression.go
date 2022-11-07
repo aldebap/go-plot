@@ -474,6 +474,7 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 				}
 				currentNode = syntaxTree
 			} else {
+				//	TODO: if this else necessary ?
 			}
 
 			if searchNode.childNodes[1].grammarItem == EXPRESSION_LINE && searchNode.childNodes[1].childNodes[0].grammarItem == EMPTY {
@@ -516,10 +517,35 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 		case EXPRESSION_LINE:
 
 		case TERM:
+			if searchNode.childNodes[1].grammarItem == TERM_LINE && searchNode.childNodes[1].childNodes[0].grammarItem == EMPTY {
+				currentNode.childNodes = make([]*syntaxNode, 1)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: FACTOR,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[0])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+			} else {
+				// TODO: childs for * FACTOR TERM' , / FACTOR TERM'
+			}
 
 		case TERM_LINE:
 
 		case FACTOR:
+			if len(searchNode.childNodes) == 1 {
+				currentNode.childNodes = make([]*syntaxNode, 1)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: searchNode.childNodes[0].grammarItem,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[0].inputToken,
+				}
+			} else {
+				// TODO:childs for ( EXPR )
+			}
 		}
 	}
 
