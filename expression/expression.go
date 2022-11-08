@@ -274,12 +274,9 @@ func expressionParser(tokenList []token) (Queue, error) {
 	//	post-order traverse the syntax tree to create postfix version of the expression
 	var postfix = NewQueue()
 	var treeSearch = NewStack()
-	var operand = NewStack()
-	var operator = NewStack()
 
 	treeSearch.Push(syntaxTree)
 
-	//	TODO: this search is not working !
 	for {
 		if treeSearch.IsEmpty() {
 			break
@@ -292,28 +289,25 @@ func expressionParser(tokenList []token) (Queue, error) {
 			}
 
 			if searchNode.inputToken.category == LITERAL || searchNode.inputToken.category == NAME {
-				operand.Push(searchNode.inputToken.value)
+				postfix.Put(searchNode.inputToken.value)
 			}
 
 			if searchNode.inputToken.category == ADD_OPERATOR || searchNode.inputToken.category == SUB_OPERATOR ||
 				searchNode.inputToken.category == TIMES_OPERATOR || searchNode.inputToken.category == DIV_OPERATOR {
-				operator.Push(searchNode.inputToken.value)
+
+				postfix.Put(searchNode.inputToken.value)
 			}
+			continue
 		}
 
-		//	insert node in reverse order to make it visil left sub-tree first
-		for i := len(searchNode.childNodes) - 1; i >= 0; i-- {
-			treeSearch.Push(searchNode.childNodes[i])
+		//	insert left node, itself, and the right
+		if len(searchNode.childNodes) == 1 {
+			treeSearch.Push(searchNode.childNodes[0])
+		} else {
+			treeSearch.Push(searchNode.childNodes[1])
+			treeSearch.Push(searchNode.childNodes[2])
+			treeSearch.Push(searchNode.childNodes[0])
 		}
-	}
-
-	postfix.Put(operand.Pop())
-	for {
-		if operand.IsEmpty() {
-			break
-		}
-		postfix.Put(operand.Pop())
-		postfix.Put(operator.Pop())
 	}
 
 	return postfix, nil
@@ -515,6 +509,42 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 			}
 
 		case EXPRESSION_LINE:
+			if searchNode.childNodes[2].grammarItem == EXPRESSION_LINE && searchNode.childNodes[2].childNodes[0].grammarItem == EMPTY {
+				currentNode.childNodes = make([]*syntaxNode, 1)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: TERM,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+			} else {
+				currentNode.childNodes = make([]*syntaxNode, 3)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: TERM,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+				currentNode.childNodes[1] = &syntaxNode{
+					grammarItem: searchNode.childNodes[2].childNodes[0].grammarItem,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[2].childNodes[0].inputToken,
+				}
+				currentNode.childNodes[2] = &syntaxNode{
+					grammarItem: EXPRESSION,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+
+				parsingTreeSearch.Push(searchNode.childNodes[2])
+				syntaxNodeSearch.Push(currentNode.childNodes[2])
+			}
 
 		case TERM:
 			if searchNode.childNodes[1].grammarItem == TERM_LINE && searchNode.childNodes[1].childNodes[0].grammarItem == EMPTY {
@@ -555,19 +585,31 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 //	createParsingTree create the parsing tree for expression represented by an array of tokens
 func printSyntaxTree(syntaxTree *syntaxNode) {
 
+	type printNode struct {
+		level      uint8
+		syntaxTree *syntaxNode
+	}
+
 	var treeNodeDebug = NewStack()
 
-	treeNodeDebug.Push(syntaxTree)
+	treeNodeDebug.Push(&printNode{
+		level:      1,
+		syntaxTree: syntaxTree,
+	})
 	for {
 		if treeNodeDebug.IsEmpty() {
 			break
 		}
 
-		searchNode := treeNodeDebug.Pop().(*syntaxNode)
-		fmt.Printf("[debug] node #%d: grammar item: %d - #childs: %d - token: %v\n", 0, searchNode.grammarItem, len(searchNode.childNodes), searchNode.inputToken)
+		node := treeNodeDebug.Pop().(*printNode)
+		fmt.Printf("[debug] node #%d: grammar item: %d - #childs: %d - token: %v\n", node.level, node.syntaxTree.grammarItem,
+			len(node.syntaxTree.childNodes), node.syntaxTree.inputToken)
 
-		for i := len(searchNode.childNodes) - 1; i >= 0; i-- {
-			treeNodeDebug.Push(searchNode.childNodes[i])
+		for i := len(node.syntaxTree.childNodes) - 1; i >= 0; i-- {
+			treeNodeDebug.Push(&printNode{
+				level:      node.level + 1,
+				syntaxTree: node.syntaxTree.childNodes[i],
+			})
 		}
 	}
 }

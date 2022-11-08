@@ -211,7 +211,7 @@ func Test_expressionParser(t *testing.T) {
 			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "7"},
-		}, output: "5 7 + 2 +"},
+		}, output: "2 5 7 + +"},
 		{scenario: "grouped multiplication", input: []token{
 			{category: LITERAL, value: "2"},
 			{category: ADD_OPERATOR, value: "*"},
