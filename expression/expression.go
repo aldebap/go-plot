@@ -559,10 +559,68 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 				parsingTreeSearch.Push(searchNode.childNodes[0])
 				syntaxNodeSearch.Push(currentNode.childNodes[0])
 			} else {
-				// TODO: childs for * FACTOR TERM' , / FACTOR TERM'
+				currentNode.childNodes = make([]*syntaxNode, 3)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: FACTOR,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+				currentNode.childNodes[1] = &syntaxNode{
+					grammarItem: searchNode.childNodes[1].childNodes[0].grammarItem,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[1].childNodes[0].inputToken,
+				}
+				currentNode.childNodes[2] = &syntaxNode{
+					grammarItem: TERM,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[0])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[2])
 			}
 
 		case TERM_LINE:
+			if searchNode.childNodes[2].grammarItem == TERM_LINE && searchNode.childNodes[2].childNodes[0].grammarItem == EMPTY {
+				currentNode.childNodes = make([]*syntaxNode, 1)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: FACTOR,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+			} else {
+				currentNode.childNodes = make([]*syntaxNode, 3)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: FACTOR,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+				currentNode.childNodes[1] = &syntaxNode{
+					grammarItem: searchNode.childNodes[2].childNodes[0].grammarItem,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[2].childNodes[0].inputToken,
+				}
+				currentNode.childNodes[2] = &syntaxNode{
+					grammarItem: TERM,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
+
+				parsingTreeSearch.Push(searchNode.childNodes[2])
+				syntaxNodeSearch.Push(currentNode.childNodes[2])
+			}
 
 		case FACTOR:
 			if len(searchNode.childNodes) == 1 {
@@ -574,7 +632,26 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 					inputToken:  searchNode.childNodes[0].inputToken,
 				}
 			} else {
-				// TODO:childs for ( EXPR )
+				currentNode.childNodes = make([]*syntaxNode, 3)
+
+				currentNode.childNodes[0] = &syntaxNode{
+					grammarItem: OPEN_PARENTHESIS,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[0].inputToken,
+				}
+				currentNode.childNodes[1] = &syntaxNode{
+					grammarItem: EXPRESSION,
+					childNodes:  nil,
+					inputToken:  nil,
+				}
+				currentNode.childNodes[2] = &syntaxNode{
+					grammarItem: CLOSE_PARENTHESIS,
+					childNodes:  nil,
+					inputToken:  searchNode.childNodes[2].inputToken,
+				}
+
+				parsingTreeSearch.Push(searchNode.childNodes[1])
+				syntaxNodeSearch.Push(currentNode.childNodes[1])
 			}
 		}
 	}

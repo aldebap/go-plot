@@ -218,7 +218,7 @@ func Test_expressionParser(t *testing.T) {
 			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "*"},
 			{category: LITERAL, value: "7"},
-		}, output: "2 5 * 7 *"},
+		}, output: "2 5 7 * *"},
 		{scenario: "using precedence", input: []token{
 			{category: LITERAL, value: "2"},
 			{category: ADD_OPERATOR, value: "*"},
@@ -254,7 +254,7 @@ func Test_expressionParser(t *testing.T) {
 			{category: CLOSE_PARENTHESIS, value: ")"},
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
-		}, output: "2 3 * 4 + 2 /"},
+		}, output: "4 2 3 * + 2 /"},
 		{scenario: "fix to parenthesis parsing", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "x"},
