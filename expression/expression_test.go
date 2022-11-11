@@ -70,65 +70,6 @@ func Test_infix2postfix(t *testing.T) {
 	})
 }
 
-//	Test_infix2postfixV2 test cases for the conversion from infix -> postfix
-func Test_infix2postfixV2(t *testing.T) {
-
-	//	a few test cases
-	var testScenarios = []struct {
-		scenario string
-		input    string
-		output   string
-	}{
-		{scenario: "addition", input: "2 + 5", output: "2 5 +"},
-		{scenario: "subtraction", input: "5 - 2", output: "5 2 -"},
-		{scenario: "multiplication", input: "2 * 5", output: "2 5 *"},
-		{scenario: "division", input: "10 / 2", output: "10 2 /"},
-		{scenario: "one parenthesis", input: "( 4 + 6 ) / 2", output: "4 6 + 2 /"},
-		{scenario: "two parenthesis", input: "( 4 + ( 2 * 3 ) ) / 2", output: "4 2 3 * + 2 /"},
-		{scenario: "unbalanced parenthesis", input: "( 4 + 6 / 2", output: "expression with unbalanced parenthesis"},
-		{scenario: "fix to parenthesis parsing", input: "( x * x ) - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
-		{scenario: "fix to parenthesis parsing", input: "x * x - ( 3 * x ) + 2", output: "x x * 3 x * - 2 +"},
-	}
-
-	t.Run(">>> test conversion from infix -> postfix", func(t *testing.T) {
-
-		_ = testScenarios
-		/*
-			for _, test := range testScenarios {
-
-				fmt.Printf("scenario: %s\n", test.scenario)
-
-				//	execute conversion from infix -> postfix
-				postfix, err := infix2postfixV2(test.input)
-				if err != nil {
-					if err.Error() != test.output {
-						t.Errorf("unexpected error converting from infix -> postfix: %s", err)
-					}
-					continue
-				}
-
-				want := test.output
-				got := ""
-
-				for {
-					item := postfix.Get()
-					if item == nil {
-						break
-					}
-					got += " " + item.(string)
-				}
-				got = strings.TrimLeft(got, " ")
-				fmt.Printf("[debug] postfix result: %s\n", got)
-
-				//	check the result
-				if want != got {
-					t.Errorf("fail converting from infix -> postfix: expected: %s result: %s", want, got)
-				}
-			}
-		*/
-	})
-}
-
 //	Test_lexicalAnalizer test cases for the lexical analizer
 func Test_lexicalAnalizer(t *testing.T) {
 
@@ -362,7 +303,47 @@ func Test_expressionParser(t *testing.T) {
 	})
 }
 
-//	TODO: refactor tests since expressionaParser was separeted in 3 functions
+//	printSyntaxTree print a parsing/syntax tree structure
+func printSyntaxTree(syntaxTree *syntaxNode) {
+
+	type printNode struct {
+		level      uint8
+		syntaxTree *syntaxNode
+	}
+
+	var treeNodeDebug = NewStack()
+
+	treeNodeDebug.Push(&printNode{
+		level:      1,
+		syntaxTree: syntaxTree,
+	})
+	for {
+		if treeNodeDebug.IsEmpty() {
+			break
+		}
+
+		node := treeNodeDebug.Pop().(*printNode)
+		fmt.Printf("[debug] node #%d: grammar item: %d - #childs: %d - token: %v\n", node.level, node.syntaxTree.grammarItem,
+			len(node.syntaxTree.childNodes), node.syntaxTree.inputToken)
+
+		for i := len(node.syntaxTree.childNodes) - 1; i >= 0; i-- {
+			treeNodeDebug.Push(&printNode{
+				level:      node.level + 1,
+				syntaxTree: node.syntaxTree.childNodes[i],
+			})
+		}
+	}
+}
+
+//	Test_createParsingTree test cases for the createParsingTree function
+func Test_createParsingTree(t *testing.T) {
+	//	TODO: create scenarios to test createParsingTree()
+}
+
+//	Test_createSyntaxTree test cases for the createSyntaxTree function
+func Test_createSyntaxTree(t *testing.T) {
+	//	TODO: create scenarios to test createParsingTree()
+}
 
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {

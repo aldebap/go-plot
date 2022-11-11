@@ -8,7 +8,6 @@ package expression
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -33,13 +32,6 @@ func NewExpression(expressionStr string) (Expression, error) {
 	return &ParsedExpression{
 		postfix: postfix,
 	}, nil
-}
-
-//	infix2postfixV2 read the infix expression and create a stack with the postfix version of it
-func infix2postfixV2(expression string) (Queue, error) {
-	postfix := NewQueue()
-
-	return postfix, nil
 }
 
 //	types of tokens used in expressions (terminal symbols)
@@ -262,17 +254,11 @@ func expressionParser(tokenList []token) (Queue, error) {
 		return nil, err
 	}
 
-	fmt.Printf("[info] parsing tree:\n")
-	printSyntaxTree(parsingTree)
-
 	//	transform the parsing tree into the syntax tree
 	syntaxTree, err := createSyntaxTree(parsingTree)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("[info] syntax tree:\n")
-	printSyntaxTree(syntaxTree)
 
 	//	post-order traverse the syntax tree to create postfix version of the expression
 	var postfix = NewQueue()
@@ -475,8 +461,6 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 					inputToken:  nil,
 				}
 				currentNode = syntaxTree
-			} else {
-				//	TODO: if this else necessary ?
 			}
 
 			if searchNode.childNodes[1].grammarItem == EXPRESSION_LINE && searchNode.childNodes[1].childNodes[0].grammarItem == EMPTY {
@@ -665,39 +649,6 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 	}
 
 	return syntaxTree, nil
-}
-
-//	TODO: move this to test code
-//	createParsingTree create the parsing tree for expression represented by an array of tokens
-func printSyntaxTree(syntaxTree *syntaxNode) {
-
-	type printNode struct {
-		level      uint8
-		syntaxTree *syntaxNode
-	}
-
-	var treeNodeDebug = NewStack()
-
-	treeNodeDebug.Push(&printNode{
-		level:      1,
-		syntaxTree: syntaxTree,
-	})
-	for {
-		if treeNodeDebug.IsEmpty() {
-			break
-		}
-
-		node := treeNodeDebug.Pop().(*printNode)
-		fmt.Printf("[debug] node #%d: grammar item: %d - #childs: %d - token: %v\n", node.level, node.syntaxTree.grammarItem,
-			len(node.syntaxTree.childNodes), node.syntaxTree.inputToken)
-
-		for i := len(node.syntaxTree.childNodes) - 1; i >= 0; i-- {
-			treeNodeDebug.Push(&printNode{
-				level:      node.level + 1,
-				syntaxTree: node.syntaxTree.childNodes[i],
-			})
-		}
-	}
 }
 
 //	infix2postfix read the infix expression and create a stack with the postfix version of it
