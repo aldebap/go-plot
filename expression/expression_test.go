@@ -214,14 +214,14 @@ func Test_expressionParser(t *testing.T) {
 		}, output: "2 5 7 + +"},
 		{scenario: "grouped multiplication", input: []token{
 			{category: LITERAL, value: "2"},
-			{category: ADD_OPERATOR, value: "*"},
+			{category: TIMES_OPERATOR, value: "*"},
 			{category: LITERAL, value: "5"},
-			{category: ADD_OPERATOR, value: "*"},
+			{category: TIMES_OPERATOR, value: "*"},
 			{category: LITERAL, value: "7"},
 		}, output: "2 5 7 * *"},
 		{scenario: "using precedence", input: []token{
 			{category: LITERAL, value: "2"},
-			{category: ADD_OPERATOR, value: "*"},
+			{category: TIMES_OPERATOR, value: "*"},
 			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "8"},
@@ -230,9 +230,20 @@ func Test_expressionParser(t *testing.T) {
 			{category: LITERAL, value: "2"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "5"},
-			{category: ADD_OPERATOR, value: "*"},
+			{category: TIMES_OPERATOR, value: "*"},
 			{category: LITERAL, value: "8"},
 		}, output: "2 5 8 * +"},
+		{scenario: "multiples precedences", input: []token{
+			{category: NAME, value: "x"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: SUB_OPERATOR, value: "-"},
+			{category: LITERAL, value: "3"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+		}, output: "x x * 3 x * 2 + -"},
 		{scenario: "one parenthesis", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "4"},
@@ -257,43 +268,32 @@ func Test_expressionParser(t *testing.T) {
 		}, output: "4 2 3 * + 2 /"},
 		{scenario: "fix to parenthesis parsing", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
-			{category: LITERAL, value: "x"},
+			{category: NAME, value: "x"},
 			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "x"},
+			{category: NAME, value: "x"},
 			{category: CLOSE_PARENTHESIS, value: ")"},
 			{category: SUB_OPERATOR, value: "-"},
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "3"},
 			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "x"},
+			{category: NAME, value: "x"},
 			{category: CLOSE_PARENTHESIS, value: ")"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "2"},
-		}, output: "x x * 3 x * - 2 +"},
-		{scenario: "using precedence", input: []token{
-			{category: LITERAL, value: "x"},
-			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "x"},
-			{category: SUB_OPERATOR, value: "-"},
-			{category: LITERAL, value: "3"},
-			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "x"},
-			{category: ADD_OPERATOR, value: "+"},
-			{category: LITERAL, value: "2"},
-		}, output: "x x * 3 x * - 2 +"},
+		}, output: "x x * 3 x * 2 + -"},
 		{scenario: "using a variable name", input: []token{
-			{category: LITERAL, value: "x"},
+			{category: NAME, value: "x"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "4"},
 			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "y"},
+			{category: NAME, value: "y"},
 			{category: SUB_OPERATOR, value: "-"},
-			{category: LITERAL, value: "z"},
+			{category: NAME, value: "z"},
 			{category: TIMES_OPERATOR, value: "*"},
-			{category: LITERAL, value: "z"},
-		}, output: "x 4 y * + z z * -"},
+			{category: NAME, value: "z"},
+		}, output: "x 4 y * z z * - +"},
 		{scenario: "using a variable name with underscore", input: []token{
-			{category: LITERAL, value: "var_x"},
+			{category: NAME, value: "var_x"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "2"},
 		}, output: "var_x 2 +"},
@@ -323,10 +323,10 @@ func Test_expressionParser(t *testing.T) {
 			{category: LITERAL, value: "4"},
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "6"},
-			{category: OPEN_PARENTHESIS, value: ")"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
-		}, output: "expression with unbalanced parenthesis"},
+		}, output: "syntax error: unexpected token )"},
 	}
 
 	t.Run(">>> test tokens found by lexical analizer", func(t *testing.T) {
@@ -361,6 +361,8 @@ func Test_expressionParser(t *testing.T) {
 		}
 	})
 }
+
+//	TODO: refactor tests since expressionaParser was separeted in 3 functions
 
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {
