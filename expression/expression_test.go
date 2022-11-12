@@ -335,9 +335,186 @@ func printSyntaxTree(syntaxTree *syntaxNode) {
 	}
 }
 
+//	printSyntaxTree print a parsing/syntax tree structure
+func syntaxTree2string(syntaxTree *syntaxNode) string {
+
+	type outputNode struct {
+		level      uint8
+		syntaxTree *syntaxNode
+	}
+
+	//	post-order traverse the syntax tree to create a string for testing the tree structure
+	var treeOutput string
+	var treeSearch = NewStack()
+
+	treeSearch.Push(&outputNode{
+		level:      1,
+		syntaxTree: syntaxTree,
+	})
+
+	for {
+		if treeSearch.IsEmpty() {
+			break
+		}
+
+		searchNode := treeSearch.Pop().(*outputNode)
+		if searchNode.syntaxTree.childNodes == nil {
+			if searchNode.syntaxTree.inputToken == nil {
+				continue
+			}
+
+			if searchNode.syntaxTree.inputToken.category == LITERAL ||
+				searchNode.syntaxTree.inputToken.category == NAME {
+
+				treeOutput += fmt.Sprintf("[%d] operand: %s; ", searchNode.level, searchNode.syntaxTree.inputToken.value)
+			}
+
+			if searchNode.syntaxTree.inputToken.category == ADD_OPERATOR ||
+				searchNode.syntaxTree.inputToken.category == SUB_OPERATOR ||
+				searchNode.syntaxTree.inputToken.category == TIMES_OPERATOR ||
+				searchNode.syntaxTree.inputToken.category == DIV_OPERATOR {
+
+				treeOutput += fmt.Sprintf("[%d] operator %s; ", searchNode.level, searchNode.syntaxTree.inputToken.value)
+			}
+			continue
+		}
+
+		//	insert left node, itself, and the right
+		if len(searchNode.syntaxTree.childNodes) == 1 {
+			treeSearch.Push(&outputNode{
+				level:      searchNode.level + 1,
+				syntaxTree: searchNode.syntaxTree.childNodes[0],
+			})
+		} else {
+			if len(searchNode.syntaxTree.childNodes) == 2 {
+				treeSearch.Push(&outputNode{
+					level:      searchNode.level + 1,
+					syntaxTree: searchNode.syntaxTree.childNodes[1],
+				})
+				treeSearch.Push(&outputNode{
+					level:      searchNode.level + 1,
+					syntaxTree: searchNode.syntaxTree.childNodes[0],
+				})
+			} else {
+				treeSearch.Push(&outputNode{
+					level:      searchNode.level + 1,
+					syntaxTree: searchNode.syntaxTree.childNodes[1],
+				})
+				treeSearch.Push(&outputNode{
+					level:      searchNode.level + 1,
+					syntaxTree: searchNode.syntaxTree.childNodes[2],
+				})
+				treeSearch.Push(&outputNode{
+					level:      searchNode.level + 1,
+					syntaxTree: searchNode.syntaxTree.childNodes[0],
+				})
+			}
+		}
+	}
+
+	return treeOutput
+}
+
 //	Test_createParsingTree test cases for the createParsingTree function
 func Test_createParsingTree(t *testing.T) {
-	//	TODO: create scenarios to test createParsingTree()
+
+	//	a few test cases
+	var testScenarios = []struct {
+		scenario string
+		input    []token
+		output   string
+	}{
+		{scenario: "constant", input: []token{
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 2;"},
+		{scenario: "just a variable", input: []token{
+			{category: NAME, value: "x"},
+		}, output: "[4] operand: x;"},
+		{scenario: "addition", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "[4] operand: 2; [3] operator +; [5] operand: 5;"},
+		{scenario: "subtraction", input: []token{
+			{category: LITERAL, value: "5"},
+			{category: SUB_OPERATOR, value: "-"},
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 5; [3] operator -; [5] operand: 2;"},
+		{scenario: "multiplication", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: LITERAL, value: "5"},
+		}, output: "[4] operand: 2; [4] operator *; [5] operand: 5;"},
+		{scenario: "division", input: []token{
+			{category: LITERAL, value: "10"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 10; [4] operator /; [5] operand: 2;"},
+		{scenario: "parenthesis", input: []token{
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
+		}, output: "[7] operand: 2; [6] operator +; [8] operand: 5;"},
+
+		//	syntax error expressions scenarios
+		{scenario: "operation without an operator", input: []token{
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "syntax error: unexpected token +"},
+		{scenario: "operator without an operation", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+			{category: ADD_OPERATOR, value: "+"},
+		}, output: "syntax error: expected token 7"},
+		{scenario: "unbalanced parenthesis", input: []token{
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "4"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "syntax error: expected token 8"},
+		{scenario: "close parenthesis before opening it", input: []token{
+			{category: LITERAL, value: "4"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "6"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "syntax error: unexpected token )"},
+	}
+
+	t.Run(">>> test trees generated by parser", func(t *testing.T) {
+
+		for _, test := range testScenarios {
+
+			fmt.Printf("scenario: %s\n", test.scenario)
+
+			//	execute lexical analizer
+			var want = test.output
+			var got string
+
+			parsingTree, err := createParsingTree(test.input)
+			if err != nil {
+				got = err.Error()
+			} else {
+				got = syntaxTree2string(parsingTree)
+				got = strings.TrimRight(got, " ")
+
+				fmt.Printf("[debug] parsing tree: %s\n", got)
+			}
+
+			//	check the result
+			if want != got {
+				t.Errorf("fail creating parsing tree: expected: %s result: %s", want, got)
+			}
+		}
+	})
 }
 
 //	Test_createSyntaxTree test cases for the createSyntaxTree function
