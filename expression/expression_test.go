@@ -459,7 +459,11 @@ func Test_createParsingTree(t *testing.T) {
 		}, output: "[7] operand: 2; [6] operator +; [8] operand: 5;"},
 
 		//	syntax error expressions scenarios
-		{scenario: "operation without an operator", input: []token{
+		{scenario: "operands without an operator", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: LITERAL, value: "5"},
+		}, output: "syntax error: unexpected token 5"},
+		{scenario: "operation before an operand", input: []token{
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "2"},
 			{category: ADD_OPERATOR, value: "+"},
@@ -519,7 +523,80 @@ func Test_createParsingTree(t *testing.T) {
 
 //	Test_createSyntaxTree test cases for the createSyntaxTree function
 func Test_createSyntaxTree(t *testing.T) {
-	//	TODO: create scenarios to test createParsingTree()
+
+	//	a few test cases
+	var testScenarios = []struct {
+		scenario string
+		input    []token
+		output   string
+	}{
+		{scenario: "constant", input: []token{
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 2;"},
+		{scenario: "just a variable", input: []token{
+			{category: NAME, value: "x"},
+		}, output: "[4] operand: x;"},
+		{scenario: "addition", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+		}, output: "[4] operand: 2; [5] operand: 5; [2] operator +;"},
+		{scenario: "subtraction", input: []token{
+			{category: LITERAL, value: "5"},
+			{category: SUB_OPERATOR, value: "-"},
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 5; [5] operand: 2; [2] operator -;"},
+		{scenario: "multiplication", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: LITERAL, value: "5"},
+		}, output: "[4] operand: 2; [5] operand: 5; [3] operator *;"},
+		{scenario: "division", input: []token{
+			{category: LITERAL, value: "10"},
+			{category: DIV_OPERATOR, value: "/"},
+			{category: LITERAL, value: "2"},
+		}, output: "[4] operand: 10; [5] operand: 2; [3] operator /;"},
+		{scenario: "parenthesis", input: []token{
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "2"},
+			{category: ADD_OPERATOR, value: "+"},
+			{category: LITERAL, value: "5"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
+		}, output: "[7] operand: 2; [8] operand: 5; [5] operator +;"},
+	}
+
+	t.Run(">>> test parser tree conversion to syntax tree", func(t *testing.T) {
+
+		for _, test := range testScenarios {
+
+			fmt.Printf("scenario: %s\n", test.scenario)
+
+			//	execute lexical analizer
+			var want = test.output
+			var got string
+
+			parsingTree, err := createParsingTree(test.input)
+			if err != nil {
+				got = err.Error()
+			} else {
+				syntaxTree, err := createSyntaxTree(parsingTree)
+				if err != nil {
+					got = err.Error()
+				} else {
+
+					got = syntaxTree2string(syntaxTree)
+					got = strings.TrimRight(got, " ")
+
+					fmt.Printf("[debug] syntax tree: %s\n", got)
+				}
+			}
+
+			//	check the result
+			if want != got {
+				t.Errorf("fail creating syntax tree: expected: %s result: %s", want, got)
+			}
+		}
+	})
 }
 
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
