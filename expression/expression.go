@@ -38,13 +38,14 @@ func NewExpression(expressionStr string) (Expression, error) {
 const (
 	LITERAL           uint8 = 1
 	NAME              uint8 = 2
-	ADD_OPERATOR      uint8 = 3
-	SUB_OPERATOR      uint8 = 4
-	TIMES_OPERATOR    uint8 = 5
-	DIV_OPERATOR      uint8 = 6
-	OPEN_PARENTHESIS  uint8 = 7
-	CLOSE_PARENTHESIS uint8 = 8
-	EMPTY             uint8 = 9
+	FUNCTION_NAME     uint8 = 3
+	ADD_OPERATOR      uint8 = 4
+	SUB_OPERATOR      uint8 = 5
+	TIMES_OPERATOR    uint8 = 6
+	DIV_OPERATOR      uint8 = 7
+	OPEN_PARENTHESIS  uint8 = 8
+	CLOSE_PARENTHESIS uint8 = 9
+	EMPTY             uint8 = 10
 )
 
 type token struct {
@@ -211,28 +212,34 @@ const (
 	EXPRESSION_LINE uint8 = 104
 	FACTOR          uint8 = 105
 	TERM_LINE       uint8 = 106
+	PARAMETER_LIST  uint8 = 107
 )
 
 //	Context free grammar entry
 type grammarEntry struct {
-	symbol  uint8
-	derives []uint8
+	symbol       uint8
+	derives      []uint8
+	tokensWanted uint8
 }
 
 //	all entries for mathematical expressions grammar
 var expressionGrammar []grammarEntry = []grammarEntry{
 	{symbol: TARGET, derives: []uint8{EXPRESSION}},
 	{symbol: EXPRESSION, derives: []uint8{TERM, EXPRESSION_LINE}},
-	{symbol: EXPRESSION_LINE, derives: []uint8{ADD_OPERATOR, TERM, EXPRESSION_LINE}},
-	{symbol: EXPRESSION_LINE, derives: []uint8{SUB_OPERATOR, TERM, EXPRESSION_LINE}},
+	{symbol: EXPRESSION_LINE, derives: []uint8{ADD_OPERATOR, TERM, EXPRESSION_LINE}, tokensWanted: 1},
+	{symbol: EXPRESSION_LINE, derives: []uint8{SUB_OPERATOR, TERM, EXPRESSION_LINE}, tokensWanted: 1},
 	{symbol: EXPRESSION_LINE, derives: []uint8{EMPTY}},
 	{symbol: TERM, derives: []uint8{FACTOR, TERM_LINE}},
-	{symbol: TERM_LINE, derives: []uint8{TIMES_OPERATOR, FACTOR, TERM_LINE}},
-	{symbol: TERM_LINE, derives: []uint8{DIV_OPERATOR, FACTOR, TERM_LINE}},
+	{symbol: TERM_LINE, derives: []uint8{TIMES_OPERATOR, FACTOR, TERM_LINE}, tokensWanted: 1},
+	{symbol: TERM_LINE, derives: []uint8{DIV_OPERATOR, FACTOR, TERM_LINE}, tokensWanted: 1},
 	{symbol: TERM_LINE, derives: []uint8{EMPTY}},
-	{symbol: FACTOR, derives: []uint8{OPEN_PARENTHESIS, EXPRESSION, CLOSE_PARENTHESIS}},
-	{symbol: FACTOR, derives: []uint8{LITERAL}},
-	{symbol: FACTOR, derives: []uint8{NAME}},
+	{symbol: FACTOR, derives: []uint8{NAME, OPEN_PARENTHESIS, PARAMETER_LIST, CLOSE_PARENTHESIS}, tokensWanted: 2},
+	{symbol: FACTOR, derives: []uint8{OPEN_PARENTHESIS, EXPRESSION, CLOSE_PARENTHESIS}, tokensWanted: 1},
+	{symbol: FACTOR, derives: []uint8{LITERAL}, tokensWanted: 1},
+	{symbol: FACTOR, derives: []uint8{NAME}, tokensWanted: 1},
+	//	TODO: change the grammar to support multiple parameters separeted by commas
+	{symbol: PARAMETER_LIST, derives: []uint8{EXPRESSION}},
+	//	TODO: change the grammar to support function calls witout parameters
 }
 
 //	TODO: add literal signals to grammar
@@ -335,16 +342,16 @@ func createParsingTree(tokenList []token) (*syntaxNode, error) {
 
 			if searchNode.childNodes == nil {
 				//	try to expand the search node
-				var child []int = make([]int, 0)
+				var production []int = make([]int, 0)
 
 				for i, entry := range expressionGrammar {
 					if searchNode.grammarItem == entry.symbol {
-						child = append(child, i)
+						production = append(production, i)
 					}
 				}
 
-				//	if node item is a terminal, a token must be used
-				if len(child) == 0 {
+				//	if no productions available, node item is a terminal, then a token must be used
+				if len(production) == 0 {
 					if currentToken >= len(tokenList) {
 						return nil, errors.New("syntax error: expected token " + strconv.FormatInt(int64(searchNode.grammarItem), 10))
 					}
@@ -356,37 +363,49 @@ func createParsingTree(tokenList []token) (*syntaxNode, error) {
 					break
 				}
 
-				//	search the possible child symbols for a match with the current token
-				var chosenChild = 0
-				var chosenEmptyChild = false
+				//	choose the best production based on current (and next) token(s)
+				var chosenProduction = 0
+				var chosenEmpty = false
 
-				if len(child) > 1 {
-					chosenChild = -1
+				if len(production) > 1 {
+					chosenProduction = -1
 
-					if currentToken < len(tokenList) {
-						for i, possibleChild := range child {
-							if expressionGrammar[possibleChild].derives[0] == tokenList[currentToken].category {
-								chosenChild = i
+					for i, possibleProduction := range production {
+						if currentToken+int(expressionGrammar[possibleProduction].tokensWanted) <= len(tokenList) {
+							if expressionGrammar[possibleProduction].tokensWanted == 1 &&
+								expressionGrammar[possibleProduction].derives[0] == tokenList[currentToken].category {
+
+								chosenProduction = i
+								break
+							}
+
+							//	for function calls, it's necessary to check two tokens to make a choice
+							if expressionGrammar[possibleProduction].tokensWanted == 2 &&
+								expressionGrammar[possibleProduction].derives[0] == tokenList[currentToken].category &&
+								expressionGrammar[possibleProduction].derives[1] == tokenList[currentToken+1].category {
+
+								chosenProduction = i
 								break
 							}
 						}
 					}
-					if chosenChild == -1 {
-						if expressionGrammar[child[len(child)-1]].derives[0] == EMPTY {
-							chosenEmptyChild = true
+					if chosenProduction == -1 {
+						//	assumption that EMPTY will always be the last available production
+						if expressionGrammar[production[len(production)-1]].derives[0] == EMPTY {
+							chosenEmpty = true
 						} else {
 							if currentToken < len(tokenList) {
 								return nil, errors.New("syntax error: unexpected token " + tokenList[currentToken].value)
 							}
 
 							return nil, errors.New("syntax error: expected token " +
-								strconv.FormatInt(int64(expressionGrammar[child[0]].derives[0]), 10))
+								strconv.FormatInt(int64(expressionGrammar[production[0]].derives[0]), 10))
 						}
 					}
 				}
 
 				//	based on derived symbol, add child nodes to the syntax tree
-				if chosenEmptyChild {
+				if chosenEmpty {
 					searchNode.childNodes = make([]*syntaxNode, 1)
 
 					searchNode.childNodes[0] = &syntaxNode{
@@ -395,9 +414,9 @@ func createParsingTree(tokenList []token) (*syntaxNode, error) {
 						inputToken:  nil,
 					}
 				} else {
-					searchNode.childNodes = make([]*syntaxNode, len(expressionGrammar[child[chosenChild]].derives))
+					searchNode.childNodes = make([]*syntaxNode, len(expressionGrammar[production[chosenProduction]].derives))
 
-					for i, derivedSymbol := range expressionGrammar[child[chosenChild]].derives {
+					for i, derivedSymbol := range expressionGrammar[production[chosenProduction]].derives {
 						searchNode.childNodes[i] = &syntaxNode{
 							grammarItem: derivedSymbol,
 							childNodes:  nil,

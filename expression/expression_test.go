@@ -251,7 +251,7 @@ func Test_expressionParser(t *testing.T) {
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "+"},
-		}, output: "syntax error: expected token 7"},
+		}, output: "syntax error: expected token 2"},
 		{scenario: "unbalanced parenthesis", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "4"},
@@ -259,7 +259,7 @@ func Test_expressionParser(t *testing.T) {
 			{category: LITERAL, value: "6"},
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
-		}, output: "syntax error: expected token 8"},
+		}, output: "syntax error: expected token 9"},
 		{scenario: "close parenthesis before opening it", input: []token{
 			{category: LITERAL, value: "4"},
 			{category: ADD_OPERATOR, value: "+"},
@@ -457,6 +457,18 @@ func Test_createParsingTree(t *testing.T) {
 			{category: LITERAL, value: "5"},
 			{category: CLOSE_PARENTHESIS, value: ")"},
 		}, output: "[7] operand: 2; [6] operator +; [8] operand: 5;"},
+		{scenario: "function call", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "sin"},
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "2"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
+		}, output: "[4] operand: 2; [4] operator *; [5] operator *; [6] operand: sin; [10] operand: 2; [10] operator *; [11] operand: x; [5] operand: x;"},
 
 		//	syntax error expressions scenarios
 		{scenario: "operands without an operator", input: []token{
@@ -474,7 +486,7 @@ func Test_createParsingTree(t *testing.T) {
 			{category: ADD_OPERATOR, value: "+"},
 			{category: LITERAL, value: "5"},
 			{category: ADD_OPERATOR, value: "+"},
-		}, output: "syntax error: expected token 7"},
+		}, output: "syntax error: expected token 2"},
 		{scenario: "unbalanced parenthesis", input: []token{
 			{category: OPEN_PARENTHESIS, value: "("},
 			{category: LITERAL, value: "4"},
@@ -482,7 +494,7 @@ func Test_createParsingTree(t *testing.T) {
 			{category: LITERAL, value: "6"},
 			{category: DIV_OPERATOR, value: "/"},
 			{category: LITERAL, value: "2"},
-		}, output: "syntax error: expected token 8"},
+		}, output: "syntax error: expected token 9"},
 		{scenario: "close parenthesis before opening it", input: []token{
 			{category: LITERAL, value: "4"},
 			{category: ADD_OPERATOR, value: "+"},
