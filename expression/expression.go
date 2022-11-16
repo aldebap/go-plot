@@ -643,26 +643,70 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 					inputToken:  searchNode.childNodes[0].inputToken,
 				}
 			} else {
-				currentNode.childNodes = make([]*syntaxNode, 3)
+				if len(searchNode.childNodes) == 3 {
+					currentNode.childNodes = make([]*syntaxNode, 3)
+
+					currentNode.childNodes[0] = &syntaxNode{
+						grammarItem: OPEN_PARENTHESIS,
+						childNodes:  nil,
+						inputToken:  searchNode.childNodes[0].inputToken,
+					}
+					currentNode.childNodes[1] = &syntaxNode{
+						grammarItem: EXPRESSION,
+						childNodes:  nil,
+						inputToken:  nil,
+					}
+					currentNode.childNodes[2] = &syntaxNode{
+						grammarItem: CLOSE_PARENTHESIS,
+						childNodes:  nil,
+						inputToken:  searchNode.childNodes[2].inputToken,
+					}
+
+					parsingTreeSearch.Push(searchNode.childNodes[1])
+					syntaxNodeSearch.Push(currentNode.childNodes[1])
+				} else {
+					currentNode.childNodes = make([]*syntaxNode, 4)
+
+					currentNode.childNodes[0] = &syntaxNode{
+						grammarItem: FUNCTION_NAME,
+						childNodes:  nil,
+						inputToken:  searchNode.childNodes[0].inputToken,
+					}
+					currentNode.childNodes[1] = &syntaxNode{
+						grammarItem: OPEN_PARENTHESIS,
+						childNodes:  nil,
+						inputToken:  searchNode.childNodes[1].inputToken,
+					}
+					currentNode.childNodes[2] = &syntaxNode{
+						grammarItem: PARAMETER_LIST,
+						childNodes:  nil,
+						inputToken:  nil,
+					}
+					currentNode.childNodes[3] = &syntaxNode{
+						grammarItem: CLOSE_PARENTHESIS,
+						childNodes:  nil,
+						inputToken:  searchNode.childNodes[3].inputToken,
+					}
+
+					currentNode.childNodes[0].inputToken.category = FUNCTION_NAME
+
+					parsingTreeSearch.Push(searchNode.childNodes[2])
+					syntaxNodeSearch.Push(currentNode.childNodes[2])
+				}
+			}
+
+		case PARAMETER_LIST:
+			if searchNode.childNodes[0].grammarItem == EXPRESSION {
+				currentNode.childNodes = make([]*syntaxNode, 1)
 
 				currentNode.childNodes[0] = &syntaxNode{
-					grammarItem: OPEN_PARENTHESIS,
-					childNodes:  nil,
-					inputToken:  searchNode.childNodes[0].inputToken,
-				}
-				currentNode.childNodes[1] = &syntaxNode{
 					grammarItem: EXPRESSION,
 					childNodes:  nil,
 					inputToken:  nil,
 				}
-				currentNode.childNodes[2] = &syntaxNode{
-					grammarItem: CLOSE_PARENTHESIS,
-					childNodes:  nil,
-					inputToken:  searchNode.childNodes[2].inputToken,
-				}
 
-				parsingTreeSearch.Push(searchNode.childNodes[1])
-				syntaxNodeSearch.Push(currentNode.childNodes[1])
+				parsingTreeSearch.Push(searchNode.childNodes[0])
+				syntaxNodeSearch.Push(currentNode.childNodes[0])
 			}
 		}
 	}

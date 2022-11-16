@@ -369,6 +369,11 @@ func syntaxTree2string(syntaxTree *syntaxNode) string {
 				treeOutput += fmt.Sprintf("[%d] operand: %s; ", searchNode.level, searchNode.syntaxTree.inputToken.value)
 			}
 
+			if searchNode.syntaxTree.inputToken.category == FUNCTION_NAME {
+
+				treeOutput += fmt.Sprintf("[%d] function call: %s; ", searchNode.level, searchNode.syntaxTree.inputToken.value)
+			}
+
 			if searchNode.syntaxTree.inputToken.category == ADD_OPERATOR ||
 				searchNode.syntaxTree.inputToken.category == SUB_OPERATOR ||
 				searchNode.syntaxTree.inputToken.category == TIMES_OPERATOR ||
@@ -396,18 +401,37 @@ func syntaxTree2string(syntaxTree *syntaxNode) string {
 					syntaxTree: searchNode.syntaxTree.childNodes[0],
 				})
 			} else {
-				treeSearch.Push(&outputNode{
-					level:      searchNode.level + 1,
-					syntaxTree: searchNode.syntaxTree.childNodes[1],
-				})
-				treeSearch.Push(&outputNode{
-					level:      searchNode.level + 1,
-					syntaxTree: searchNode.syntaxTree.childNodes[2],
-				})
-				treeSearch.Push(&outputNode{
-					level:      searchNode.level + 1,
-					syntaxTree: searchNode.syntaxTree.childNodes[0],
-				})
+				if len(searchNode.syntaxTree.childNodes) == 3 {
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[1],
+					})
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[2],
+					})
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[0],
+					})
+				} else {
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[0],
+					})
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[2],
+					})
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[3],
+					})
+					treeSearch.Push(&outputNode{
+						level:      searchNode.level + 1,
+						syntaxTree: searchNode.syntaxTree.childNodes[1],
+					})
+				}
 			}
 		}
 	}
@@ -464,11 +488,11 @@ func Test_createParsingTree(t *testing.T) {
 			{category: TIMES_OPERATOR, value: "*"},
 			{category: NAME, value: "sin"},
 			{category: OPEN_PARENTHESIS, value: "("},
-			{category: LITERAL, value: "2"},
+			{category: LITERAL, value: "3"},
 			{category: TIMES_OPERATOR, value: "*"},
 			{category: NAME, value: "x"},
 			{category: CLOSE_PARENTHESIS, value: ")"},
-		}, output: "[4] operand: 2; [4] operator *; [5] operator *; [6] operand: sin; [10] operand: 2; [10] operator *; [11] operand: x; [5] operand: x;"},
+		}, output: "[4] operand: 2; [4] operator *; [5] operator *; [6] operand: sin; [10] operand: 3; [10] operator *; [11] operand: x; [5] operand: x;"},
 
 		//	syntax error expressions scenarios
 		{scenario: "operands without an operator", input: []token{
@@ -575,6 +599,18 @@ func Test_createSyntaxTree(t *testing.T) {
 			{category: LITERAL, value: "5"},
 			{category: CLOSE_PARENTHESIS, value: ")"},
 		}, output: "[7] operand: 2; [8] operand: 5; [5] operator +;"},
+		{scenario: "function call", input: []token{
+			{category: LITERAL, value: "2"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "sin"},
+			{category: OPEN_PARENTHESIS, value: "("},
+			{category: LITERAL, value: "3"},
+			{category: TIMES_OPERATOR, value: "*"},
+			{category: NAME, value: "x"},
+			{category: CLOSE_PARENTHESIS, value: ")"},
+		}, output: "[4] operand: 2; [5] operand: x; [10] operand: 3; [11] operand: x; [9] operator *; [6] function call: sin; [4] operator *; [3] operator *;"},
 	}
 
 	t.Run(">>> test parser tree conversion to syntax tree", func(t *testing.T) {
