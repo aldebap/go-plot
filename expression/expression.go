@@ -8,6 +8,7 @@ package expression
 
 import (
 	"errors"
+	"math"
 	"strconv"
 )
 
@@ -286,13 +287,13 @@ func expressionParser(tokenList []token) (Queue, error) {
 			}
 
 			if searchNode.inputToken.category == LITERAL || searchNode.inputToken.category == NAME {
-				postfix.Put(searchNode.inputToken.value)
+				postfix.Put(searchNode.inputToken)
 			}
 
 			if searchNode.inputToken.category == ADD_OPERATOR || searchNode.inputToken.category == SUB_OPERATOR ||
 				searchNode.inputToken.category == TIMES_OPERATOR || searchNode.inputToken.category == DIV_OPERATOR {
 
-				postfix.Put(searchNode.inputToken.value)
+				postfix.Put(searchNode.inputToken)
 			}
 			continue
 		}
@@ -727,48 +728,66 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 			break
 		}
 
-		//	check if current token is a reference to x variable
-		token := item.(string)
+		token := item.(*token)
 
-		if token == "x" {
-			operand.Push(x_value)
+		//	TODO: need to have a symbols table here
+		//	check if current token is a variable name (only x variable for while)
+		if token.category == NAME {
+			if token.value == "x" {
+				operand.Push(x_value)
+			}
 			continue
 		}
 
-		//	attempt to convert the item to a float64 number
-		//	TODO: should improve this forced conversion
-		number, err := strconv.ParseFloat(token, 64)
-		if err == nil {
-			operand.Push(number)
+		//	check if current token is a literal
+		if token.category == LITERAL {
+			number, err := strconv.ParseFloat(token.value, 64)
+			if err == nil {
+				operand.Push(number)
+				continue
+			}
+		}
+
+		//	TODO: need to have another symbols table here
+		//	check if current token is a function call
+		if token.category == FUNCTION_NAME {
+
+			if operand.IsEmpty() {
+				return 0, errors.New("syntax error: function call requires a parameter")
+			}
+
+			switch token.value {
+			case "sin":
+				operand.Push(math.Sin(operand.Pop().(float64)))
+			}
 			continue
 		}
 
-		//	must be an operation
+		//	must be a basic operation
 		var operand1 float64
 		var operand2 float64
 
-		//	TODO: this message is not necesarily correct for the current operation
 		if operand.IsEmpty() {
-			return 0, errors.New("operation + requires two operands")
+			return 0, errors.New("syntax error: operation requires two operands")
 		}
 		operand2 = operand.Pop().(float64)
 
 		if operand.IsEmpty() {
-			return 0, errors.New("operation + requires two operands")
+			return 0, errors.New("syntax error: operation requires two operands")
 		}
 		operand1 = operand.Pop().(float64)
 
-		switch token {
-		case "+":
+		switch token.category {
+		case ADD_OPERATOR:
 			operand.Push(operand1 + operand2)
 
-		case "-":
+		case SUB_OPERATOR:
 			operand.Push(operand1 - operand2)
 
-		case "*":
+		case TIMES_OPERATOR:
 			operand.Push(operand1 * operand2)
 
-		case "/":
+		case DIV_OPERATOR:
 			operand.Push(operand1 / operand2)
 		}
 	}

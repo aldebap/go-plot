@@ -231,7 +231,7 @@ func Test_expressionParser(t *testing.T) {
 					if item == nil {
 						break
 					}
-					got += " " + item.(string)
+					got += " " + item.(*token).value
 				}
 				got = strings.TrimLeft(got, " ")
 				fmt.Printf("[debug] postfix result: %s\n", got)
@@ -560,6 +560,7 @@ func Test_createSyntaxTree(t *testing.T) {
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {
 
+	//	TODO: need to fix this test cases !!!
 	//	a few test cases
 	var testScenarios = []struct {
 		scenario string
