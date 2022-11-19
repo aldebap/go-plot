@@ -306,9 +306,16 @@ func expressionParser(tokenList []token) (Queue, error) {
 		if len(searchNode.childNodes) == 1 {
 			treeSearch.Push(searchNode.childNodes[0])
 		} else {
-			treeSearch.Push(searchNode.childNodes[1])
-			treeSearch.Push(searchNode.childNodes[2])
-			treeSearch.Push(searchNode.childNodes[0])
+			if len(searchNode.childNodes) == 3 {
+				treeSearch.Push(searchNode.childNodes[1])
+				treeSearch.Push(searchNode.childNodes[2])
+				treeSearch.Push(searchNode.childNodes[0])
+			} else {
+				treeSearch.Push(searchNode.childNodes[0])
+				treeSearch.Push(searchNode.childNodes[2])
+				treeSearch.Push(searchNode.childNodes[3])
+				treeSearch.Push(searchNode.childNodes[1])
+			}
 		}
 	}
 

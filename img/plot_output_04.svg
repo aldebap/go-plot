@@ -1,0 +1,81 @@
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- image background-->
+<rect width="640" height="480" style="fill:white;stroke-width:0" />
+<!-- plot grid-->
+<line x1="30" y1="450" x2="610" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="30" y1="30" x2="610" y2="30" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="30" y1="450" x2="30" y2="30" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="610" y2="30" style="stroke:rgb(0,0,0);stroke-width:1" />
+<!-- grid x scale-->
+<line x1="30" y1="450" x2="30" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="30" y1="30" x2="30" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="29" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="30" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="30" y1="30" x2="30" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="29" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="122" y1="450" x2="122" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="122" y1="30" x2="122" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="121" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">1</text>
+<line x1="122" y1="450" x2="122" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="122" y1="30" x2="122" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="121" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">1</text>
+<line x1="214" y1="450" x2="214" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="214" y1="30" x2="214" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="213" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">2</text>
+<line x1="306" y1="450" x2="306" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="306" y1="30" x2="306" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="305" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">3</text>
+<line x1="306" y1="450" x2="306" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="306" y1="30" x2="306" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="305" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">3</text>
+<line x1="399" y1="450" x2="399" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="399" y1="30" x2="399" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="398" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">4</text>
+<line x1="399" y1="450" x2="399" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="399" y1="30" x2="399" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="398" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">4</text>
+<line x1="491" y1="450" x2="491" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="491" y1="30" x2="491" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="490" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">5</text>
+<line x1="583" y1="450" x2="583" y2="444" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="583" y1="30" x2="583" y2="36" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="582" y="464" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">6</text>
+<!-- grid y scale-->
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="450" x2="36" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="450" x2="604" y2="450" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="454" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<line x1="30" y1="240" x2="36" y2="240" style="stroke:rgb(0,0,0);stroke-width:1" />
+<line x1="610" y1="240" x2="604" y2="240" style="stroke:rgb(0,0,0);stroke-width:1" />
+<text x="21" y="244" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">0</text>
+<!-- plotting sin(x)-->
+<path d="M30 241 L31 238 L32 236 L33 234 L34 231 L35 229 L36 227 L37 225 L38 222 L39 220 L40 218 L41 216 L42 213 L43 211 L44 209 L45 207 L46 204 L47 202 L48 200 L49 198 L50 195 L51 193 L52 191 L53 189 L54 187 L55 184 L56 182 L57 180 L58 178 L59 176 L60 173 L61 171 L62 169 L63 167 L64 165 L65 163 L66 161 L67 159 L68 156 L69 154 L70 152 L71 150 L72 148 L73 146 L74 144 L75 142 L76 140 L77 138 L78 136 L78 134 L80 132 L81 130 L82 128 L83 126 L84 125 L85 123 L86 121 L87 119 L88 117 L89 115 L90 113 L91 112 L92 110 L93 108 L94 106 L95 105 L96 103 L97 101 L98 99 L99 98 L100 96 L101 94 L102 93 L103 91 L104 90 L105 88 L106 86 L107 85 L108 83 L109 82 L110 80 L111 79 L112 78 L113 76 L114 75 L115 73 L116 72 L117 71 L118 69 L119 68 L120 67 L121 65 L122 64 L123 63 L124 62 L125 61 L126 59 L126 58 L127 57 L129 56 L130 55 L131 54 L132 53 L133 52 L134 51 L135 50 L136 49 L137 48 L138 47 L139 46 L140 45 L141 45 L142 44 L143 43 L144 42 L145 41 L146 41 L147 40 L148 39 L149 39 L150 38 L151 38 L152 37 L153 36 L154 36 L155 35 L156 35 L157 34 L158 34 L159 34 L160 33 L161 33 L162 33 L163 32 L164 32 L165 32 L166 31 L167 31 L168 31 L169 31 L170 31 L171 31 L172 31 L173 31 L174 31 L175 30 L176 31 L177 31 L178 31 L179 31 L180 31 L181 31 L182 31 L183 31 L184 31 L185 32 L186 32 L187 32 L188 33 L189 33 L190 33 L191 34 L192 34 L193 34 L194 35 L195 35 L196 36 L197 36 L198 37 L199 38 L200 38 L200 39 L202 39 L202 40 L204 41 L204 41 L206 42 L207 43 L208 44 L209 45 L210 45 L211 46 L212 47 L213 48 L214 49 L215 50 L216 51 L217 52 L218 53 L219 54 L220 55 L221 56 L222 57 L223 58 L223 59 L225 61 L225 62 L227 63 L228 64 L229 65 L230 67 L231 68 L232 69 L233 71 L234 72 L235 73 L236 75 L237 76 L238 78 L239 79 L240 80 L241 82 L242 83 L243 85 L244 86 L244 88 L246 90 L246 91 L248 93 L249 94 L250 96 L251 98 L252 99 L253 101 L254 103 L255 105 L256 106 L257 108 L258 110 L259 112 L260 113 L261 115 L262 117 L263 119 L264 121 L265 123 L266 125 L267 126 L268 128 L269 130 L270 132 L271 134 L272 136 L273 138 L274 140 L275 142 L276 144 L277 146 L278 148 L279 150 L280 152 L281 154 L282 156 L283 159 L284 161 L285 163 L286 165 L287 167 L288 169 L289 171 L290 173 L291 176 L292 178 L293 180 L294 182 L295 184 L296 187 L297 189 L298 191 L299 193 L300 195 L301 198 L302 200 L303 202 L304 204 L305 207 L306 209 L307 211 L308 213 L309 216 L310 218 L311 220 L312 222 L313 225 L314 227 L315 229 L316 231 L317 234 L318 236 L319 238 L320 240 L321 243 L322 245 L323 247 L324 250 L325 252 L326 254 L327 256 L328 259 L329 261 L330 263 L331 265 L332 268 L333 270 L334 272 L335 274 L336 277 L337 279 L338 281 L339 283 L340 286 L341 288 L342 290 L343 292 L344 294 L345 297 L346 299 L347 301 L348 303 L349 305 L350 308 L351 310 L352 312 L353 314 L354 316 L355 318 L356 320 L357 322 L358 325 L358 327 L360 329 L361 331 L362 333 L363 335 L364 337 L365 339 L366 341 L367 343 L368 345 L369 347 L370 349 L371 351 L371 353 L373 355 L374 356 L375 358 L375 360 L377 362 L378 364 L379 366 L379 368 L381 369 L382 371 L383 373 L384 375 L385 376 L386 378 L387 380 L388 382 L389 383 L390 385 L391 387 L392 388 L392 390 L394 391 L395 393 L396 395 L396 396 L398 398 L399 399 L400 401 L400 402 L402 403 L403 405 L404 406 L405 408 L406 409 L407 410 L408 412 L409 413 L410 414 L411 416 L412 417 L413 418 L414 419 L415 420 L416 422 L417 423 L417 424 L419 425 L420 426 L421 427 L421 428 L423 429 L424 430 L425 431 L426 432 L427 433 L428 434 L428 435 L430 436 L431 436 L432 437 L433 438 L434 439 L435 440 L436 440 L437 441 L438 442 L438 442 L440 443 L441 443 L442 444 L443 445 L444 445 L445 446 L446 446 L447 447 L448 447 L449 447 L450 448 L451 448 L452 448 L453 449 L454 449 L455 449 L456 450 L457 450 L458 450 L459 450 L459 450 L461 450 L462 450 L463 450 L463 450 L465 450 L466 450 L467 450 L468 450 L469 450 L470 450 L471 450 L472 450 L473 450 L474 450 L475 449 L476 449 L477 449 L478 448 L479 448 L480 448 L481 447 L482 447 L483 447 L484 446 L484 446 L486 445 L487 445 L488 444 L489 443 L490 443 L491 442 L492 442 L493 441 L494 440 L495 440 L496 439 L497 438 L498 437 L499 436 L500 436 L501 435 L501 434 L503 433 L504 432 L504 431 L505 430 L507 429 L508 428 L509 427 L510 426 L511 425 L512 424 L513 423 L514 422 L515 420 L516 419 L517 418 L518 417 L519 416 L520 414 L521 413 L522 412 L523 410 L524 409 L525 408 L526 406 L527 405 L528 403 L529 402 L530 401 L531 399 L532 398 L533 396 L534 395 L535 393 L536 391 L537 390 L538 388 L539 387 L540 385 L541 383 L542 382 L543 380 L544 378 L545 376 L546 375 L547 373 L548 371 L549 369 L550 368 L551 366 L552 364 L553 362 L554 360 L555 358 L556 356 L557 355 L558 353 L559 351 L560 349 L561 347 L562 345 L563 343 L564 341 L565 339 L566 337 L567 335 L568 333 L569 331 L570 329 L571 327 L572 325 L573 322 L574 320 L575 318 L576 316 L577 314 L578 312 L579 310 L580 308 L580 305 L582 303 L583 301 L584 299 L585 297 L586 294 L587 292 L588 290 L589 288 L590 286 L591 283 L592 281 L593 279 L594 277 L595 274 L596 272 L597 270 L598 268 L599 265 L600 263 L601 261 L602 259 L603 256 L604 254 L605 252 L606 250 L607 247 L608 245 L609 243 L610 241" style="stroke:rgb(255,0,0);stroke-width:1" fill="none" />
+<line x1="590" y1="30" x2="600" y2="30" style="stroke:rgb(255,0,0);stroke-width:1" />
+<text x="558" y="30" style="fill:rgb(0,0,0)" font-family="Verdana" font-size="10">sin(x)</text>
+</svg>
