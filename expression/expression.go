@@ -290,6 +290,10 @@ func expressionParser(tokenList []token) (Queue, error) {
 				postfix.Put(searchNode.inputToken)
 			}
 
+			if searchNode.inputToken.category == FUNCTION_NAME {
+				postfix.Put(searchNode.inputToken)
+			}
+
 			if searchNode.inputToken.category == ADD_OPERATOR || searchNode.inputToken.category == SUB_OPERATOR ||
 				searchNode.inputToken.category == TIMES_OPERATOR || searchNode.inputToken.category == DIV_OPERATOR {
 
@@ -690,6 +694,7 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 						inputToken:  searchNode.childNodes[3].inputToken,
 					}
 
+					//	change token category to Function Name
 					currentNode.childNodes[0].inputToken.category = FUNCTION_NAME
 
 					parsingTreeSearch.Push(searchNode.childNodes[2])
@@ -728,20 +733,20 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 			break
 		}
 
-		token := item.(*token)
+		currentToken := item.(*token)
 
 		//	TODO: need to have a symbols table here
 		//	check if current token is a variable name (only x variable for while)
-		if token.category == NAME {
-			if token.value == "x" {
+		if currentToken.category == NAME {
+			if currentToken.value == "x" {
 				operand.Push(x_value)
 			}
 			continue
 		}
 
 		//	check if current token is a literal
-		if token.category == LITERAL {
-			number, err := strconv.ParseFloat(token.value, 64)
+		if currentToken.category == LITERAL {
+			number, err := strconv.ParseFloat(currentToken.value, 64)
 			if err == nil {
 				operand.Push(number)
 				continue
@@ -750,13 +755,13 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 
 		//	TODO: need to have another symbols table here
 		//	check if current token is a function call
-		if token.category == FUNCTION_NAME {
+		if currentToken.category == FUNCTION_NAME {
 
 			if operand.IsEmpty() {
 				return 0, errors.New("syntax error: function call requires a parameter")
 			}
 
-			switch token.value {
+			switch currentToken.value {
 			case "sin":
 				operand.Push(math.Sin(operand.Pop().(float64)))
 			}
@@ -777,7 +782,7 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 		}
 		operand1 = operand.Pop().(float64)
 
-		switch token.category {
+		switch currentToken.category {
 		case ADD_OPERATOR:
 			operand.Push(operand1 + operand2)
 
