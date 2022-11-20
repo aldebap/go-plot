@@ -614,7 +614,6 @@ func Test_createSyntaxTree(t *testing.T) {
 //	Test_evaluatePolishReverse test cases for the Polish Reverse evaluation function
 func Test_evaluatePolishReverse(t *testing.T) {
 
-	//	TODO: still need to fix this test cases !!!
 	//	a few test cases
 	var testScenarios = []struct {
 		scenario string

@@ -771,6 +771,9 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 			switch currentToken.value {
 			case "sin":
 				operand.Push(math.Sin(operand.Pop().(float64)))
+
+			case "cos":
+				operand.Push(math.Cos(operand.Pop().(float64)))
 			}
 			continue
 		}
