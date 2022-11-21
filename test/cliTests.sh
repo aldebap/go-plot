@@ -330,5 +330,22 @@ PLOT_CONTENT
 
 rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
 
+#   test scenatio #10
+export SCENARIO="10"
+export DESCRIPTION="create a plot from complex sine function (SVG)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal svg
+set output "${PLOT_FILE}_${SCENARIO}.svg"
+
+plot [-6.283184:6.283184] x * sin(4*x)
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
 #   clean up temporary files
 rm -rf ${DATA_FILE} > /dev/null

@@ -144,13 +144,18 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 				return errors.New("error parsing function to be plotted: " + err.Error())
 			}
 
+			//	create the symbol table
+			symbolTable := NewFloatSymbolTable()
+
 			function_points[i].Point = make([]Point_2d, width-2*int64(X_MARGINS)+1)
 			function_points[i].Style = FUNCTION_PATH
 			function_points[i].Title = function.Title
 
 			for j := 0; j < len(function_points[i].Point); j++ {
-				function_points[i].Point[j].X = function.Min_x + float64(j)*(function.Max_x-function.Min_x)/(float64(width)-2*X_MARGINS)
-				function_points[i].Point[j].Y, err = functionExpr.Evaluate(function_points[i].Point[j].X)
+				symbolTable.SetValue("x", function.Min_x+float64(j)*(function.Max_x-function.Min_x)/(float64(width)-2*X_MARGINS))
+
+				function_points[i].Point[j].X, err = symbolTable.GetValue("x")
+				function_points[i].Point[j].Y, err = functionExpr.Evaluate(symbolTable)
 				if err != nil {
 					return errors.New("error evaluating function to be plotted: " + err.Error())
 				}

@@ -13,7 +13,7 @@ import (
 )
 
 type Expression interface {
-	Evaluate(x_value float64) (float64, error)
+	Evaluate(symbol SymbolTable) (float64, error)
 }
 
 type ParsedExpression struct {
@@ -729,7 +729,7 @@ func createSyntaxTree(parsingTree *syntaxNode) (*syntaxNode, error) {
 }
 
 //	evaluatePolishReverse evaluate the Polish reverse expression (postfix) and return a numerical result
-func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
+func (p *ParsedExpression) Evaluate(symbol SymbolTable) (float64, error) {
 
 	postfixAux := p.postfix.Copy()
 	operand := NewStack()
@@ -742,22 +742,26 @@ func (p *ParsedExpression) Evaluate(x_value float64) (float64, error) {
 
 		currentToken := item.(*token)
 
-		//	TODO: need to have a symbols table here
 		//	check if current token is a variable name (only x variable for while)
 		if currentToken.category == NAME {
-			if currentToken.value == "x" {
-				operand.Push(x_value)
+			value, err := symbol.GetValue(currentToken.value)
+			if err != nil {
+				return 0, errors.New("syntax error: " + err.Error())
 			}
+
+			operand.Push(value)
 			continue
 		}
 
 		//	check if current token is a literal
 		if currentToken.category == LITERAL {
 			number, err := strconv.ParseFloat(currentToken.value, 64)
-			if err == nil {
-				operand.Push(number)
-				continue
+			if err != nil {
+				return 0, errors.New("syntax error: non numerical literal: " + currentToken.value)
 			}
+
+			operand.Push(number)
+			continue
 		}
 
 		//	TODO: need to have another symbols table here

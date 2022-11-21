@@ -696,9 +696,14 @@ func Test_evaluatePolishReverse(t *testing.T) {
 				postfix: postfix,
 			}
 
+			//	create the symbol table
+			symbolTable := NewFloatSymbolTable()
+
+			symbolTable.SetValue("x", test.x_value)
+
 			//	Polish Reverse evaluation of postfix expression
 			want := test.output
-			got, err := expr.Evaluate(test.x_value)
+			got, err := expr.Evaluate(symbolTable)
 			if err != nil {
 				t.Errorf("unexpected error converting from string -> postfix: %s", err)
 				continue
