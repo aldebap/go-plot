@@ -340,6 +340,7 @@ cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
 set terminal svg
 set output "${PLOT_FILE}_${SCENARIO}.svg"
 
+plot [-6.283184:6.283184] x
 plot [-6.283184:6.283184] x * sin(4*x)
 PLOT_CONTENT
 

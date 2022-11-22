@@ -6,7 +6,10 @@
 
 package expression
 
-import "errors"
+import (
+	"errors"
+	"math"
+)
 
 //	types of symbols
 const (
@@ -82,4 +85,52 @@ func (f *floatSymbolTable) InvokeFunc(name string, parameter ...float64) (float6
 	}
 
 	return function(parameter...), nil
+}
+
+//	AddStandardMathFuncs add to symbol table all standard mathematical functions
+func AddStandardMathFuncs(s SymbolTable) {
+
+	s.DefineFunc("abs", func(x ...float64) float64 {
+		return math.Abs(x[0])
+	}, 1)
+
+	s.DefineFunc("acos", func(x ...float64) float64 {
+		return math.Acos(x[0])
+	}, 1)
+
+	s.DefineFunc("asin", func(x ...float64) float64 {
+		return math.Asin(x[0])
+	}, 1)
+
+	s.DefineFunc("atan", func(x ...float64) float64 {
+		return math.Atan(x[0])
+	}, 1)
+
+	s.DefineFunc("cos", func(x ...float64) float64 {
+		return math.Cos(x[0])
+	}, 1)
+
+	s.DefineFunc("exp", func(x ...float64) float64 {
+		return math.Exp(x[0])
+	}, 1)
+
+	s.DefineFunc("gamma", func(x ...float64) float64 {
+		return math.Gamma(x[0])
+	}, 1)
+
+	s.DefineFunc("log", func(x ...float64) float64 {
+		return math.Log(x[0])
+	}, 1)
+
+	s.DefineFunc("sin", func(x ...float64) float64 {
+		return math.Sin(x[0])
+	}, 1)
+
+	s.DefineFunc("sqrt", func(x ...float64) float64 {
+		return math.Sqrt(x[0])
+	}, 1)
+
+	s.DefineFunc("tan", func(x ...float64) float64 {
+		return math.Tan(x[0])
+	}, 1)
 }

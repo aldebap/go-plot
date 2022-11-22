@@ -145,7 +145,9 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 			}
 
 			//	create the symbol table
-			symbolTable := NewFloatSymbolTable()
+			symbolTable := expression.NewFloatSymbolTable()
+
+			expression.AddStandardMathFuncs(symbolTable)
 
 			function_points[i].Point = make([]Point_2d, width-2*int64(X_MARGINS)+1)
 			function_points[i].Style = FUNCTION_PATH

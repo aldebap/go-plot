@@ -8,7 +8,6 @@ package expression
 
 import (
 	"errors"
-	"math"
 	"strconv"
 )
 
@@ -742,7 +741,7 @@ func (p *ParsedExpression) Evaluate(symbol SymbolTable) (float64, error) {
 
 		currentToken := item.(*token)
 
-		//	check if current token is a variable name (only x variable for while)
+		//	check if current token is a variable name
 		if currentToken.category == NAME {
 			value, err := symbol.GetValue(currentToken.value)
 			if err != nil {
@@ -764,21 +763,19 @@ func (p *ParsedExpression) Evaluate(symbol SymbolTable) (float64, error) {
 			continue
 		}
 
-		//	TODO: need to have another symbols table here
-		//	check if current token is a function call
+		//	check if current token is a function call (only one parameter for while)
 		if currentToken.category == FUNCTION_NAME {
 
 			if operand.IsEmpty() {
 				return 0, errors.New("syntax error: function call requires a parameter")
 			}
 
-			switch currentToken.value {
-			case "sin":
-				operand.Push(math.Sin(operand.Pop().(float64)))
-
-			case "cos":
-				operand.Push(math.Cos(operand.Pop().(float64)))
+			funcResult, err := symbol.InvokeFunc(currentToken.value, operand.Pop().(float64))
+			if err != nil {
+				return 0, errors.New("syntax error calling function: " + err.Error())
 			}
+			operand.Push(funcResult)
+
 			continue
 		}
 
