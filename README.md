@@ -16,8 +16,9 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 1. plot command ```set terminal [svg]```
 2. plot command ```set output "file name"```
 3. plot command ```plot "data file" using i:j with [dots/boxes/lines/linespoints/points] title "description"```
-4. plot command ```set xlabel "label"```
-5. plot command ```set ylabel "label"```
+4. plot command ```plot [i:j] mathematical function```
+5. plot command ```set xlabel "label"```
+6. plot command ```set ylabel "label"```
 
 ### Additional features already working
 
