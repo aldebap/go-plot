@@ -39,6 +39,7 @@ const (
 	DEFAULT_STYLE = "points"
 )
 
+//	TODO: refactor this entire function
 //	LoadPlotFile load a plot file and return a Plot
 func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
@@ -100,7 +101,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 		return nil, err
 	}
 
-	commaSeparatorRegEx, err := regexp.Compile(`^\s*,\s*`)
+	commaSeparatorRegEx, err := regexp.Compile(`^\s*(,)\s*`)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +197,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 				//	if previously parsed a plot command whose function was not loaded yet, it's the time for it
 				if plotScope && len(function) > 0 {
+					fmt.Printf("[debug] [1] new function: %s\n", function)
 					auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
 					if err != nil {
 						return nil, err
@@ -203,8 +205,6 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 					//	erase function as it was used already
 					function = ""
-					min_x = "-10"
-					max_x = "+10"
 					style = DEFAULT_STYLE
 					title = ""
 
@@ -223,7 +223,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 				if len(line) == 0 {
 					break
 				}
-				//	fmt.Printf("[debug] line: %s\n", line)
+				fmt.Printf("[debug] not config line: %s\n", line)
 
 				match = plotCommandRegEx.FindAllStringSubmatch(line, -1)
 				if len(match) == 1 {
@@ -318,6 +318,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 					//	if function was found, add it
 					if len(function) > 0 {
+						fmt.Printf("[debug] [2] new function: %s\n", function)
 						auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
 						if err != nil {
 							return nil, err
@@ -325,8 +326,6 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 						//	erase function as it was used already
 						function = ""
-						min_x = "-10"
-						max_x = "+10"
 
 						plot.Function = append(plot.Function, *auxFunction)
 						plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
@@ -346,7 +345,21 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 					if !plotScope {
 						return nil, errors.New("function specification without a plot command: " + match[0][0])
 					}
+
+					//	if function was found before, add it
+					if len(function) > 0 {
+						fmt.Printf("[debug] [3] new function: %s\n", function)
+						auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
+						if err != nil {
+							return nil, err
+						}
+
+						plot.Function = append(plot.Function, *auxFunction)
+						plot.Function[len(plot.Function)-1].order = uint8(len(plot.Set_points) + len(plot.Function))
+					}
+
 					function = match[0][1]
+					fmt.Printf("[debug] function found: %s\n", function)
 
 					line = line[len(match[0][0]):]
 					continue
@@ -372,6 +385,7 @@ func LoadPlotFile(reader *bufio.Reader) (Plot, error) {
 
 	//	when plot file parsing finishes, if a plot command whose function was not loaded yet, it's the time for it
 	if plotScope && len(function) > 0 {
+		fmt.Printf("[debug] [4] new function: %s\n", function)
 		auxFunction, err := newFunction2D(function, min_x, max_x, style, title)
 		if err != nil {
 			return nil, err

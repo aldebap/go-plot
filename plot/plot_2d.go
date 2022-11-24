@@ -137,7 +137,7 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 
 		for i, function := range p.Function {
 
-			fmt.Printf("[debug] parsing function: %s\n", function.Function)
+			fmt.Printf("[debug] parsing function #%d: %s\n", function.order, function.Function)
 
 			functionExpr, err := expression.NewExpression(function.Function)
 			if err != nil {

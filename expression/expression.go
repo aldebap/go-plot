@@ -184,6 +184,9 @@ func lexicalAnalizer(expression string) ([]token, error) {
 				return nil, errors.New("invalid numeric literal: " + literal + string(char))
 			}
 			identifier += string(char)
+
+		default:
+			return nil, errors.New("invalid character: " + string(char))
 		}
 	}
 
