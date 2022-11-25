@@ -39,5 +39,5 @@ type GraphicsDriver interface {
 	Line(x1, y1, x2, y2 int64, colour RGB_colour) error
 	GetTextBox(text string) (width, height int64)
 	Text(x, y, angle int64, text string, colour RGB_colour) error
-	Close()
+	Close() error
 }

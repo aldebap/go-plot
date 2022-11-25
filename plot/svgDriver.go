@@ -174,7 +174,9 @@ func (driver *SVG_Driver) Text(x, y, angle int64, text string, colour RGB_colour
 }
 
 //	Close finalize the SVG graphic
-func (driver *SVG_Driver) Close() {
+func (driver *SVG_Driver) Close() error {
 	driver.writer.WriteString("</svg>\n")
 	driver.writer.Flush()
+
+	return nil
 }

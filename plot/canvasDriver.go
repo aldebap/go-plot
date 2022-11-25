@@ -165,7 +165,9 @@ func (driver *Canvas_Driver) Text(x, y, angle int64, text string, colour RGB_col
 }
 
 //	Close finalize the Canvas graphic
-func (driver *Canvas_Driver) Close() {
+func (driver *Canvas_Driver) Close() error {
 	driver.writer.WriteString("}\n\n")
 	driver.writer.Flush()
+
+	return nil
 }

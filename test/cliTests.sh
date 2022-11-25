@@ -355,8 +355,8 @@ export DESCRIPTION="create a plot from an exponential function (SVG)"
 echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
 
 cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
-set terminal svg
-set output "${PLOT_FILE}_${SCENARIO}.svg"
+set terminal png
+set output "${PLOT_FILE}_${SCENARIO}.png"
 
 plot [0:8] exp(x)
 PLOT_CONTENT
