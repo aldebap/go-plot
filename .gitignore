@@ -7,3 +7,4 @@ bin/**
 #   test output files
 test/*.svg
 test/*.js
+test/*.png

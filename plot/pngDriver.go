@@ -55,6 +55,15 @@ func (driver *PNG_Driver) SetDimensions(width int64, height int64) error {
 
 	driver.image = image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{int(width), int(height)}})
 
+	//	the initial background as white
+	whiteColour := color.RGBA{255, 255, 255, 255}
+
+	for x := 0; x <= int(width); x++ {
+		for y := 0; y <= int(height); y++ {
+			driver.image.Set(int(x), int(y), whiteColour)
+		}
+	}
+
 	return nil
 }
 
