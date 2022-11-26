@@ -14,6 +14,7 @@ import (
 	"image/png"
 )
 
+//	TODO: this should be the same driver to generate PNG, GIF and JPEG
 type PNG_Driver struct {
 	writer     *bufio.Writer
 	width      int64
@@ -115,20 +116,27 @@ func (driver *PNG_Driver) EndPath() error {
 		return errors.New("cannot end a path not initialized")
 	}
 
-	/*
-		style := "stroke:rgb(" + fmt.Sprintf("%d", driver.pathColour.red) +
-			"," + fmt.Sprintf("%d", driver.pathColour.green) +
-			"," + fmt.Sprintf("%d", driver.pathColour.blue) + ");stroke-width:1"
+	if len(driver.path) < 2 {
+		return errors.New("not enough points to draw a path")
+	}
 
-		for i, point := range driver.path {
-			if i == 0 {
-				driver.writer.WriteString("<path d=\"M" + fmt.Sprintf("%d", point.X) + " " + fmt.Sprintf("%d", driver.height-point.Y))
-			} else {
-				driver.writer.WriteString(" L" + fmt.Sprintf("%d", point.X) + " " + fmt.Sprintf("%d", driver.height-point.Y))
+	var x1, y1 int64
+
+	for i, point := range driver.path {
+		if i == 0 {
+			x1 = point.X
+			y1 = driver.height - point.Y
+		} else {
+			err := driver.Line(x1, y1, point.X, driver.height-point.Y, driver.pathColour)
+			if err != nil {
+				return err
 			}
+
+			x1 = point.X
+			y1 = driver.height - point.Y
 		}
-		driver.writer.WriteString("\" style=\"" + style + "\" fill=\"none\" />\n")
-	*/
+	}
+
 	driver.path = nil
 
 	return nil
@@ -138,11 +146,45 @@ func (driver *PNG_Driver) EndPath() error {
 func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 	lineColour := color.RGBA{colour.red, colour.green, colour.blue, 255}
 
-	y := float64(y1)
-	delta := float64(x2-x1) / float64(y2-y1)
-	for x := x1; x <= x2; x++ {
-		driver.image.Set(int(x), int(y), lineColour)
-		y += delta
+	//	for better results, change a function variable if angle is bigger the 45 deg
+	if x1 == x2 {
+		//	swap the points if y2 < y1
+		if y2 < y1 {
+			aux := x1
+			x1 = x2
+			x2 = aux
+
+			aux = y1
+			y1 = y2
+			y2 = aux
+		}
+
+		//	use a line math function to draw the line | x: f(y)
+		delta := float64(x2-x1) / float64(y2-y1)
+
+		for y := y1; y <= y2; y++ {
+			x := float64(x1) + float64(y-y1)*delta
+			driver.image.Set(int(x), int(y), lineColour)
+		}
+	} else {
+		//	swap the points if x2 < x1
+		if x2 < x1 {
+			aux := x1
+			x1 = x2
+			x2 = aux
+
+			aux = y1
+			y1 = y2
+			y2 = aux
+		}
+
+		//	use a line math function to draw the line | y: f(x)
+		delta := float64(y2-y1) / float64(x2-x1)
+
+		for x := x1; x <= x2; x++ {
+			y := float64(y1) + float64(x-x1)*delta
+			driver.image.Set(int(x), int(y), lineColour)
+		}
 	}
 
 	return nil

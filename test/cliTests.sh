@@ -350,7 +350,7 @@ rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
 
 #   test scenatio #11
 export SCENARIO="11"
-export DESCRIPTION="create a plot from an exponential function (SVG)"
+export DESCRIPTION="create a plot from an exponential function (PNG)"
 
 echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
 
