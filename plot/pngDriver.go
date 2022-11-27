@@ -222,39 +222,38 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 //	GetTextBox evaluate the width and height of the rectangle required to draw the text string using a given font size
 func (driver *PNG_Driver) GetTextBox(text string) (width, height int64) {
 
-	//	TODO: need to validate this
-	//	calculate the text rectangle dimentions
 	ttOptions := truetype.Options{
 		Size: float64(driver.fontSize),
 		DPI:  float64(driver.dpi),
 	}
 	face := truetype.NewFace(driver.font, &ttOptions)
 
+	//	calculate text width char by char
 	width = 0
 	for _, char := range text {
-		rect, _, ok := face.GlyphBounds(rune(char))
+		advance, ok := face.GlyphAdvance(char)
 		if ok {
-			width += int64(rect.Max.X)
-			height = int64(rect.Min.Y)
+			width += int64(advance.Round())
 		}
 	}
+	height = int64(face.Metrics().CapHeight)
 
 	return width, height
+
 }
 
 //	Text writes a string to the specified point in the PNG graphic
 func (driver *PNG_Driver) Text(x, y, angle int64, text string, colour RGB_colour) error {
 
-	//	TODO: not working
+	var pt = freetype.Pt(int(x), int(driver.height-y)+int(driver.ctx.PointToFixed(float64(driver.fontSize))>>6))
+	var textColour = color.RGBA{colour.red, colour.green, colour.blue, 255}
 	var err error
-	pt := freetype.Pt(int(x), int(y)+int(driver.ctx.PointToFixed(float64(driver.fontSize))>>6))
 
-	//	draws the text char by char
-	for _, char := range text {
-		pt, err = driver.ctx.DrawString(string(char), pt)
-		if err != nil {
-			return err
-		}
+	driver.ctx.SetSrc(image.NewUniform(textColour))
+
+	_, err = driver.ctx.DrawString(text, pt)
+	if err != nil {
+		return err
 	}
 
 	return nil
