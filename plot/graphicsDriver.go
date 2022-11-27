@@ -29,7 +29,7 @@ type GraphicsDriver interface {
 	GetDimensions() (width, heigth int64)
 	SetDimensions(width int64, height int64) error
 	GetFont() (fontFamily string, fontSize uint8)
-	SetFont(fontFamily string, fontSize uint8)
+	SetFont(fontFamily string, fontSize uint8) error
 
 	Comment(text string)
 	Point(x, y int64, colour RGB_colour) error

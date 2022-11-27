@@ -8,7 +8,7 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 1. Go package to generate plots from multiple sets of points;
 2. creation of plots from data files;
 3. creation of plots from mathematical functions (in development);
-4. graphic drivers to generate the following output formats: SVG, HTML Canvas;
+4. graphic drivers to generate the following output formats: SVG, HTML Canvas, PNG (in development);
 5. CLI interface to read plot files and generate the graphic output;
 
 ### GNU-Plot like commands already working

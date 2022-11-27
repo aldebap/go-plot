@@ -71,9 +71,11 @@ func (driver *Canvas_Driver) GetFont() (fontFamily string, fontSize uint8) {
 }
 
 //	SetFont set information about the font
-func (driver *Canvas_Driver) SetFont(fontFamily string, fontSize uint8) {
+func (driver *Canvas_Driver) SetFont(fontFamily string, fontSize uint8) error {
 	driver.fontFamily = fontFamily
 	driver.fontSize = fontSize
+
+	return nil
 }
 
 //	Comment write a comment int the the SVG graphic

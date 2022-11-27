@@ -11,7 +11,12 @@ import (
 	"errors"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
+	"io/ioutil"
+
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 )
 
 //	TODO: this should be the same driver to generate PNG, GIF and JPEG
@@ -24,6 +29,9 @@ type PNG_Driver struct {
 	pathColour RGB_colour
 	fontFamily string
 	fontSize   uint8
+	dpi        uint16
+	font       *truetype.Font
+	ctx        *freetype.Context
 }
 
 //	create a new PNG_Driver
@@ -33,6 +41,7 @@ func NewPNG_Driver(writer *bufio.Writer) GraphicsDriver {
 		HEIGHT      = 480
 		FONT_FAMILY = "Verdana"
 		FONT_SIZE   = 10
+		DPI         = 72
 	)
 
 	return &PNG_Driver{
@@ -41,6 +50,7 @@ func NewPNG_Driver(writer *bufio.Writer) GraphicsDriver {
 		height:     HEIGHT,
 		fontFamily: FONT_FAMILY,
 		fontSize:   FONT_SIZE,
+		dpi:        DPI,
 	}
 }
 
@@ -57,13 +67,7 @@ func (driver *PNG_Driver) SetDimensions(width int64, height int64) error {
 	driver.image = image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{int(width), int(height)}})
 
 	//	the initial background as white
-	whiteColour := color.RGBA{255, 255, 255, 255}
-
-	for x := 0; x <= int(width); x++ {
-		for y := 0; y <= int(height); y++ {
-			driver.image.Set(int(x), int(y), whiteColour)
-		}
-	}
+	draw.Draw(driver.image, driver.image.Bounds(), image.White, image.ZP, draw.Src)
 
 	return nil
 }
@@ -74,9 +78,32 @@ func (driver *PNG_Driver) GetFont() (fontFamily string, fontSize uint8) {
 }
 
 //	SetFont set information about the font
-func (driver *PNG_Driver) SetFont(fontFamily string, fontSize uint8) {
+func (driver *PNG_Driver) SetFont(fontFamily string, fontSize uint8) error {
 	driver.fontFamily = fontFamily
 	driver.fontSize = fontSize
+
+	//	load font file
+	fontBytes, err := ioutil.ReadFile("../res/font/" + driver.fontFamily + ".ttf")
+	if err != nil {
+		return err
+	}
+
+	driver.font, err = freetype.ParseFont(fontBytes)
+	if err != nil {
+		return err
+	}
+
+	//	create the context for free type fonts
+	driver.ctx = freetype.NewContext()
+
+	driver.ctx.SetDPI(float64(driver.dpi))
+	driver.ctx.SetFont(driver.font)
+	driver.ctx.SetFontSize(float64(driver.fontSize))
+	driver.ctx.SetClip(driver.image.Bounds())
+	driver.ctx.SetDst(driver.image)
+	driver.ctx.SetSrc(image.Black)
+
+	return nil
 }
 
 //	Comment write a comment int the the PNG graphic
@@ -147,7 +174,7 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 	lineColour := color.RGBA{colour.red, colour.green, colour.blue, 255}
 
 	//	for better results, change a function variable if angle is bigger the 45 deg
-	if x1 == x2 {
+	if y2-y1 > x2-x1 {
 		//	swap the points if y2 < y1
 		if y2 < y1 {
 			aux := x1
@@ -161,10 +188,11 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 
 		//	use a line math function to draw the line | x: f(y)
 		delta := float64(x2-x1) / float64(y2-y1)
+		x := float64(x1)
 
 		for y := y1; y <= y2; y++ {
-			x := float64(x1) + float64(y-y1)*delta
 			driver.image.Set(int(x), int(y), lineColour)
+			x += delta
 		}
 	} else {
 		//	swap the points if x2 < x1
@@ -180,10 +208,11 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 
 		//	use a line math function to draw the line | y: f(x)
 		delta := float64(y2-y1) / float64(x2-x1)
+		y := float64(y1)
 
 		for x := x1; x <= x2; x++ {
-			y := float64(y1) + float64(x-x1)*delta
 			driver.image.Set(int(x), int(y), lineColour)
+			y += delta
 		}
 	}
 
@@ -193,32 +222,40 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 //	GetTextBox evaluate the width and height of the rectangle required to draw the text string using a given font size
 func (driver *PNG_Driver) GetTextBox(text string) (width, height int64) {
 
-	//	a rough estimation of the rectangle dimentions
-	width = int64(0.37 * float64(int64(driver.fontSize)*int64(len(text))))
-	height = int64(0.8 * float64(driver.fontSize))
+	//	TODO: need to validate this
+	//	calculate the text rectangle dimentions
+	ttOptions := truetype.Options{
+		Size: float64(driver.fontSize),
+		DPI:  float64(driver.dpi),
+	}
+	face := truetype.NewFace(driver.font, &ttOptions)
+
+	width = 0
+	for _, char := range text {
+		rect, _, ok := face.GlyphBounds(rune(char))
+		if ok {
+			width += int64(rect.Max.X)
+			height = int64(rect.Min.Y)
+		}
+	}
 
 	return width, height
 }
 
 //	Text writes a string to the specified point in the PNG graphic
 func (driver *PNG_Driver) Text(x, y, angle int64, text string, colour RGB_colour) error {
-	/*
-		style := "fill:rgb(" + fmt.Sprintf("%d", colour.red) +
-			"," + fmt.Sprintf("%d", colour.green) +
-			"," + fmt.Sprintf("%d", colour.blue) + ")"
 
-		if angle == 0 {
-			driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
-				"style=\"" + style + "\" font-family=\"" + driver.fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", driver.fontSize) +
-				"\">" + text + "</text>\n")
-		} else {
-			driver.writer.WriteString("<text x=\"" + fmt.Sprintf("%d", x) + "\" y=\"" + fmt.Sprintf("%d", driver.height-y) + "\" " +
-				"transform=\"rotate(" + fmt.Sprintf("%d", angle) + ", " +
-				fmt.Sprintf("%d", x) + ", " + fmt.Sprintf("%d", driver.height-y) + ")\" " +
-				"style=\"" + style + "\" font-family=\"" + driver.fontFamily + "\" font-size=\"" + fmt.Sprintf("%d", driver.fontSize) +
-				"\">" + text + "</text>\n")
+	//	TODO: not working
+	var err error
+	pt := freetype.Pt(int(x), int(y)+int(driver.ctx.PointToFixed(float64(driver.fontSize))>>6))
+
+	//	draws the text char by char
+	for _, char := range text {
+		pt, err = driver.ctx.DrawString(string(char), pt)
+		if err != nil {
+			return err
 		}
-	*/
+	}
 
 	return nil
 }

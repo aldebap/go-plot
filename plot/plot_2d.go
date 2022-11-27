@@ -247,7 +247,18 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	//	set the graphics dimension
 	width, height := driver.GetDimensions()
 
-	driver.SetDimensions(width, height)
+	err = driver.SetDimensions(width, height)
+	if err != nil {
+		return errors.New("error setting plot dimentions: " + err.Error())
+	}
+
+	//	set the graphics font
+	fontFamily, fontSize := driver.GetFont()
+
+	err = driver.SetFont(fontFamily, fontSize)
+	if err != nil {
+		return errors.New("error setting plot font: " + err.Error())
+	}
 
 	//	generate the plot grid
 	p.generatePlotGrid(driver, min_x, min_y, max_x, max_y)
