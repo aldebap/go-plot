@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-//	pngDriver.go  -  Nov-24-2022  -  aldebap
+//	imageDriver.go  -  Nov-24-2022  -  aldebap
 //
-//	Implementation of a graphic driver to generate PNG files
+//	Implementation of a graphic driver to generate PNG, GIF and JPEG files
 ////////////////////////////////////////////////////////////////////////////////
 
 package plot
@@ -12,6 +12,8 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"io/ioutil"
 
@@ -19,9 +21,9 @@ import (
 	"github.com/golang/freetype/truetype"
 )
 
-//	TODO: this should be the same driver to generate PNG, GIF and JPEG
-type PNG_Driver struct {
+type Image_Driver struct {
 	writer     *bufio.Writer
+	fileFormat string
 	width      int64
 	height     int64
 	image      *image.RGBA
@@ -44,8 +46,9 @@ func NewPNG_Driver(writer *bufio.Writer) GraphicsDriver {
 		DPI         = 72
 	)
 
-	return &PNG_Driver{
+	return &Image_Driver{
 		writer:     writer,
+		fileFormat: "png",
 		width:      WIDTH,
 		height:     HEIGHT,
 		fontFamily: FONT_FAMILY,
@@ -54,31 +57,77 @@ func NewPNG_Driver(writer *bufio.Writer) GraphicsDriver {
 	}
 }
 
-//	GetDimensions get the dimensions of the PNG graphic
-func (driver *PNG_Driver) GetDimensions() (width, heigth int64) {
+//	create a new GIF
+func NewGIF_Driver(writer *bufio.Writer) GraphicsDriver {
+	const (
+		WIDTH       = 640
+		HEIGHT      = 480
+		FONT_FAMILY = "Verdana"
+		FONT_SIZE   = 10
+		DPI         = 72
+	)
+
+	return &Image_Driver{
+		writer:     writer,
+		fileFormat: "gif",
+		width:      WIDTH,
+		height:     HEIGHT,
+		fontFamily: FONT_FAMILY,
+		fontSize:   FONT_SIZE,
+		dpi:        DPI,
+	}
+}
+
+//	create a new JPEG
+func NewJPEG_Driver(writer *bufio.Writer) GraphicsDriver {
+	const (
+		WIDTH       = 640
+		HEIGHT      = 480
+		FONT_FAMILY = "Verdana"
+		FONT_SIZE   = 10
+		DPI         = 72
+	)
+
+	return &Image_Driver{
+		writer:     writer,
+		fileFormat: "jpeg",
+		width:      WIDTH,
+		height:     HEIGHT,
+		fontFamily: FONT_FAMILY,
+		fontSize:   FONT_SIZE,
+		dpi:        DPI,
+	}
+}
+
+//	GetDimensions get the dimensions of the Image graphic
+func (driver *Image_Driver) GetDimensions() (width, heigth int64) {
 	return driver.width, driver.height
 }
 
-//	SetDimensions set the dimensions of the PNG graphic
-func (driver *PNG_Driver) SetDimensions(width int64, height int64) error {
+//	SetDimensions set the dimensions of the Image graphic
+func (driver *Image_Driver) SetDimensions(width int64, height int64) error {
 	driver.width = width
 	driver.height = height
 
 	driver.image = image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{int(width), int(height)}})
 
-	//	the initial background as white
+	//	set background as white
 	draw.Draw(driver.image, driver.image.Bounds(), image.White, image.ZP, draw.Src)
 
 	return nil
 }
 
 //	GetFont get information about the font
-func (driver *PNG_Driver) GetFont() (fontFamily string, fontSize uint8) {
+func (driver *Image_Driver) GetFont() (fontFamily string, fontSize uint8) {
 	return driver.fontFamily, driver.fontSize
 }
 
 //	SetFont set information about the font
-func (driver *PNG_Driver) SetFont(fontFamily string, fontSize uint8) error {
+func (driver *Image_Driver) SetFont(fontFamily string, fontSize uint8) error {
+	if driver.image == nil {
+		return errors.New("cannot setFont to a non initialized graphics driver")
+	}
+
 	driver.fontFamily = fontFamily
 	driver.fontSize = fontSize
 
@@ -106,13 +155,17 @@ func (driver *PNG_Driver) SetFont(fontFamily string, fontSize uint8) error {
 	return nil
 }
 
-//	Comment write a comment int the the PNG graphic
-func (driver *PNG_Driver) Comment(text string) {
-	//	cannot add comments to PNG
+//	Comment write a comment int the the Image graphic
+func (driver *Image_Driver) Comment(text string) {
+	//	cannot add comments to Image
 }
 
-//	Point draws a point in the PNG graphic
-func (driver *PNG_Driver) Point(x, y int64, colour RGB_colour) error {
+//	Point draws a point in the Image graphic
+func (driver *Image_Driver) Point(x, y int64, colour RGB_colour) error {
+	if driver.image == nil {
+		return errors.New("cannot draw a point to a non initialized graphics driver")
+	}
+
 	pointColour := color.RGBA{colour.red, colour.green, colour.blue, 255}
 	driver.image.Set(int(x), int(y), pointColour)
 
@@ -120,7 +173,7 @@ func (driver *PNG_Driver) Point(x, y int64, colour RGB_colour) error {
 }
 
 //	Begin a path to draw a connection between a set of points
-func (driver *PNG_Driver) BeginPath(colour RGB_colour) error {
+func (driver *Image_Driver) BeginPath(colour RGB_colour) error {
 	driver.path = make([]DriverPoint, 0)
 	driver.pathColour = colour
 
@@ -128,7 +181,7 @@ func (driver *PNG_Driver) BeginPath(colour RGB_colour) error {
 }
 
 //	Add a point to a path
-func (driver *PNG_Driver) PointToPath(x, y int64) error {
+func (driver *Image_Driver) PointToPath(x, y int64) error {
 	if driver.path == nil {
 		return errors.New("cannot add a point to a non initialized path")
 	}
@@ -138,7 +191,7 @@ func (driver *PNG_Driver) PointToPath(x, y int64) error {
 }
 
 //	End the path
-func (driver *PNG_Driver) EndPath() error {
+func (driver *Image_Driver) EndPath() error {
 	if driver.path == nil {
 		return errors.New("cannot end a path not initialized")
 	}
@@ -169,8 +222,12 @@ func (driver *PNG_Driver) EndPath() error {
 	return nil
 }
 
-//	Line draws a line between two points in the PNG graphic
-func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
+//	Line draws a line between two points in the Image graphic
+func (driver *Image_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
+	if driver.image == nil {
+		return errors.New("cannot draw a line to a non initialized graphics driver")
+	}
+
 	lineColour := color.RGBA{colour.red, colour.green, colour.blue, 255}
 
 	//	for better results, change a function variable if angle is bigger the 45 deg
@@ -220,7 +277,10 @@ func (driver *PNG_Driver) Line(x1, y1, x2, y2 int64, colour RGB_colour) error {
 }
 
 //	GetTextBox evaluate the width and height of the rectangle required to draw the text string using a given font size
-func (driver *PNG_Driver) GetTextBox(text string) (width, height int64) {
+func (driver *Image_Driver) GetTextBox(text string) (width, height int64) {
+	if driver.font == nil {
+		return 0, 0
+	}
 
 	ttOptions := truetype.Options{
 		Size: float64(driver.fontSize),
@@ -242,8 +302,11 @@ func (driver *PNG_Driver) GetTextBox(text string) (width, height int64) {
 
 }
 
-//	Text writes a string to the specified point in the PNG graphic
-func (driver *PNG_Driver) Text(x, y, angle int64, text string, colour RGB_colour) error {
+//	Text writes a string to the specified point in the Image graphic
+func (driver *Image_Driver) Text(x, y, angle int64, text string, colour RGB_colour) error {
+	if driver.ctx == nil {
+		return errors.New("cannot draw text to a non initialized font options")
+	}
 
 	var pt = freetype.Pt(int(x), int(driver.height-y)+int(driver.ctx.PointToFixed(float64(driver.fontSize))>>6))
 	var textColour = color.RGBA{colour.red, colour.green, colour.blue, 255}
@@ -259,11 +322,26 @@ func (driver *PNG_Driver) Text(x, y, angle int64, text string, colour RGB_colour
 	return nil
 }
 
-//	Close finalize the PNG graphic
-func (driver *PNG_Driver) Close() error {
-	err := png.Encode(driver.writer, driver.image)
-	if err != nil {
-		return err
+//	Close finalize the Image graphic
+func (driver *Image_Driver) Close() error {
+	switch driver.fileFormat {
+	case "png":
+		err := png.Encode(driver.writer, driver.image)
+		if err != nil {
+			return err
+		}
+
+	case "gif":
+		err := gif.Encode(driver.writer, driver.image, nil)
+		if err != nil {
+			return err
+		}
+
+	case "jpeg":
+		err := jpeg.Encode(driver.writer, driver.image, nil)
+		if err != nil {
+			return err
+		}
 	}
 	driver.writer.Flush()
 

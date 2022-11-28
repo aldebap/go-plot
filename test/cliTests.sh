@@ -365,5 +365,39 @@ PLOT_CONTENT
 
 rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
 
+#   test scenatio #12
+export SCENARIO="12"
+export DESCRIPTION="create a plot from an cubic function (GIF)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal gif
+set output "${PLOT_FILE}_${SCENARIO}.gif"
+
+plot [-8:8] x * x * x
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
+#   test scenatio #13
+export SCENARIO="13"
+export DESCRIPTION="create a plot from an cosine function (JPEG)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > "${PLOT_FILE}.${SCENARIO}" <<PLOT_CONTENT
+set terminal jpeg
+set output "${PLOT_FILE}_${SCENARIO}.jpeg"
+
+plot [0:6.283184] cos(x)
+PLOT_CONTENT
+
+../bin/go-plot "${PLOT_FILE}.${SCENARIO}"
+
+rm -rf "${PLOT_FILE}.${SCENARIO}" > /dev/null
+
 #   clean up temporary files
 rm -rf ${DATA_FILE} > /dev/null

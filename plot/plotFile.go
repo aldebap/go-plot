@@ -19,6 +19,8 @@ import (
 var (
 	terminal = map[string]uint8{
 		"canvas": TERMINAL_CANVAS,
+		"gif":    TERMINAL_GIF,
+		"jpeg":   TERMINAL_JPEG,
 		"png":    TERMINAL_PNG,
 		"svg":    TERMINAL_SVG,
 	}

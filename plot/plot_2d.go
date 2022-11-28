@@ -106,6 +106,12 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	case TERMINAL_CANVAS:
 		driver = NewCanvas_Driver(plotWriter)
 
+	case TERMINAL_GIF:
+		driver = NewGIF_Driver(plotWriter)
+
+	case TERMINAL_JPEG:
+		driver = NewJPEG_Driver(plotWriter)
+
 	case TERMINAL_PNG:
 		driver = NewPNG_Driver(plotWriter)
 

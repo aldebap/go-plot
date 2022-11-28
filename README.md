@@ -8,12 +8,12 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 1. Go package to generate plots from multiple sets of points;
 2. creation of plots from data files;
 3. creation of plots from mathematical functions (in development);
-4. graphic drivers to generate the following output formats: SVG, HTML Canvas, PNG (in development);
+4. graphic drivers to generate the following output formats: SVG, HTML Canvas, GIF, JPEG, PNG;
 5. CLI interface to read plot files and generate the graphic output;
 
 ### GNU-Plot like commands already working
 
-1. plot command ```set terminal [svg]```
+1. plot command ```set terminal [svg/canvas/gif/jpeg/png]```
 2. plot command ```set output "file name"```
 3. plot command ```plot "data file" using i:j with [dots/boxes/lines/linespoints/points] title "description"```
 4. plot command ```plot [i:j] mathematical function```
