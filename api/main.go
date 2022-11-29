@@ -38,6 +38,16 @@ func main() {
 		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_SVG)
 	}).Methods(http.MethodPost)
 
+	httpRouter.HandleFunc("/plot/api/gif", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_GIF)
+	}).Methods(http.MethodPost)
+	httpRouter.HandleFunc("/plot/api/jpeg", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_JPEG)
+	}).Methods(http.MethodPost)
+	httpRouter.HandleFunc("/plot/api/png", func(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_PNG)
+	}).Methods(http.MethodPost)
+
 	http.Handle("/", httpRouter)
 
 	//start and listen to requests

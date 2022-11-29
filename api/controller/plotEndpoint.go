@@ -168,6 +168,15 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 
 	case plot.TERMINAL_SVG:
 		httpResponse.Header().Add("Content-Type", "image/svg+xml")
+
+	case plot.TERMINAL_GIF:
+		httpResponse.Header().Add("Content-Type", "image/gif")
+
+	case plot.TERMINAL_JPEG:
+		httpResponse.Header().Add("Content-Type", "image/jpeg")
+
+	case plot.TERMINAL_PNG:
+		httpResponse.Header().Add("Content-Type", "image/png")
 	}
 
 	httpResponse.WriteHeader(http.StatusOK)

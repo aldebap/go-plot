@@ -152,4 +152,75 @@ curl --request "POST" --header "Content-type: application/json" --data @${REQUES
 
 rm -rf "${REQUEST_FILE}" > /dev/null
 
+#   test scenatio #03
+export SCENARIO="03"
+export DESCRIPTION="create a plot from sine function (GIF)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${REQUEST_FILE} <<REQUEST_CONTENT
+{
+     "plot": [
+          {
+               "function": "sin(x)",
+               "min_x": 0,
+               "max_x": 6.283184
+          }
+     ]
+}
+REQUEST_CONTENT
+
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.gif" --progress-bar localhost:8080/plot/api/gif
+
+rm -rf "${REQUEST_FILE}" > /dev/null
+
+#   test scenatio #04
+export SCENARIO="04"
+export DESCRIPTION="create a plot from composed sine function (JPEG)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${REQUEST_FILE} <<REQUEST_CONTENT
+{
+     "plot": [
+          {
+               "function": "x",
+               "min_x": -6.283184,
+               "max_x": 6.283184
+          },
+          {
+               "function": "x * sin(4*x)",
+               "min_x": -6.283184,
+               "max_x": 6.283184
+          }
+     ]
+}
+REQUEST_CONTENT
+
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.jpeg" --progress-bar localhost:8080/plot/api/jpeg
+
+rm -rf "${REQUEST_FILE}" > /dev/null
+
+#   test scenatio #05
+export SCENARIO="05"
+export DESCRIPTION="create a plot from an cubic function (PNG)"
+
+echo "[scenario #${SCENARIO}] ${DESCRIPTION}"
+
+cat > ${REQUEST_FILE} <<REQUEST_CONTENT
+{
+     "plot": [
+          {
+               "function": "x * x * x",
+               "min_x": -8,
+               "max_x": 8
+          }
+     ]
+}
+REQUEST_CONTENT
+
+curl --request "POST" --header "Content-type: application/json" --data @${REQUEST_FILE} --output "test_plot_api_${SCENARIO}.png" --progress-bar localhost:8080/plot/api/png
+
+rm -rf "${REQUEST_FILE}" > /dev/null
+
 kill -9 ${PID}
