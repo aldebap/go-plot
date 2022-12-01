@@ -1,0 +1,102 @@
+<html>
+
+<!-- Page header -->
+
+<head>
+    <title>Go-Plot</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    </link>
+    <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
+    </link>
+
+    <script src="/plot/js/axios.min.js"></script>
+</head>
+
+<!-- Page body -->
+
+<body>
+    <div class="container-fluid">
+        <!-- Navigation bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <img src="img/go-plot.png" />
+            &nbsp;
+            <a class="navbar-brand" href="#">Go-Plot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Source
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a href="javascript:void(0);" onclick="ShowOld(2367,146986,2);"></a>
+                            <a class="dropdown-item" href="#" onclick="selectDataSet(); showGoPlotView();">Data Set</a>
+                            <a class="dropdown-item" href="#" onclick="selectFunction(); showGoPlotView();">Mathematical
+                                Function</a>
+                        </div>
+                    </li>
+                </ul>
+
+                <div id="loadingSpinner"></div>&nbsp;&nbsp;&nbsp;
+
+                <form class="form-inline my-2 my-lg-0">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-sm-2" placeholder="startX" aria-label="x min"
+                            id="filterStartX" />
+                        <div class="input-group-addon text-white">&nbsp; to &nbsp; &nbsp;</div>
+                        <input type="text" class="form-control mr-sm-2" placeholder="endX" aria-label="x max"
+                            id="filterEndX" />
+                    </div>
+                    &nbsp; &nbsp; &nbsp;
+                    <button class="btn btn-outline-light my-2 my-sm-0" type="submit"
+                        onclick="loadInvestments();">Plot</button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Application Container -->
+        <div id="container"></div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/popper.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+    <script content="text/javascript">
+        const GOPLOT_API_URL = '/plot/api/canvas';
+        const REQUEST_HEADERS = {
+            'Content-Type': 'application/json',
+        };
+        const plotRequest = {
+            plot: [
+                {
+                    title: "Parabola",
+                    function: "x * x - 3 * x + 2",
+                    min_x: -4,
+                    max_x: +4,
+                },
+            ],
+        };
+
+        //  send a request to the server
+        axios.post(GOPLOT_API_URL, plotRequest, { headers: REQUEST_HEADERS })
+            .then(response => {
+                const canvasScript = response.data;
+
+                eval(canvasScript);
+                canvas_plot();
+            })
+            .catch(error => console.error('On Generating Go-Plot Graphic', error));
+    </script>
+
+    <canvas id="canvas_plot" width=600 height=400>
+        <div id="err_msg">No support for HTML 5 canvas element</div>
+    </canvas>
+</body>
+
+</html>
