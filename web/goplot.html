@@ -9,8 +9,6 @@
 
     <link rel="stylesheet" href="/plot/css/bootstrap.min.css">
     </link>
-    <link rel="stylesheet" href="/plot/css/bootstrap-datepicker3.min.css">
-    </link>
 </head>
 
 <!-- Page body -->
@@ -19,6 +17,7 @@
     <div class="container-fluid">
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            &nbsp;
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-vector-pen"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
@@ -31,14 +30,56 @@
 
         <!-- Application Container -->
         <div id="container">
+            <div class="row">&nbsp;</div>
             <div class="row">
+                <!-- a card for the plot parameters -->
                 <div class="col">
-                    Parameters
+                    <div class="card">
+                        <h5 class="card-header">Plot Parameters</h5>
+
+                        <div class="card-body">
+                            <form class="row g-3">
+                                <div class="col-12">
+                                    <label for="title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="title" aria-describedby="title-help" />
+                                    <div id="title-help" class="form-text">Plot's title</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="min-x" class="form-label">Min X</label>
+                                    <input type="text" aria-label="min-x-help" class="form-control" id="min-x" />
+                                    <div id="min-x-help" class="form-text">Initial value for X variable</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="max-x" class="form-label">Max X</label>
+                                    <input type="text" aria-label="max-x-help" class="form-control" id="max-x">
+                                    <div id="max-x-help" class="form-text">Final value for X variable</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="function" class="form-label">Fuction</label>
+                                    <input type="text" class="form-control" id="function"
+                                        aria-describedby="function-help">
+                                    <div id="function-help" class="form-text">Mathematical expression to plot</div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary"
+                                        onclick="doMathFuncionPlot();">Plot</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- a card for the plot canvas -->
                 <div class="col">
-                    <canvas id="canvas_plot" width=600 height=400>
-                        <div id="err_msg">No support for HTML 5 canvas element</div>
-                    </canvas>
+                    <div class="card">
+                        <h5 class="card-header">Plot Graphic</h5>
+                        <div class="card-body">
+                            <canvas id="canvas_plot" width=600 height=400>
+                                <div id="err_msg">No support for HTML 5 canvas element</div>
+                            </canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,30 +91,39 @@
     <script type="text/javascript" src="/plot/js/axios.min.js"></script>
 
     <script content="text/javascript">
-        const GOPLOT_API_URL = '/plot/api/canvas';
-        const REQUEST_HEADERS = {
-            'Content-Type': 'application/json',
-        };
-        const plotRequest = {
-            plot: [
-                {
-                    title: "Parabola",
-                    function: "x * x - 3 * x + 2",
-                    min_x: -4,
-                    max_x: +4,
-                },
-            ],
-        };
+        function doMathFuncionPlot() {
 
-        //  send a request to the server
-        axios.post(GOPLOT_API_URL, plotRequest, { headers: REQUEST_HEADERS })
-            .then(response => {
-                const canvasScript = response.data;
+            let title = $('#title').val();
+            let min_x = Number($('#min-x').val());
+            let max_x = Number($('#max-x').val());
+            let math_function = $('#function').val();
 
-                eval(canvasScript);
-                canvas_plot();
-            })
-            .catch(error => console.error('On Generating Go-Plot Graphic', error));
+            const GOPLOT_API_URL = '/plot/api/canvas';
+            const REQUEST_HEADERS = {
+                'Content-Type': 'application/json',
+            };
+            const plotRequest = {
+                plot: [
+                    {
+                        title: title,
+                        function: math_function,
+                        min_x: min_x,
+                        max_x: max_x,
+                    },
+                ],
+            };
+            console.debug('request payload: ' + plotRequest)
+
+            //  send a request to the server
+            axios.post(GOPLOT_API_URL, plotRequest, { headers: REQUEST_HEADERS })
+                .then(response => {
+                    const canvasScript = response.data;
+
+                    eval(canvasScript);
+                    canvas_plot();
+                })
+                .catch(error => console.error('On Generating Go-Plot Graphic', error));
+        }
     </script>
 </body>
 
