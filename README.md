@@ -24,6 +24,10 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 
 1. REST API interface to receive plot commands and generate the graphic output (plot/svg endpoint);
 2. REST API interface to receive plot commands and generate the graphic output (plot/canvas endpoint);
+3. REST API interface to receive plot commands and generate the graphic output (plot/gif endpoint);
+4. REST API interface to receive plot commands and generate the graphic output (plot/jpeg endpoint);
+5. REST API interface to receive plot commands and generate the graphic output (plot/png endpoint);
+6. Web interface to set plot configuration and generate dynamic plots through the canvas endpoint;
 
 ### Working samples
 

@@ -17,23 +17,43 @@
     <div class="container-fluid">
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            &nbsp;
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-vector-pen"
-                viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M10.646.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-1.902 1.902-.829 3.313a1.5 1.5 0 0 1-1.024 1.073L1.254 14.746 4.358 4.4A1.5 1.5 0 0 1 5.43 3.377l3.313-.828L10.646.646zm-1.8 2.908-3.173.793a.5.5 0 0 0-.358.342l-2.57 8.565 8.567-2.57a.5.5 0 0 0 .34-.357l.794-3.174-3.6-3.6z" />
-                <path fill-rule="evenodd" d="M2.832 13.228 8 9a1 1 0 1 0-1-1l-4.228 5.168-.026.086.086-.026z" />
-            </svg>
-            &nbsp;
-            <a class="navbar-brand" href="#">Go-Plot</a>
+            <div class="container-fluid">
+                &nbsp;
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-vector-pen" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M10.646.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-1.902 1.902-.829 3.313a1.5 1.5 0 0 1-1.024 1.073L1.254 14.746 4.358 4.4A1.5 1.5 0 0 1 5.43 3.377l3.313-.828L10.646.646zm-1.8 2.908-3.173.793a.5.5 0 0 0-.358.342l-2.57 8.565 8.567-2.57a.5.5 0 0 0 .34-.357l.794-3.174-3.6-3.6z" />
+                    <path fill-rule="evenodd" d="M2.832 13.228 8 9a1 1 0 1 0-1-1l-4.228 5.168-.026.086.086-.026z" />
+                </svg>
+                &nbsp;
+                <a class="navbar-brand" href="#">Go-Plot</a>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Plot View
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showMathFunctionPlot();">Math
+                                        Fucntion Plot</a>
+                                <li>
+                                <li><a class="dropdown-item" href="#" onclick="showDataSetPlot();">Data Set Plot</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
 
         <!-- Application Container -->
         <div id="container">
             <div class="row">&nbsp;</div>
             <div class="row">
-                <!-- a card for the plot parameters -->
-                <div class="col">
+                <!-- a card for the math function plot parameters -->
+                <div class="col" id="mathPlotParameters">
                     <div class="card">
                         <h5 class="card-header">Plot Parameters</h5>
 
@@ -70,6 +90,28 @@
                     </div>
                 </div>
 
+                <!-- a card for the data set plot parameters -->
+                <div class="col" id="dataSetPlotParameters">
+                    <div class="card">
+                        <h5 class="card-header">Plot Parameters</h5>
+
+                        <div class="card-body">
+                            <form class="row g-3">
+                                <div class="col-12">
+                                    <label for="title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="title" aria-describedby="title-help" />
+                                    <div id="title-help" class="form-text">Plot's title</div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary"
+                                        onclick="doDataSetPlot();">Plot</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- a card for the plot canvas -->
                 <div class="col">
                     <div class="card">
@@ -86,11 +128,15 @@
     </div>
 
     <script type="text/javascript" src="/plot/js/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="/plot/js/popper.min.js"></script>
-    <script type="text/javascript" src="/plot/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/plot/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="/plot/js/axios.min.js"></script>
 
     <script content="text/javascript">
+        function showMathFunctionPlot() {
+            $('#mathPlotParameters').show();
+            $('#dataSetPlotParameters').hide();
+        }
+
         function doMathFuncionPlot() {
 
             let title = $('#title').val();
@@ -124,6 +170,17 @@
                 })
                 .catch(error => console.error('On Generating Go-Plot Graphic', error));
         }
+
+        function showDataSetPlot() {
+            $('#mathPlotParameters').hide();
+            $('#dataSetPlotParameters').show();
+        }
+
+        function doDataSetPlot() {
+        }
+
+        $('#mathPlotParameters').show();
+        $('#dataSetPlotParameters').hide();
     </script>
 </body>
 
