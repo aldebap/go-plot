@@ -102,6 +102,24 @@
                                     <input type="text" class="form-control" id="title" aria-describedby="title-help" />
                                     <div id="title-help" class="form-text">Plot's title</div>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="point-style" class="form-label">Point Style</label>
+                                    <select class="form-select" aria-label="Default select example">
+                                        <option selected></option>
+                                        <option value="boxes">Boxes</option>
+                                        <option value="dots">Dots</option>
+                                        <option value="lines">Lines</option>
+                                        <option value="lines_points">Lines & Points</option>
+                                        <option value="points">Points</option>
+                                    </select>
+                                    <div id="point-style-help" class="form-text">Plot's point style</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dataSet" class="form-label">Data Set</label>
+                                    <textarea class="form-control" id="dataSet" rows="5"
+                                        aria-describedby="dataSet-help"></textarea>
+                                    <div id="dataSet-help" class="form-text">Plot's data set</div>
+                                </div>
 
                                 <div class="col-md-3">
                                     <button type="submit" class="btn btn-primary"
