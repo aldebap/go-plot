@@ -77,15 +77,27 @@
                                     <div id="max-x-help" class="form-text">Final value for X variable</div>
                                 </div>
                                 <div class="col-12">
-                                    <label for="function" class="form-label">Fuction</label>
+                                    <label for="function-list" class="form-label">Function List</label>
+                                    <ol class="list-group" id="function-list">
+                                    </ol>
+                                </div>
+                                <div class="col-12">
+                                    <label for="function" class="form-label">Function</label>
                                     <input type="text" class="form-control" id="function"
                                         aria-describedby="function-help">
                                     <div id="function-help" class="form-text">Mathematical expression to plot</div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary" onclick="addFuncion();">Add</button>
                                     <button type="submit" class="btn btn-primary"
-                                        onclick="doMathFuncionPlot();">Plot</button>
+                                        onclick="deleteFuncion();">Delete</button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="submit" class="btn btn-primary"
+                                            onclick="doMathFuncionPlot();">Plot</button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -167,26 +179,46 @@
             $('#dataSetPlotParameters').hide();
         }
 
+        function addFuncion() {
+            let functionList = $('#function-list');
+            let math_function = $('#function').val();
+            let newIndex = functionList.children().length + 1;
+
+            functionList.append('<li class="list-group-item">'
+                + '<input class="form-check-input me-1" type="checkbox" value="" id="check-function-' + newIndex + '">'
+                + '<label class="form-check-label" for="function-' + newIndex + '" id="function-' + newIndex + '">' + math_function + '</label>'
+                + '</li>');
+        }
+
+        function deleteFuncion() {
+        }
+
         function doMathFuncionPlot() {
 
             let title = $('#math-plot-title').val();
             let min_x = Number($('#min-x').val());
             let max_x = Number($('#max-x').val());
-            let math_function = $('#function').val();
+            let functionList = $('#function-list');
+            let plots = [];
+
+            //  get every function from the list
+            for (let i = 1; i <= functionList.children().length; i++) {
+                let math_function = $('#function-' + i).text();
+
+                plots.push({
+                    title: title,
+                    function: math_function,
+                    min_x: min_x,
+                    max_x: max_x,
+                });
+            }
 
             const GOPLOT_API_URL = '/plot/api/canvas';
             const REQUEST_HEADERS = {
                 'Content-Type': 'application/json',
             };
             const plotRequest = {
-                plot: [
-                    {
-                        title: title,
-                        function: math_function,
-                        min_x: min_x,
-                        max_x: max_x,
-                    },
-                ],
+                plot: plots,
             };
             console.debug('request payload: ' + JSON.stringify(plotRequest))
 
