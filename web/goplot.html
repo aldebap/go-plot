@@ -90,13 +90,13 @@
 
                                 <div class="col-md-6">
                                     <button type="submit" class="btn btn-primary" onclick="addFuncion();">Add</button>
-                                    <button type="submit" class="btn btn-primary"
+                                    <button type="submit" class="btn btn-primary" disabled id="btn-delete-function"
                                         onclick="deleteFuncion();">Delete</button>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <button type="submit" class="btn btn-primary"
-                                            onclick="doMathFuncionPlot();">Plot</button>
+                                        <button type="submit" class="btn btn-primary" disabled
+                                            id="btn-math-function-plot" onclick="doMathFuncionPlot();">Plot</button>
                                     </div>
                                 </div>
                             </form>
@@ -174,25 +174,90 @@
     <script type="text/javascript" src="/plot/js/axios.min.js"></script>
 
     <script content="text/javascript">
+        //  show the math function plot form
         function showMathFunctionPlot() {
             $('#mathPlotParameters').show();
             $('#dataSetPlotParameters').hide();
         }
 
+        //  add a function to "function list"
         function addFuncion() {
             let functionList = $('#function-list');
             let math_function = $('#function').val();
             let newIndex = functionList.children().length + 1;
 
             functionList.append('<li class="list-group-item">'
-                + '<input class="form-check-input me-1" type="checkbox" value="" id="check-function-' + newIndex + '">'
+                + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + newIndex + '" onclick="funcionCheckBoxClicked();" \>'
                 + '<label class="form-check-label" for="function-' + newIndex + '" id="function-' + newIndex + '">' + math_function + '</label>'
                 + '</li>');
+
+            //  enable plot button
+            let plotButton = $('#btn-math-function-plot');
+
+            plotButton.prop("disabled", false);
         }
 
+        //  event function called when a "function checkbox" is clicked
+        function funcionCheckBoxClicked() {
+            let functionList = $('#function-list');
+            let deleteButton = $('#btn-delete-function');
+            let enableDeleteButton = false;
+
+            for (let i = 1; i <= functionList.children().length; i++) {
+                let functionCheckbox = $('#check-function-' + i);
+
+                if (functionCheckbox.is(':checked')) {
+                    enableDeleteButton = true;
+                    break;
+                }
+            }
+
+            //  if any function is checked, enable delete button
+            if (enableDeleteButton) {
+                deleteButton.prop("disabled", false);
+            } else {
+                deleteButton.prop("disabled", true);
+            }
+        }
+
+        //  delete all selected functions from "function list"
         function deleteFuncion() {
+            let functionList = $('#function-list');
+            let deleteButton = $('#btn-delete-function');
+            let leftFunctions = [];
+
+            for (let i = 1; i <= functionList.children().length; i++) {
+                let functionCheckbox = $('#check-function-' + i);
+                let math_function = $('#function-' + i).text();
+
+                if (!functionCheckbox.is(':checked')) {
+                    leftFunctions.push(math_function);
+                }
+            }
+
+            //  clear the function list and add only uncheckd items
+            functionList.empty();
+
+            for (let i = 1; i <= leftFunctions.length; i++) {
+                functionList.append('<li class="list-group-item">'
+                    + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + i + '" onclick="funcionCheckBoxClicked();" \>'
+                    + '<label class="form-check-label" for="function-' + i + '" id="function-' + i + '">' + leftFunctions[i - 1] + '</label>'
+                    + '</li>');
+            }
+
+            deleteButton.prop("disabled", true);
+
+            //  enable plot button
+            let plotButton = $('#btn-math-function-plot');
+
+            if (leftFunctions.length > 0) {
+                plotButton.prop("disabled", false);
+            } else {
+                plotButton.prop("disabled", true);
+            }
         }
 
+        //  invoke plot API with all functions and parameters
         function doMathFuncionPlot() {
 
             let title = $('#math-plot-title').val();
@@ -233,6 +298,7 @@
                 .catch(error => console.error('On Generating Go-Plot Graphic', error));
         }
 
+        //  show the data set plot form
         function showDataSetPlot() {
             $('#mathPlotParameters').hide();
             $('#dataSetPlotParameters').show();
