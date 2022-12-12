@@ -12,8 +12,22 @@ function showMathFunctionPlot() {
 
 //  add a function to "function list"
 function addFuncion() {
-    let functionList = $('#function-list');
     let math_function = $('#function').val();
+
+    //  validate function
+    let validationAlert = $('#mathPlotAlert');
+
+    validationAlert.empty();
+
+    if (math_function == '') {
+        validationAlert.append('<div class="alert alert-warning alert-dismissible" role="alert">'
+            + '<div>Need to type a function before add it</div>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+            + '</div>');
+        return;
+    }
+
+    let functionList = $('#function-list');
     let newIndex = functionList.children().length + 1;
 
     functionList.append('<li class="list-group-item">'
@@ -91,10 +105,37 @@ function deleteFuncion() {
 function doMathFuncionPlot() {
 
     let title = $('#math-plot-title').val();
-    let min_x = Number($('#min-x').val());
-    let max_x = Number($('#max-x').val());
+    let min_x = $('#min-x').val();
+    let max_x = $('#max-x').val();
     let functionList = $('#function-list');
     let plots = [];
+
+    //  validate min_x and max_x
+    let validationAlert = $('#mathPlotAlert');
+    let formValidated = true;
+
+    validationAlert.empty();
+
+    if (min_x != '' && isNaN(min_x)) {
+        validationAlert.append('<div class="alert alert-warning alert-dismissible" role="alert">'
+            + '<div>Min_x needs to be a valid number</div>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+            + '</div>');
+        formValidated = false;
+    }
+    if (max_x != '' && isNaN(max_x)) {
+        validationAlert.append('<div class="alert alert-warning alert-dismissible" role="alert">'
+            + '<div>Max_x needs to be a valid number</div>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+            + '</div>');
+        formValidated = false;
+    }
+    if (!formValidated) {
+        return;
+    }
+
+    min_x = Number($('#min-x').val());
+    max_x = Number($('#max-x').val());
 
     //  get every function from the list
     for (let i = 1; i <= functionList.children().length; i++) {
