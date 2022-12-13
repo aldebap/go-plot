@@ -120,6 +120,27 @@
                                     <div id="dataset-title-help" class="form-text">Plot's title</div>
                                 </div>
                                 <div class="mb-3">
+                                    <label for="dataSet" class="form-label">Data Set</label>
+                                    <textarea class="form-control" id="dataSet" rows="5"
+                                        aria-describedby="dataSet-help"></textarea>
+                                    <div id="dataSet-help" class="form-text">Plot's data set</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="dataSet-list" class="form-label">Data Set List</label>
+                                    <ol class="list-group" id="dataSet-list">
+                                    </ol>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="column-x" class="form-label">Column X</label>
+                                    <input type="text" aria-label="column-x-help" class="form-control" id="column-x" />
+                                    <div id="column-x-help" class="form-text">Column for X variable</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="column-y" class="form-label">Column Y</label>
+                                    <input type="text" aria-label="column-y-help" class="form-control" id="column-y" />
+                                    <div id="column-y-help" class="form-text">Column for Y variable</div>
+                                </div>
+                                <div class="col-md-6">
                                     <label for="point-style" class="form-label">Point Style</label>
                                     <select class="form-select" id="point-style" aria-describedby="point-style-help">
                                         <option value="boxes">Boxes</option>
@@ -130,26 +151,17 @@
                                     </select>
                                     <div id="point-style-help" class="form-text">Plot's point style</div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="dataSet" class="form-label">Data Set</label>
-                                    <textarea class="form-control" id="dataSet" rows="5"
-                                        aria-describedby="dataSet-help"></textarea>
-                                    <div id="dataSet-help" class="form-text">Plot's data set</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="column-x" class="form-label">Column X</label>
-                                    <input type="text" aria-label="column-x-help" class="form-control" id="column-x" />
-                                    <div id="column-x-help" class="form-text">Column for X variable</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="column-y" class="form-label">Column Y</label>
-                                    <input type="text" aria-label="column-y-help" class="form-control" id="column-y" />
-                                    <div id="column-y-help" class="form-text">Column for Y variable</div>
-                                </div>
 
-                                <div class="col-md-3">
-                                    <button type="submit" class="btn btn-primary"
-                                        onclick="doDataSetPlot();">Plot</button>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary" onclick="addDataSet();">Add</button>
+                                    <button type="submit" class="btn btn-primary" disabled id="btn-delete-dataSet"
+                                        onclick="deleteDataSet();">Delete</button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="submit" class="btn btn-primary" disabled id="btn-dataSet-plot"
+                                            onclick="doDataSetPlot();">Plot</button>
+                                    </div>
                                 </div>
                             </form>
                         </div>

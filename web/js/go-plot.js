@@ -35,7 +35,7 @@ function addFuncion() {
 
     functionList.append('<li class="list-group-item">'
         + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + newIndex + '" onclick="funcionCheckBoxClicked();" \>'
-        + '<label class="form-check-label" for="function-' + newIndex + '" id="function-' + newIndex + '">' + math_function + '</label>'
+        + '<label class="form-check-label" id="function-' + newIndex + '">' + math_function + '</label>'
         + '</li>');
 
     //  enable plot button
@@ -106,7 +106,6 @@ function deleteFuncion() {
 
 //  invoke plot API with all functions and parameters
 function doMathFuncionPlot() {
-
     let title = $('#math-plot-title').val();
     let min_x = $('#min-x').val();
     let max_x = $('#max-x').val();
@@ -184,38 +183,157 @@ function showDataSetPlot() {
     $('#dataSetPlotParameters').show();
 }
 
+//  add a pair of columns from dataSet to "dataSet list"
+function addDataSet() {
+    let column_x = $('#column-x').val();
+    let column_y = $('#column-y').val();
+    let style = $('#point-style').val();
+
+    //  validate column_x and column_y
+    let validationAlert = $('#dataSetPlotAlert');
+    let formValidated = true;
+
+    validationAlert.empty();
+
+    if (isNaN(column_x) || Number(column_x) <= 0) {
+        validationAlert.append('<div class="alert alert-warning d-flex align-items-center alert-dismissible" role="alert">'
+            + '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">'
+            + '<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>'
+            + '</svg>'
+            + '<div>&nbsp;Column X needs to be a valid number and greater than zero</div>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+            + '</div>');
+        formValidated = false;
+    }
+    if (isNaN(column_y) || Number(column_y) <= 0) {
+        validationAlert.append('<div class="alert alert-warning d-flex align-items-center alert-dismissible" role="alert">'
+            + '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">'
+            + '<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>'
+            + '</svg>'
+            + '<div>&nbsp;Column Y needs to be a valid number and greater than zero</div>'
+            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+            + '</div>');
+        formValidated = false;
+    }
+    if (!formValidated) {
+        return;
+    }
+
+    let dataSetList = $('#dataSet-list');
+    let newIndex = dataSetList.children().length + 1;
+
+    dataSetList.append('<li class="list-group-item">'
+        + '<input class="form-check-input me-1" type="checkbox" id="check-dataSet-' + newIndex + '" onclick="dataSetCheckBoxClicked();" \>'
+        + '<label class="form-check-label" id="dataSet-' + newIndex + '">[' + column_x + ':' + column_y + '] ' + style + '</label>'
+        + '</li>');
+
+    //  enable plot button
+    let plotButton = $('#btn-dataSet-plot');
+
+    plotButton.prop("disabled", false);
+}
+
+//  event function called when a "dataSet checkbox" is clicked
+function dataSetCheckBoxClicked() {
+    let dataSetList = $('#dataSet-list');
+    let deleteButton = $('#btn-delete-dataSet');
+    let enableDeleteButton = false;
+
+    for (let i = 1; i <= dataSetList.children().length; i++) {
+        let dataSetCheckbox = $('#check-dataSet-' + i);
+
+        if (dataSetCheckbox.is(':checked')) {
+            enableDeleteButton = true;
+            break;
+        }
+    }
+
+    //  if any dataSet is checked, enable delete button
+    if (enableDeleteButton) {
+        deleteButton.prop("disabled", false);
+    } else {
+        deleteButton.prop("disabled", true);
+    }
+}
+
+//  delete all selected dataSets from "dataSet list"
+function deleteDataSet() {
+    let dataSetList = $('#dataSet-list');
+    let deleteButton = $('#btn-delete-dataSet');
+    let leftDataSets = [];
+
+    for (let i = 1; i <= dataSetList.children().length; i++) {
+        let dataSetCheckbox = $('#check-dataSet-' + i);
+        let dataSet = $('#dataSet-' + i).text();
+
+        if (!dataSetCheckbox.is(':checked')) {
+            leftDataSets.push(dataSet);
+        }
+    }
+
+    //  clear the dataSet list and add only uncheckd items
+    dataSetList.empty();
+
+    for (let i = 1; i <= leftDataSets.length; i++) {
+        dataSetList.append('<li class="list-group-item">'
+            + '<input class="form-check-input me-1" type="checkbox" id="check-dataSet-' + i + '" onclick="dataSetCheckBoxClicked();" \>'
+            + '<label class="form-check-label" id="dataSet-' + i + '">' + leftDataSets[i - 1] + '</label>'
+            + '</li>');
+    }
+
+    deleteButton.prop("disabled", true);
+
+    //  enable plot button
+    let plotButton = $('#btn-dataSet-plot');
+
+    if (leftDataSets.length > 0) {
+        plotButton.prop("disabled", false);
+    } else {
+        plotButton.prop("disabled", true);
+    }
+}
+
 function doDataSetPlot() {
 
     let title = $('#dataset-title').val();
-    let style = $('#point-style').val();
-    let column_x = Number($('#column-x').val());
-    let column_y = Number($('#column-y').val());
+    let dataSetList = $('#dataSet-list');
     let dataSet = $('#dataSet').val();
     let lines = dataSet.split("\n");
-    let points = [];
+    let plots = [];
 
-    //  parse dataset to get points data
-    lines.forEach(line => {
-        let linePoints = line.split(" ");
+    //  get every dataSet item from the list and parse column_x, column_y and style
+    for (let i = 1; i <= dataSetList.children().length; i++) {
+        let dataSetItem = $('#dataSet-' + i).text();
+        let tokens = dataSetItem.match(/\[(\d+):(\d+)\]\s(.+)$/);
+        let column_x = tokens[1];
+        let column_y = tokens[2];
+        let style = tokens[3];
 
-        points.push({
-            x: Number(linePoints[column_x - 1]),
-            y: Number(linePoints[column_y - 1]),
+        //  parse dataset to get points data and add it to the list of plots
+        let points = [];
+
+        lines.forEach(line => {
+            let linePoints = line.split(" ");
+
+            points.push({
+                x: Number(linePoints[column_x - 1]),
+                y: Number(linePoints[column_y - 1]),
+            });
         });
-    });
+
+        plots.push({
+            title: title,
+            style: style,
+            points: points,
+        });
+    }
 
     const GOPLOT_API_URL = '/plot/api/canvas';
     const REQUEST_HEADERS = {
         'Content-Type': 'application/json',
     };
     const plotRequest = {
-        plot: [
-            {
-                title: title,
-                style: style,
-                points: points,
-            },
-        ],
+        plot: plots,
     };
     console.debug('request payload: ' + JSON.stringify(plotRequest))
 
