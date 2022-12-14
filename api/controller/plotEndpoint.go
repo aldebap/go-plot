@@ -23,17 +23,25 @@ type plot2DRequest struct {
 }
 
 type plotDefinition struct {
-	Title    string      `json:"title"`
-	Style    string      `json:"style"`
-	Points   []plotPoint `json:"points"`
-	Function string      `json:"function"`
-	Min_x    float64     `json:"min_x"`
-	Max_x    float64     `json:"max_x"`
+	Title        string           `json:"title"`
+	DataSet      dataSetPlot      `json:"data_set"`
+	MathFunction mathFunctionPlot `json:"math_function"`
+}
+
+type dataSetPlot struct {
+	Points []plotPoint `json:"points"`
+	Style  string      `json:"style"`
 }
 
 type plotPoint struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
+}
+
+type mathFunctionPlot struct {
+	Min_x    float64 `json:"min_x"`
+	Max_x    float64 `json:"max_x"`
+	Function string  `json:"function"`
 }
 
 //	PlotHandler handle the HTTP request to generate a Go-Plot graphic
@@ -78,35 +86,35 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 
 	for _, plotDefinition := range requestData.Plot {
 
-		if len(plotDefinition.Points) == 0 && len(plotDefinition.Function) == 0 {
+		if len(plotDefinition.DataSet.Points) == 0 && len(plotDefinition.MathFunction.Function) == 0 {
 			httpResponse.WriteHeader(http.StatusBadRequest)
-			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "each plot must contain at least a function or a data set" }`)))
+			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "each plot must contain at least one function or one data set" }`)))
 			return
 		}
 
-		if len(plotDefinition.Points) > 0 && len(plotDefinition.Function) > 0 {
+		if len(plotDefinition.DataSet.Points) > 0 && len(plotDefinition.MathFunction.Function) > 0 {
 			httpResponse.WriteHeader(http.StatusBadRequest)
 			httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "each plot must be either function or data set" }`)))
 			return
 		}
 
-		//	attempt to convert the style string to an int constant
-		var num_style uint8
-		var found bool
-
-		if len(plotDefinition.Style) == 0 {
-			num_style = plot.POINTS
-		} else {
-			num_style, found = plot.Style[plotDefinition.Style]
-			if !found {
-				httpResponse.WriteHeader(http.StatusBadRequest)
-				httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "invalid style: %s" }`, plotDefinition.Style)))
-				return
-			}
-		}
-
 		//	add a new set of points
-		if len(plotDefinition.Points) > 0 {
+		if len(plotDefinition.DataSet.Points) > 0 {
+
+			//	attempt to convert the style string to an int constant
+			var num_style uint8
+			var found bool
+
+			if len(plotDefinition.DataSet.Style) == 0 {
+				num_style = plot.POINTS
+			} else {
+				num_style, found = plot.Style[plotDefinition.DataSet.Style]
+				if !found {
+					httpResponse.WriteHeader(http.StatusBadRequest)
+					httpResponse.Write([]byte(fmt.Sprintf(`{ "error": "invalid style: %s" }`, plotDefinition.DataSet.Style)))
+					return
+				}
+			}
 
 			set_Points := plot.Set_points_2d{}
 
@@ -114,16 +122,16 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 			title := plotDefinition.Title
 
 			if len(title) == 0 {
-				title = fmt.Sprintf("data set #%d", len(plotDefinition.Points)+1)
+				title = fmt.Sprintf("data set #%d", len(plotDefinition.DataSet.Points)+1)
 			}
 
 			set_Points.Title = title
 			set_Points.Style = num_style
 
 			//	add the points
-			set_Points.Point = make([]plot.Point_2d, len(plotDefinition.Points))
+			set_Points.Point = make([]plot.Point_2d, len(plotDefinition.DataSet.Points))
 
-			for i, point := range plotDefinition.Points {
+			for i, point := range plotDefinition.DataSet.Points {
 				set_Points.Point[i].X = point.X
 				set_Points.Point[i].Y = point.Y
 			}
@@ -132,7 +140,7 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 		}
 
 		//	add a new function
-		if len(plotDefinition.Function) > 0 {
+		if len(plotDefinition.MathFunction.Function) > 0 {
 
 			function := plot.Function_2d{}
 
@@ -140,14 +148,14 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 			title := plotDefinition.Title
 
 			if len(title) == 0 {
-				title = plotDefinition.Function
+				title = plotDefinition.MathFunction.Function
 			}
 
 			function.Title = title
 			function.Style = plot.DOTS
-			function.Function = plotDefinition.Function
-			function.Min_x = plotDefinition.Min_x
-			function.Max_x = plotDefinition.Max_x
+			function.Function = plotDefinition.MathFunction.Function
+			function.Min_x = plotDefinition.MathFunction.Min_x
+			function.Max_x = plotDefinition.MathFunction.Max_x
 
 			plotRequest.Function = append(plotRequest.Function, function)
 		}

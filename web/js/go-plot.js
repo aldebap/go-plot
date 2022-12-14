@@ -151,9 +151,11 @@ function doMathFuncionPlot() {
 
         plots.push({
             title: title,
-            function: math_function,
-            min_x: min_x,
-            max_x: max_x,
+            math_function: {
+                function: math_function,
+                min_x: min_x,
+                max_x: max_x,
+            }
         });
     }
 
@@ -323,8 +325,10 @@ function doDataSetPlot() {
 
         plots.push({
             title: title,
-            style: style,
-            points: points,
+            data_set: {
+                points: points,
+                style: style,
+            }
         });
     }
 
