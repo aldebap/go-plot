@@ -172,7 +172,7 @@
                 <div class="col">
                     <div class="card">
                         <h5 class="card-header">Plot Graphic</h5>
-                        <div class="card-body">
+                        <div class="card-body" id="canvas_container">
                             <canvas id="canvas_plot" width=600 height=400>
                                 <div id="err_msg">No support for HTML 5 canvas element</div>
                             </canvas>
@@ -192,6 +192,15 @@
     <script content="text/javascript">
         $('#mathPlotParameters').show();
         $('#dataSetPlotParameters').hide();
+
+        //  resize canvas to container size
+        let canvasContainer = $('#canvas_container');
+        let plotCanvas = $('#canvas_plot');
+
+        plotCanvas.width(canvasContainer.width());
+        plotCanvas.height(canvasContainer.height());
+
+        console.debug('new canvas size: ( ' + plotCanvas.width() + ', ' + plotCanvas.height() + ' )')
     </script>
 </body>
 
