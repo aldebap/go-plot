@@ -173,7 +173,8 @@
                     <div class="card">
                         <h5 class="card-header">Plot Graphic</h5>
                         <div class="card-body" id="canvas_container">
-                            <canvas id="canvas_plot" width=600 height=400>
+                            <!-- <canvas id="canvas_plot" width=600 height=400> -->
+                            <canvas id="canvas_plot">
                                 <div id="err_msg">No support for HTML 5 canvas element</div>
                             </canvas>
                         </div>
@@ -193,12 +194,14 @@
         $('#mathPlotParameters').show();
         $('#dataSetPlotParameters').hide();
 
-        //  resize canvas to container size
+        //  resize canvas to container size using 640x480 aspect ratio
         let canvasContainer = $('#canvas_container');
         let plotCanvas = $('#canvas_plot');
 
-        plotCanvas.width(canvasContainer.width());
-        plotCanvas.height(canvasContainer.height());
+        plotCanvas.prop({
+            width: canvasContainer.width(),
+            height: Math.floor(canvasContainer.width() * 480 / 640)
+        });
 
         console.debug('new canvas size: ( ' + plotCanvas.width() + ', ' + plotCanvas.height() + ' )')
     </script>

@@ -95,7 +95,9 @@ cat > ${REQUEST_FILE} <<REQUEST_CONTENT
                     "style": "boxes"
                }
           }
-     ]
+     ],
+     "width": 1440,
+     "height": 1080
 }
 REQUEST_CONTENT
 
@@ -150,7 +152,9 @@ cat > ${REQUEST_FILE} <<REQUEST_CONTENT
                     "style": "lines"
                }
           }
-     ]
+     ],
+     "width": 1280,
+     "height": 960
 }
 REQUEST_CONTENT
 

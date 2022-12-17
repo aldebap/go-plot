@@ -87,6 +87,8 @@ type Plot_2D struct {
 	Y_label    string
 	Set_points []Set_points_2d
 	Function   []Function_2d
+	Width      int64
+	Height     int64
 	Terminal   uint8
 	output     string
 }
@@ -135,12 +137,21 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 		}
 	*/
 
+	//	get plot dimention from driver's default or from plot parameters when present
+	width, height := driver.GetDimensions()
+
+	if p.Width > 0 {
+		width = p.Width
+	}
+	if p.Height > 0 {
+		height = p.Height
+	}
+
 	//	parse every function and generate a set of point for it's graphic
 	var function_points []Set_points_2d
 
 	if len(p.Function) > 0 {
 		function_points = make([]Set_points_2d, len(p.Function))
-		width, _ := driver.GetDimensions()
 
 		for i, function := range p.Function {
 
@@ -251,8 +262,6 @@ func (p *Plot_2D) GeneratePlot(plotWriter *bufio.Writer) error {
 	}
 
 	//	set the graphics dimension
-	width, height := driver.GetDimensions()
-
 	err = driver.SetDimensions(width, height)
 	if err != nil {
 		return errors.New("error setting plot dimentions: " + err.Error())
@@ -299,7 +308,15 @@ func (p *Plot_2D) generatePlotGrid(driver GraphicsDriver, min_x, min_y, max_x, m
 
 	fmt.Printf("[debug] min (%f, %f) max (%f, %f)\n", min_x, min_y, max_x, max_y)
 
+	//	get plot dimention from driver's default or from plot parameters when present
 	width, height := driver.GetDimensions()
+
+	if p.Width > 0 {
+		width = p.Width
+	}
+	if p.Height > 0 {
+		height = p.Height
+	}
 
 	//	add the plot grid
 	driver.Comment("plot grid")

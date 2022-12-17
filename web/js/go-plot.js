@@ -110,6 +110,7 @@ function doMathFuncionPlot() {
     let min_x = $('#min-x').val();
     let max_x = $('#max-x').val();
     let functionList = $('#function-list');
+    let plotCanvas = $('#canvas_plot');
     let plots = [];
 
     //  validate min_x and max_x
@@ -165,6 +166,8 @@ function doMathFuncionPlot() {
     };
     const plotRequest = {
         plot: plots,
+        width: Math.floor(plotCanvas.width()),
+        height: Math.floor(plotCanvas.height()),
     };
     console.debug('request payload: ' + JSON.stringify(plotRequest))
 
@@ -311,6 +314,7 @@ function doDataSetPlot() {
     let dataSetList = $('#dataSet-list');
     let dataSet = $('#dataSet').val();
     let lines = dataSet.split("\n");
+    let plotCanvas = $('#canvas_plot');
     let plots = [];
 
     //  get every dataSet item from the list and parse column_x, column_y and style
@@ -348,6 +352,8 @@ function doDataSetPlot() {
     };
     const plotRequest = {
         plot: plots,
+        width: Math.floor(plotCanvas.width()),
+        height: Math.floor(plotCanvas.height()),
     };
     console.debug('request payload: ' + JSON.stringify(plotRequest))
 

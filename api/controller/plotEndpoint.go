@@ -20,6 +20,8 @@ type plot2DRequest struct {
 	X_label string           `json:"x_label"`
 	Y_label string           `json:"y_label"`
 	Plot    []plotDefinition `json:"plot"`
+	Width   int64            `json:"width"`
+	Height  int64            `json:"height"`
 }
 
 type plotDefinition struct {
@@ -81,6 +83,8 @@ func PlotHandler(httpResponse http.ResponseWriter, httpRequest *http.Request, te
 		Y_label:    requestData.Y_label,
 		Set_points: make([]plot.Set_points_2d, 0),
 		Function:   make([]plot.Function_2d, 0),
+		Width:      requestData.Width,
+		Height:     requestData.Height,
 		Terminal:   terminal,
 	}
 
