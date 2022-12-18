@@ -1,0 +1,15 @@
+# Go-Plot server configuration
+server {
+	listen 8000 default_server;
+	listen [::]:8000 default_server;
+
+	#	reverse proxy to static web files
+	location /plot {
+		proxy_pass http://localhost:80/plot/;
+	}
+
+	#	reverse proxy to Go-Plot API server
+	location /plot/api {
+		proxy_pass http://localhost:8080/plot/api;
+	}
+}
