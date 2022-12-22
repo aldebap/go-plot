@@ -52,10 +52,10 @@ func main() {
 
 	//	if informed, add a handler for webApp content
 	if len(webAppDirectory) > 0 {
-		httpRouter.PathPrefix("/plot/").Handler(http.StripPrefix("/plot/", http.FileServer(http.Dir("webAppDirectory"))))
+		httpRouter.PathPrefix("/plot/").Handler(http.StripPrefix("/plot/", http.FileServer(http.Dir(webAppDirectory))))
 	}
 
-	//http.Handle("/", httpRouter)
+	http.Handle("/", httpRouter)
 
 	//	start and listen to requests
 	fmt.Printf("Listening port %d\n", servicePort)

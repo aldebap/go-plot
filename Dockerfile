@@ -1,13 +1,5 @@
 # syntax=docker/dockerfile:1
 
-#   copy Web Go-Plot Application files to nginx directory
-#FROM nginx
-#RUN rm /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-#COPY web /usr/share/nginx/html/plot
-#COPY web/css /usr/share/nginx/html/plot/css
-#COPY web/js /usr/share/nginx/html/plot/js
-#COPY config/nginx/sites-available/container-go-plot /etc/nginx/sites-available
-
 #	build the application
 FROM golang:1.17-alpine AS build
 
