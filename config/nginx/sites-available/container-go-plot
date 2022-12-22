@@ -3,9 +3,17 @@ server {
 	listen 8000 default_server;
 	listen [::]:8000 default_server;
 
-	#	reverse proxy to static web files
-	location /plot {
-		proxy_pass http://localhost:80/plot/;
+	root /usr/share/nginx/html;
+
+	# Add index.html
+	index.html;
+
+	server_name _;
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
 	}
 
 	#	reverse proxy to Go-Plot API server

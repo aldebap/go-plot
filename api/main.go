@@ -22,9 +22,11 @@ import (
 func main() {
 
 	var servicePort int
+	var webAppDirectory string
 
 	//	CLI arguments
 	flag.IntVar(&servicePort, "port", 8080, "port to listen for connections")
+	flag.StringVar(&webAppDirectory, "webAppDirectory", "", "directory with content for webApp")
 
 	flag.Parse()
 
@@ -48,9 +50,14 @@ func main() {
 		controller.PlotHandler(httpResponse, httpRequest, plot.TERMINAL_PNG)
 	}).Methods(http.MethodPost)
 
-	http.Handle("/", httpRouter)
+	//	if informed, add a handler for webApp content
+	if len(webAppDirectory) > 0 {
+		httpRouter.PathPrefix("/plot/").Handler(http.StripPrefix("/plot/", http.FileServer(http.Dir("webAppDirectory"))))
+	}
 
-	//start and listen to requests
+	//http.Handle("/", httpRouter)
+
+	//	start and listen to requests
 	fmt.Printf("Listening port %d\n", servicePort)
 
 	log.Panic(http.ListenAndServe(fmt.Sprintf(":%d", servicePort), httpRouter))
