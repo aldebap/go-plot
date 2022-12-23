@@ -7,7 +7,7 @@ export  LIGHTGRAY='\033[0;37m'
 export  NOCOLOR='\033[0m'
 
 #   set environment
-export  VERBOSE='false'
+export  VERBOSE='true'
 
 #   function to execute the "package" target action
 function packageTarget {
@@ -30,4 +30,5 @@ function packageTarget {
 TARGET=package
 PROJECT_TARGET=webGoPlot
 PROJECT_DOCKER_FILE=Dockerfile
+
 packageTarget

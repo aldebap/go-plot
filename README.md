@@ -28,10 +28,11 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 4. REST API interface to receive plot commands and generate the graphic output (plot/jpeg endpoint);
 5. REST API interface to receive plot commands and generate the graphic output (plot/png endpoint);
 6. Web interface to set plot configuration and generate dynamic plots through the canvas endpoint;
+7. Dockerfile to serve Web interface and the REST API interface from a single container;
 
-### Working samples
+### Plot file samples
 
-```
+```gnuplot
 set terminal svg
 set output "output.svg"
 
@@ -40,7 +41,7 @@ plot "data" using 1:2 with boxes
 
 ![plot output](img/plot_output_01.svg)
 
-```
+```gnuplot
 set terminal svg
 set output "output.svg"
 
@@ -50,7 +51,7 @@ plot "data" using 1:2 with lines,
 
 ![plot output](img/plot_output_02.svg)
 
-```
+```gnuplot
 set terminal svg
 set output "output.svg"
 
@@ -59,7 +60,7 @@ plot [-4:+4] x * x - 3 * x + 2
 
 ![plot output](img/plot_output_03.svg)
 
-```
+```gnuplot
 set terminal svg
 set output "output.svg"
 

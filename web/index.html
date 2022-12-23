@@ -68,6 +68,16 @@
                                     <div id="math-plot-title-help" class="form-text">Plot's title</div>
                                 </div>
                                 <div class="col-md-6">
+                                    <label for="x-title-help" class="form-label">X Title</label>
+                                    <input type="text" aria-label="x-title-help" class="form-control" id="x-title" />
+                                    <div id="x-title-help" class="form-text">Title for X axis</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="y-title-help" class="form-label">Y Title</label>
+                                    <input type="text" aria-label="y-title-help" class="form-control" id="y-title" />
+                                    <div id="y-title-help" class="form-text">Title for Y axis</div>
+                                </div>
+                                <div class="col-md-6">
                                     <label for="min-x" class="form-label">Min X</label>
                                     <input type="text" aria-label="min-x-help" class="form-control" id="min-x" />
                                     <div id="min-x-help" class="form-text">Initial value for X variable</div>
@@ -82,15 +92,10 @@
                                     <ol class="list-group" id="function-list">
                                     </ol>
                                 </div>
-                                <div class="col-12">
-                                    <label for="function" class="form-label">Function</label>
-                                    <input type="text" class="form-control" id="function"
-                                        aria-describedby="function-help">
-                                    <div id="function-help" class="form-text">Mathematical expression to plot</div>
-                                </div>
 
                                 <div class="col-md-6">
-                                    <button type="submit" class="btn btn-primary" onclick="addFuncion();">Add</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#add-function-modal">Add</button>
                                     <button type="submit" class="btn btn-primary" disabled id="btn-delete-function"
                                         onclick="deleteFuncion();">Delete</button>
                                 </div>
@@ -178,6 +183,31 @@
                                 <div id="err_msg">No support for HTML 5 canvas element</div>
                             </canvas>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- add function modal -->
+        <div class="modal fade" id="add-function-modal" tabindex="-1" aria-labelledby="add-function-modal-Label"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="add-function-modal-Label">Add Function</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <label for="function" class="form-label">Function</label>
+                            <input type="text" class="form-control" id="function" aria-describedby="function-help">
+                            <div id="function-help" class="form-text">Mathematical expression to plot</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="addFuncion(); $('#add-function-modal').modal('hide');">Add</button>
                     </div>
                 </div>
             </div>
