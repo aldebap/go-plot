@@ -12,6 +12,7 @@ function showMathFunctionPlot() {
 
 //  add a function to "function list"
 function addFuncion() {
+    let title = $('#function-title').val();
     let math_function = $('#function').val();
 
     //  validate function
@@ -33,10 +34,17 @@ function addFuncion() {
     let functionList = $('#function-list');
     let newIndex = functionList.children().length + 1;
 
-    functionList.append('<li class="list-group-item">'
-        + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + newIndex + '" onclick="funcionCheckBoxClicked();" \>'
-        + '<label class="form-check-label" id="function-' + newIndex + '">' + math_function + '</label>'
-        + '</li>');
+    if (title == '') {
+        functionList.append('<li class="list-group-item">'
+            + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + newIndex + '" onclick="funcionCheckBoxClicked();" \>'
+            + '<label class="form-check-label" id="function-' + newIndex + '">' + math_function + '</label>'
+            + '</li>');
+    } else {
+        functionList.append('<li class="list-group-item">'
+            + '<input class="form-check-input me-1" type="checkbox" id="check-function-' + newIndex + '" onclick="funcionCheckBoxClicked();" \>'
+            + '<label class="form-check-label" id="function-' + newIndex + '">' + title + ' : ' + math_function + '</label>'
+            + '</li>');
+    }
 
     //  enable plot button
     let plotButton = $('#btn-math-function-plot');
@@ -106,7 +114,8 @@ function deleteFuncion() {
 
 //  invoke plot API with all functions and parameters
 function doMathFuncionPlot() {
-    let title = $('#math-plot-title').val();
+    let x_label = $('#x-label').val();
+    let y_label = $('#y-label').val();
     let min_x = $('#min-x').val();
     let max_x = $('#max-x').val();
     let functionList = $('#function-list');
@@ -148,7 +157,15 @@ function doMathFuncionPlot() {
 
     //  get every function from the list
     for (let i = 1; i <= functionList.children().length; i++) {
-        let math_function = $('#function-' + i).text();
+        let functionItem = $('#function-' + i).text();
+        let math_function = functionItem;
+        let title = '';
+        let tokens = functionItem.match(/^(.+)\s:\s(.+)$/);
+
+        if (length(tokens) == 3) {
+            let math_function = tokens[2];
+            let title = tokens[1];
+        }
 
         plots.push({
             title: title,
@@ -165,6 +182,8 @@ function doMathFuncionPlot() {
         'Content-Type': 'application/json',
     };
     const plotRequest = {
+        x_label: x_label,
+        y_label: y_label,
         plot: plots,
         width: Math.floor(plotCanvas.width()),
         height: Math.floor(plotCanvas.height()),

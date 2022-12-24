@@ -61,21 +61,15 @@
                         <div class="card-body">
                             <div id="mathPlotAlert"></div>
                             <form class="row g-3">
-                                <div class="col-12">
-                                    <label for="math-plot-title" class="form-label">Title</label>
-                                    <input type="text" class="form-control" id="math-plot-title"
-                                        aria-describedby="math-plot-title-help" />
-                                    <div id="math-plot-title-help" class="form-text">Plot's title</div>
+                                <div class="col-md-6">
+                                    <label for="x-label-help" class="form-label">X label</label>
+                                    <input type="text" aria-label="x-label-help" class="form-control" id="x-label" />
+                                    <div id="x-label-help" class="form-text">Label for X axis</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="x-title-help" class="form-label">X Title</label>
-                                    <input type="text" aria-label="x-title-help" class="form-control" id="x-title" />
-                                    <div id="x-title-help" class="form-text">Title for X axis</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="y-title-help" class="form-label">Y Title</label>
-                                    <input type="text" aria-label="y-title-help" class="form-control" id="y-title" />
-                                    <div id="y-title-help" class="form-text">Title for Y axis</div>
+                                    <label for="y-label-help" class="form-label">Y label</label>
+                                    <input type="text" aria-label="y-label-help" class="form-control" id="y-label" />
+                                    <div id="y-label-help" class="form-text">Label for Y axis</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="min-x" class="form-label">Min X</label>
@@ -198,11 +192,19 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="col-12">
-                            <label for="function" class="form-label">Function</label>
-                            <input type="text" class="form-control" id="function" aria-describedby="function-help">
-                            <div id="function-help" class="form-text">Mathematical expression to plot</div>
-                        </div>
+                        <form class="row g-3">
+                            <div class="col-12">
+                                <label for="function-title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="function-title"
+                                    aria-describedby="function-title-help" />
+                                <div id="function-title-help" class="form-text">Function's title</div>
+                            </div>
+                            <div class="col-12">
+                                <label for="function" class="form-label">Function</label>
+                                <input type="text" class="form-control" id="function" aria-describedby="function-help">
+                                <div id="function-help" class="form-text">Mathematical expression to plot</div>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
