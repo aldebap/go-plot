@@ -162,9 +162,9 @@ function doMathFuncionPlot() {
         let title = '';
         let tokens = functionItem.match(/^(.+)\s:\s(.+)$/);
 
-        if (length(tokens) == 3) {
-            let math_function = tokens[2];
-            let title = tokens[1];
+        if (tokens != null) {
+            math_function = tokens[2];
+            title = tokens[1];
         }
 
         plots.push({
