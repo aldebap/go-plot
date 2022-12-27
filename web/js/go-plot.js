@@ -114,8 +114,8 @@ function deleteFuncion() {
 
 //  invoke plot API with all functions and parameters
 function doMathFuncionPlot() {
-    let x_label = $('#x-label').val();
-    let y_label = $('#y-label').val();
+    let x_label = $('#x-label-func').val();
+    let y_label = $('#y-label-func').val();
     let min_x = $('#min-x').val();
     let max_x = $('#max-x').val();
     let functionList = $('#function-list');
@@ -219,9 +219,12 @@ function showDataSetPlot() {
 
 //  add a pair of columns from dataSet to "dataSet list"
 function addDataSet() {
+    let title = $('#dataset-title').val();
     let column_x = $('#column-x').val();
     let column_y = $('#column-y').val();
     let style = $('#point-style').val();
+
+    console.debug("dataset title: " + title);
 
     //  validate column_x and column_y
     let validationAlert = $('#dataSetPlotAlert');
@@ -256,10 +259,17 @@ function addDataSet() {
     let dataSetList = $('#dataSet-list');
     let newIndex = dataSetList.children().length + 1;
 
-    dataSetList.append('<li class="list-group-item">'
-        + '<input class="form-check-input me-1" type="checkbox" id="check-dataSet-' + newIndex + '" onclick="dataSetCheckBoxClicked();" \>'
-        + '<label class="form-check-label" id="dataSet-' + newIndex + '">[' + column_x + ':' + column_y + '] ' + style + '</label>'
-        + '</li>');
+    if (title == '') {
+        dataSetList.append('<li class="list-group-item">'
+            + '<input class="form-check-input me-1" type="checkbox" id="check-dataSet-' + newIndex + '" onclick="dataSetCheckBoxClicked();" \>'
+            + '<label class="form-check-label" id="dataSet-' + newIndex + '">[' + column_x + ':' + column_y + '] ' + style + '</label>'
+            + '</li>');
+    } else {
+        dataSetList.append('<li class="list-group-item">'
+            + '<input class="form-check-input me-1" type="checkbox" id="check-dataSet-' + newIndex + '" onclick="dataSetCheckBoxClicked();" \>'
+            + '<label class="form-check-label" id="dataSet-' + newIndex + '">' + title + ' : [' + column_x + ':' + column_y + '] ' + style + '</label>'
+            + '</li>');
+    }
 
     //  enable plot button
     let plotButton = $('#btn-dataSet-plot');
@@ -329,7 +339,8 @@ function deleteDataSet() {
 
 function doDataSetPlot() {
 
-    let title = $('#dataset-title').val();
+    let x_label = $('#x-label-data').val();
+    let y_label = $('#y-label-data').val();
     let dataSetList = $('#dataSet-list');
     let dataSet = $('#dataSet').val();
     let lines = dataSet.split("\n");
@@ -339,10 +350,26 @@ function doDataSetPlot() {
     //  get every dataSet item from the list and parse column_x, column_y and style
     for (let i = 1; i <= dataSetList.children().length; i++) {
         let dataSetItem = $('#dataSet-' + i).text();
-        let tokens = dataSetItem.match(/\[(\d+):(\d+)\]\s(.+)$/);
-        let column_x = tokens[1];
-        let column_y = tokens[2];
-        let style = tokens[3];
+        let title = '';
+        let column_x = '';
+        let column_y = '';
+        let style = '';
+        let tokens = dataSetItem.match(/^(.+)\s:\s\[(\d+):(\d+)\]\s(.+)$/);
+
+        if (tokens != null) {
+            title = tokens[1];
+            column_x = tokens[2];
+            column_y = tokens[3];
+            style = tokens[4];
+        } else {
+            tokens = dataSetItem.match(/\[(\d+):(\d+)\]\s(.+)$/);
+
+            if (tokens != null) {
+                column_x = tokens[1];
+                column_y = tokens[2];
+                style = tokens[3];
+            }
+        }
 
         //  parse dataset to get points data and add it to the list of plots
         let points = [];
@@ -370,6 +397,8 @@ function doDataSetPlot() {
         'Content-Type': 'application/json',
     };
     const plotRequest = {
+        x_label: x_label,
+        y_label: y_label,
         plot: plots,
         width: Math.floor(plotCanvas.width()),
         height: Math.floor(plotCanvas.height()),

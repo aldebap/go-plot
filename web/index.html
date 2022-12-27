@@ -62,14 +62,16 @@
                             <div id="mathPlotAlert"></div>
                             <form class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="x-label-help" class="form-label">X label</label>
-                                    <input type="text" aria-label="x-label-help" class="form-control" id="x-label" />
-                                    <div id="x-label-help" class="form-text">Label for X axis</div>
+                                    <label for="x-label-func" class="form-label">X label</label>
+                                    <input type="text" aria-label="x-label-func-help" class="form-control"
+                                        id="x-label-func" />
+                                    <div id="x-label-func-help" class="form-text">Label for X axis</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="y-label-help" class="form-label">Y label</label>
-                                    <input type="text" aria-label="y-label-help" class="form-control" id="y-label" />
-                                    <div id="y-label-help" class="form-text">Label for Y axis</div>
+                                    <label for="y-label-func" class="form-label">Y label</label>
+                                    <input type="text" aria-label="y-label-func-help" class="form-control"
+                                        id="y-label-func" />
+                                    <div id="y-label-func-help" class="form-text">Label for Y axis</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="min-x" class="form-label">Min X</label>
@@ -112,11 +114,17 @@
                         <div class="card-body">
                             <div id="dataSetPlotAlert"></div>
                             <form class="row g-3">
-                                <div class="col-12">
-                                    <label for="dataset-title" class="form-label">Title</label>
-                                    <input type="text" class="form-control" id="dataset-title"
-                                        aria-describedby="dataset-title-help" />
-                                    <div id="dataset-title-help" class="form-text">Plot's title</div>
+                                <div class="col-md-6">
+                                    <label for="x-label-data" class="form-label">X label</label>
+                                    <input type="text" aria-label="x-label-data-help" class="form-control"
+                                        id="x-label-data" />
+                                    <div id="x-label-data-help" class="form-text">Label for X axis</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="y-label-data" class="form-label">Y label</label>
+                                    <input type="text" aria-label="y-label-data-help" class="form-control"
+                                        id="y-label-data" />
+                                    <div id="y-label-data-help" class="form-text">Label for Y axis</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="dataSet" class="form-label">Data Set</label>
@@ -129,30 +137,9 @@
                                     <ol class="list-group" id="dataSet-list">
                                     </ol>
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="column-x" class="form-label">Column X</label>
-                                    <input type="text" aria-label="column-x-help" class="form-control" id="column-x" />
-                                    <div id="column-x-help" class="form-text">Column for X variable</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="column-y" class="form-label">Column Y</label>
-                                    <input type="text" aria-label="column-y-help" class="form-control" id="column-y" />
-                                    <div id="column-y-help" class="form-text">Column for Y variable</div>
-                                </div>
                                 <div class="col-md-6">
-                                    <label for="point-style" class="form-label">Point Style</label>
-                                    <select class="form-select" id="point-style" aria-describedby="point-style-help">
-                                        <option value="boxes">Boxes</option>
-                                        <option value="dots">Dots</option>
-                                        <option value="lines">Lines</option>
-                                        <option value="linespoints">Lines & Points</option>
-                                        <option value="points">Points</option>
-                                    </select>
-                                    <div id="point-style-help" class="form-text">Plot's point style</div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <button type="submit" class="btn btn-primary" onclick="addDataSet();">Add</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#add-dataset-modal">Add</button>
                                     <button type="submit" class="btn btn-primary" disabled id="btn-delete-dataSet"
                                         onclick="deleteDataSet();">Delete</button>
                                 </div>
@@ -210,6 +197,55 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary"
                             onclick="addFuncion(); $('#add-function-modal').modal('hide');">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- add data set modal -->
+        <div class="modal fade" id="add-dataset-modal" tabindex="-1" aria-labelledby="add-dataset-modal-Label"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="add-dataset-modal-Label">Add Data Set</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="row g-3">
+                            <div class="col-12">
+                                <label for="dataset-title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="dataset-title"
+                                    aria-describedby="dataset-title-help" />
+                                <div id="dataset-title-help" class="form-text">Data set's title</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="column-x" class="form-label">Column X</label>
+                                <input type="text" aria-label="column-x-help" class="form-control" id="column-x" />
+                                <div id="column-x-help" class="form-text">Column for X variable</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="column-y" class="form-label">Column Y</label>
+                                <input type="text" aria-label="column-y-help" class="form-control" id="column-y" />
+                                <div id="column-y-help" class="form-text">Column for Y variable</div>
+                            </div>
+                            <div class="col-12">
+                                <label for="point-style" class="form-label">Point Style</label>
+                                <select class="form-select" id="point-style" aria-describedby="point-style-help">
+                                    <option value="boxes">Boxes</option>
+                                    <option value="dots">Dots</option>
+                                    <option value="lines">Lines</option>
+                                    <option value="linespoints">Lines & Points</option>
+                                    <option value="points">Points</option>
+                                </select>
+                                <div id="point-style-help" class="form-text">Plot's point style</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="addDataSet(); $('#add-dataset-modal').modal('hide');">Add</button>
                     </div>
                 </div>
             </div>
