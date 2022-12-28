@@ -71,22 +71,22 @@ plot [0:6.283184] sin(x)
 
 ### Features backlog (for v1.0 release)
 
-- Dataset upload button on Web Go-Plot;
-- Github's Web Go-Plot package;
-- help on how to run Web Go-Plot from Github's package;
-- Webassembly version of Go-Plot for Web;
-- configuration + generic test script;
-- fix bug in multiple plot titles;
-- signed literals in expression parser;
-- assignment operator in function plots;
-- parametric plots;
-- refactor plot file parser;
-- bug in scale evaluation;
-- fix title positioning;
-- rotate y axis for every driver;
-- add more plot styles;
-- add more colors to default pallete;
-- colour pallete command;
-- LaTeX driver;
-- PDF driver;
-- PS driver;
+- [x] ~~Dataset upload button on Web Go-Plot;~~
+- [ ] Github's Web Go-Plot package;
+- [ ] help on how to run Web Go-Plot from Github's package;
+- [ ] Webassembly version of Go-Plot for Web;
+- [ ] configuration + generic test script;
+- [ ] fix bug in multiple plot titles;
+- [ ] signed literals in expression parser;
+- [ ] assignment operator in function plots;
+- [ ] parametric plots;
+- [ ] refactor plot file parser;
+- [ ] bug in scale evaluation;
+- [ ] fix title positioning;
+- [ ] rotate y axis for every driver;
+- [ ] add more plot styles;
+- [ ] add more colors to default pallete;
+- [ ] colour pallete command;
+- [ ] LaTeX driver;
+- [ ] PDF driver;
+- [ ] PS driver;

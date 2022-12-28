@@ -92,7 +92,7 @@
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#add-function-modal">Add</button>
-                                    <button type="submit" class="btn btn-primary" disabled id="btn-delete-function"
+                                    <button type="button" class="btn btn-primary" disabled id="btn-delete-function"
                                         onclick="deleteFuncion();">Delete</button>
                                 </div>
                                 <div class="col-md-6">
@@ -133,6 +133,27 @@
                                     <div id="dataSet-help" class="form-text">Plot's data set</div>
                                 </div>
                                 <div class="col-12">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <input id="dataset-filename" type="file" accept="text/plain" />
+                                        <!--
+                                        <div class="fileUpload btn btn-primary">
+                                            <span>Upload</span>
+                                            <input id="dataset-filename" type="file" class="upload" />
+                                        </div>
+                                        <input id="uploadFile" placeholder="File Name here" disabled="disabled" />
+                                        -->
+                                        <!--
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="dataset-filename">
+                                            <label class="custom-file-label" for="dataset-filename">Choose file</label>
+                                        </div>
+                                        -->
+
+                                        <button type="submit" class="btn btn-primary" id="btn-dataSet-upload"
+                                            onclick="doUploadData();">Upload data</button>
+                                    </div>
+                                </div>
+                                <div class="col-12">
                                     <label for="dataSet-list" class="form-label">Data Set List</label>
                                     <ol class="list-group" id="dataSet-list">
                                     </ol>
@@ -140,7 +161,7 @@
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#add-dataset-modal">Add</button>
-                                    <button type="submit" class="btn btn-primary" disabled id="btn-delete-dataSet"
+                                    <button type="button" class="btn btn-primary" disabled id="btn-delete-dataSet"
                                         onclick="deleteDataSet();">Delete</button>
                                 </div>
                                 <div class="col-md-6">
