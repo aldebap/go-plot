@@ -132,12 +132,12 @@
                                         aria-describedby="dataSet-help"></textarea>
                                     <div id="dataSet-help" class="form-text">Plot's data set</div>
                                 </div>
-                                <div class="col-md-6">
-                                    <input class="form-control" type="file" id="dataset-filename">
-                                </div>
-                                <div class="col-md-6">
-                                    <button type="submit" class="btn btn-primary" id="btn-dataSet-upload"
-                                        onclick="doUploadData();">Upload data</button>
+                                <div class="col-12">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#load-dataset-file-modal">Load from file</button>
+
+                                    </div>
                                 </div>
                                 <div class="col-12">
                                     <label for="dataSet-list" class="form-label">Data Set List</label>
@@ -253,6 +253,33 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary"
                             onclick="addDataSet(); $('#add-dataset-modal').modal('hide');">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- load dataset file modal -->
+        <div class="modal fade" id="load-dataset-file-modal" tabindex="-1"
+            aria-labelledby="load-dataset-file-modal-Label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="add-dataset-modal-Label">Load Dataset from file</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="row g-3">
+                            <div class="col-12">
+                                <input class="form-control" type="file" id="dataset-filename"
+                                    aria-describedby="dataset-filename-help" \>
+                                <div id="dataset-filename-help" class="form-text">Dataset filename</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="doUploadData(); $('#load-dataset-file-modal').modal('hide');">Load file</button>
                     </div>
                 </div>
             </div>
