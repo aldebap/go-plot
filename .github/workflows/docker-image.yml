@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: ["main"]
 
+env:
+  HOME_PATH: ${{ github.workspace }}
+  SOURCE_PATH: .
+  CMD_PATH: ./cmd
+  TEST_PATH: test
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -41,10 +47,13 @@ jobs:
         shell: bash
         run: |
           cd ${HOME_PATH}
+          pwd
+          ls -la --color
+          which ksh
           echo "TODO: "
 
       - name: Build Docker Image
         shell: bash
         run: |
           cd ${HOME_PATH}
-          ./cmd/build-webGoPlot.sh
+          ${CMD_PATH}/build-webGoPlot.sh
