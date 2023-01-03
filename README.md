@@ -1,5 +1,7 @@
 # go-plot
 
+[![Docker Image](https://github.com/aldebap/go-plot/actions/workflows/docker-image.yml/badge.svg)](https://github.com/aldebap/go-plot/actions/workflows/docker-image.yml)
+
 A Golang library with some Gnuplot features (in progress).
 For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 
