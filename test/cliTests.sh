@@ -8,7 +8,7 @@ export PLOT_FILE=test_plot_file
 export  CURRENT_DIR="$( pwd )"
 
 cd ..
-go build -o ./bin/go-plot
+cmd/build.sh
 cd ${CURRENT_DIR}
 
 #   test scenatio #01

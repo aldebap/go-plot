@@ -7,7 +7,7 @@ export REQUEST_FILE=test_plot_file
 export  CURRENT_DIR="$( pwd )"
 
 cd ..
-go build -o ./bin/go-api ./api/main.go
+cmd/build.sh
 cd ${CURRENT_DIR}
 
 #    execute the REST API server

@@ -1,4 +1,4 @@
-name: Create Docker Image
+name: Docker Image
 
 on:
   push:
@@ -25,11 +25,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install ksh
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
-
       - name: Install Docker
         shell: bash
         run: |
@@ -43,17 +38,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install docker-ce docker-ce-cli containerd.io
 
-      - name: Unit Tests
+      - name: Pack Docker Image
         shell: bash
         run: |
           cd ${HOME_PATH}
-          pwd
-          ls -la --color
-          which ksh
-          echo "TODO: "
-
-      - name: Build Docker Image
-        shell: bash
-        run: |
-          cd ${HOME_PATH}
-          ${CMD_PATH}/build-webGoPlot.sh
+          ${CMD_PATH}/package-webGoPlot.sh
