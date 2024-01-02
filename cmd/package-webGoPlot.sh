@@ -23,6 +23,8 @@ function packageTarget {
             DOCKER_FLAGS='--quiet'
         fi
 
+        #   variable PAT must be set to user's GitHub PAT (Personal Access Token)
+        echo ${PAT} | docker login ghcr.io -u ${GITHUB_USER} --password-stdin
         docker build --tag  $( echo ${PROJECT_TARGET} | tr [:upper:] [:lower:] ) --file ${PROJECT_DOCKER_FILE} ${DOCKER_FLAGS} .
         docker push $( echo ${PROJECT_TARGET} | tr [:upper:] [:lower:] )
     fi
