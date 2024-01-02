@@ -31,3 +31,5 @@ COPY --from=build /go-plot/bin/server ./bin/
 ENTRYPOINT ["/go-plot/bin/server", "-port", "8080", "-webAppDirectory", "/go-plot/web"]
 
 EXPOSE 8000
+
+LABEL org.opencontainers.image.source https://github.com/aldebap/go-plot

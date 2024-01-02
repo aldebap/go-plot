@@ -24,11 +24,14 @@ function packageTarget {
         fi
 
         docker build --tag  $( echo ${PROJECT_TARGET} | tr [:upper:] [:lower:] ) --file ${PROJECT_DOCKER_FILE} ${DOCKER_FLAGS} .
+        docker push $( echo ${PROJECT_TARGET} | tr [:upper:] [:lower:] )
     fi
 }
 
 TARGET=package
-PROJECT_TARGET=webGoPlot
+#PROJECT_TARGET=webGoPlot
+GITHUB_USER=aldebap
+PROJECT_TARGET=ghcr.io/${GITHUB_USER}/go-plot
 PROJECT_DOCKER_FILE=Dockerfile
 
 packageTarget
