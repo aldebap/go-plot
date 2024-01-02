@@ -20,7 +20,8 @@ function runPackageTarget {
 }
 
 TARGET=run
-PROJECT_TARGET=webGoPlot
+GITHUB_USER=aldebap
+PROJECT_TARGET=ghcr.io/${GITHUB_USER}/go-plot
 PORT_MAPPING_FLAGS='6502:8080'
 
 runPackageTarget

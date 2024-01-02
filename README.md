@@ -33,6 +33,16 @@ For more info on Gnuplot, visit [Gnuplot](http://gnuplot.info/)
 6. Web interface to set plot configuration and generate dynamic plots through the canvas endpoint;
 7. Dockerfile to serve Web interface and the REST API interface from a single container;
 
+### Quick start
+
+To simply run the latest version from Github's package, type the following on bash or Powershell:
+
+```sh
+docker run -d -p 8080:8080 ghcr.io/aldebap/go-plot
+```
+
+Then use your favorite browser to go to the following URI: ```localhost:8080/plot```
+
 ### Plot file samples
 
 ```gnuplot
@@ -75,8 +85,8 @@ plot [0:6.283184] sin(x)
 ### Features backlog (for v1.0 release)
 
 - [x] ~~Dataset upload button on Web Go-Plot;~~
-- [ ] Github's Web Go-Plot package;
-- [ ] help on how to run Web Go-Plot from Github's package;
+- [X] ~~Github's Web Go-Plot package;~~
+- [X] ~~help on how to run Web Go-Plot from Github's package;~~
 - [ ] Webassembly version of Go-Plot for Web;
 - [ ] configuration + generic test script;
 - [ ] fix bug in multiple plot titles;

@@ -31,7 +31,6 @@ function packageTarget {
 }
 
 TARGET=package
-#PROJECT_TARGET=webGoPlot
 GITHUB_USER=aldebap
 PROJECT_TARGET=ghcr.io/${GITHUB_USER}/go-plot
 PROJECT_DOCKER_FILE=Dockerfile

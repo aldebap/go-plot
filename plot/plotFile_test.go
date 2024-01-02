@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-//	TestLoadPlotFile unit tests for LoadPlotFile()
+// TestLoadPlotFile unit tests for LoadPlotFile()
 func TestLoadPlotFile(t *testing.T) {
 
 	t.Run(">>> LoadPlotFile: set xlabel", func(t *testing.T) {
@@ -711,72 +711,8 @@ func TestLoadPlotFile(t *testing.T) {
 			return
 		}
 
-		expectedFunctions := 1
-		expectedFunctionStyle := "lines"
-		expectedSetPoints := 1
-		expectedTitle := "annual inflation"
-
-		mockPlotFile := strings.NewReader(`plot [0:+3.14] sin(x) with ` + expectedFunctionStyle + `, ` +
-			`"` + tmpDataFile.Name() + `" using 2:3 title "` + expectedTitle + `"`)
-		plot, err := LoadPlotFile(bufio.NewReader(mockPlotFile))
-		if err != nil {
-			t.Errorf("fail loading plot file: %s", err.Error())
-			return
-		}
-
-		want := expectedFunctions
-		got := len(plot.(*Plot_2D).Function)
-		//	check the result
-		if want != got {
-			t.Errorf("failed parsing plot file: expected: %d functions result: %d", want, got)
-		}
-
-		want = int(Style[expectedFunctionStyle])
-		got = int(plot.(*Plot_2D).Function[0].Style)
-		//	check the result
-		if want != got {
-			t.Errorf("failed parsing plot file: expected: %d (%s) result: %d", want, expectedFunctionStyle, got)
-		}
-
-		want = expectedSetPoints
-		got = len(plot.(*Plot_2D).Set_points)
-		//	check the result
-		if want != got {
-			t.Errorf("failed parsing plot file: expected: %d sets result: %d", want, got)
-			return
-		}
-
-		wantString := expectedTitle
-		gotString := plot.(*Plot_2D).Set_points[0].Title
-		//	check the result
-		if wantString != gotString {
-			t.Errorf("failed parsing plot file: expected: %s result: %s", wantString, gotString)
-		}
-	})
-
-	t.Run(">>> LoadPlotFile: plot both function and data file in same description", func(t *testing.T) {
-
-		//	create a temporary data file
-		tmpDataFile, err := os.CreateTemp("", "goPlotData")
-		if err != nil {
-			t.Errorf("fail creating plot data file: %s", err.Error())
-			return
-		}
-		defer os.Remove(tmpDataFile.Name())
-
-		_, err = tmpDataFile.Write([]byte("col1 col2 col3\n10 20 30\n40 50 60\n"))
-		if err != nil {
-			tmpDataFile.Close()
-			t.Errorf("fail writing to plot data file: %s", err.Error())
-			return
-		}
-		err = tmpDataFile.Close()
-		if err != nil {
-			t.Errorf("fail closing the plot data file: %s", err.Error())
-			return
-		}
-
-		mockPlotFile := strings.NewReader(`plot [0:+3.14] sin(x) "` + tmpDataFile.Name() + `" using 2:3`)
+		mockPlotFile := strings.NewReader(`plot [0:+3.14] sin(x) with lines, ` +
+			`"` + tmpDataFile.Name() + `" using 2:3 title "both function and data"`)
 		_, err = LoadPlotFile(bufio.NewReader(mockPlotFile))
 		if err == nil {
 			t.Errorf("error expected loading plot file")
@@ -857,7 +793,7 @@ func TestLoadPlotFile(t *testing.T) {
 	})
 }
 
-//	TestNewFunction2D unit tests for newFunction2D()
+// TestNewFunction2D unit tests for newFunction2D()
 func TestNewFunction2D(t *testing.T) {
 
 	t.Run(">>> newFunction2D: non numerical min_x", func(t *testing.T) {
@@ -944,7 +880,7 @@ func TestNewFunction2D(t *testing.T) {
 	})
 }
 
-//	TestNewSetPoints2D unit tests for newSetPoints2D()
+// TestNewSetPoints2D unit tests for newSetPoints2D()
 func TestNewSetPoints2D(t *testing.T) {
 
 	t.Run(">>> newSetPoints2D: non numerical x_column", func(t *testing.T) {

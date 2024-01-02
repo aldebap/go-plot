@@ -12,7 +12,8 @@ export  VERBOSE='true'
 #   function to execute the "unit-test" target action
 function unitTestTarget {
 
-    local   GO_TEST_FLAGS=''
+    #local   GO_TEST_FLAGS=''
+    GO_TEST_FLAGS=''
 
     echo -e "[build] ${TARGET}: ${GREEN}running unit tests on package ${PACKAGE_TARGET}${NOCOLOR}"
 
